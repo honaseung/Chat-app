@@ -18,10 +18,6 @@ const Root = styled("div")(({ theme }) => {
 });
 
 function Home() {
-  const [open, setOpen] = useState(false);
-  const handleClose = () => setOpen(false);
-  const handleClick = () => setOpen(true);
-
   return (
     <Fragment>
       <Head>
@@ -41,9 +37,6 @@ function Home() {
         <Typography gutterBottom>
           <Link href="/user/regist">Regist</Link>
         </Typography>
-        <Button variant="contained" color="secondary" onClick={handleClick}>
-          Super Secret Password
-        </Button>
       </Root>
     </Fragment>
   );
