@@ -4,10 +4,13 @@ import UserForm from "../../components/UserForm";
 import useCreateRequest from "../../lib/create-request";
 import { validateEmail, validatePasswod } from "../../lib/validate";
 import Modal from "../../components/Modal";
+import { useRouter } from "next/router";
 
 const Login = () => {
   const [loginId, setLoginId] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+
+  const router = useRouter();
 
   const handleValue = (e, setErr) => {
     const { name, value } = e.target;
@@ -46,6 +49,7 @@ const Login = () => {
     [],
     (response) => {
       console.log(response);
+      // router.push();
     },
     null
   );

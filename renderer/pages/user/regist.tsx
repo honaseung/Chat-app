@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import { useState } from "react";
 import Link from "../../components/Link";
 import UserForm from "../../components/UserForm";
@@ -8,7 +9,8 @@ const Regist = () => {
   const [registId, setRegistId] = useState("");
   const [registPassword, setRegistPassword] = useState("");
   const [registPasswordConfirm, setRegistPasswordConfirm] = useState("");
-  // const [auth, setAuth] = useState("C");
+
+  const router = useRouter();
 
   const handleValue = (e, setErr) => {
     const { name, value } = e.target;
@@ -41,14 +43,6 @@ const Regist = () => {
         setRegistPasswordConfirm(value);
         break;
 
-      // case "user-password-confirm":
-      //   setUserPasswordConfirm(value);
-      //   break;
-
-      // case "user-auth":
-      //   setAuth(value);
-      //   break;
-
       default:
         break;
     }
@@ -65,6 +59,7 @@ const Regist = () => {
     [],
     (response) => {
       console.log(response);
+      router.push("login");
     },
     null
   );
