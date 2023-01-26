@@ -6,8 +6,7 @@ import {
   InputLabel,
 } from "@mui/material";
 import { useState } from "react";
-import FirebaseBtn from "./FirebaseBtn";
-import useCreateRequest from "../lib/create-request";
+import FirebaseButton from "./FirebaseButton";
 import Modal from "./Modal";
 
 const UserForm = ({
@@ -18,26 +17,23 @@ const UserForm = ({
   isRegist = false,
   handleValue,
   request,
-  callback,
-  condition = [],
+  sucCallback,
 }) => {
-  const [alertOpen, setAlertOpen] = useState(false);
-  const [checkIdRequest, checkIdCallback, checkIdCondition] = useCreateRequest(
-    "C",
-    "get",
-    "users",
-    {
-      id,
-      password,
-    },
-    (response) => {
-      console.log(response);
-      if (response.docs.length > 0) {
-        setAlertOpen(true);
-      }
-    },
-    id ? ["id", "==", id] : []
-  );
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalOption, setModalOption] = useState({
+    title: "",
+    content: "",
+  });
+  const [idErr, setIdErr] = useState(true);
+  const [passwordErr, setPasswordErr] = useState(true);
+  const [confirmPasswordErr, setConfirmPasswordErr] = useState(true);
+
+  const openModal = (param) => {
+    setModalOption({
+      title: param.code,
+      content: param.message,
+    });
+  };
   return (
     <>
       <Container maxWidth="xs">
@@ -45,34 +41,32 @@ const UserForm = ({
           <InputLabel htmlFor="input-id">ID</InputLabel>
           <FilledInput
             value={id}
-            onChange={(e) => handleValue(e)}
+            onChange={(e) => handleValue(e, setIdErr)}
             name="input-id"
             id="input-id"
             aria-describedby="ID"
+            type="email"
+            error={idErr}
           />
-          <FormHelperText id="ID">Let us know your ID.</FormHelperText>
-          {isRegist && (
-            <FirebaseBtn
-              request={checkIdRequest}
-              callback={checkIdCallback}
-              condition={checkIdCondition}
-            >
-              CHECK ID
-            </FirebaseBtn>
-          )}
+          <FormHelperText id="ID">
+            {idErr ? "email 을 적어주세요." : "올바르게 입력하셨습니다."}
+          </FormHelperText>
         </FormControl>
         <FormControl>
           <InputLabel htmlFor="input-password">PASSWORD</InputLabel>
           <FilledInput
             value={password}
-            onChange={(e) => handleValue(e)}
+            onChange={(e) => handleValue(e, setPasswordErr)}
             name="input-password"
             id="input-password"
             aria-describedby="PASSWORD"
             type="password"
+            error={passwordErr}
           />
           <FormHelperText id="PASSWORD">
-            We won't share your password.
+            {passwordErr
+              ? "최소 6자 에서 최대 10자"
+              : "올바르게 입력하셨습니다."}
           </FormHelperText>
         </FormControl>
         {isRegist && (
@@ -82,14 +76,18 @@ const UserForm = ({
             </InputLabel>
             <FilledInput
               value={passwordConfirm}
-              onChange={(e) => handleValue(e)}
+              onChange={(e) => handleValue(e, setConfirmPasswordErr)}
               name="input-password-confirm"
               id="input-password-confirm"
               aria-describedby="PASSWORD-CONFIRM"
               type="password"
+              disabled={passwordErr}
+              error={confirmPasswordErr}
             />
             <FormHelperText id="PASSWORD-CONFIRM">
-              Please Confirm your password.
+              {confirmPasswordErr
+                ? "동일하게 적어주세요."
+                : "올바르게 입력하셨습니다."}
             </FormHelperText>
           </FormControl>
           // <FormControl>
@@ -108,14 +106,19 @@ const UserForm = ({
           // </FormControl>
         )}
       </Container>
-      <FirebaseBtn request={request} callback={callback} condition={condition}>
+      <FirebaseButton
+        request={request}
+        sucCallback={sucCallback}
+        failCallback={openModal}
+        disabled={idErr || passwordErr || (isRegist && confirmPasswordErr)}
+      >
         {isRegist ? "REGIST" : "LOGIN"}
-      </FirebaseBtn>
+      </FirebaseButton>
       <Modal
-        title="ID 중복"
-        content="이미 존재하는 ID 입니다."
-        open={alertOpen}
-        setOpen={setAlertOpen}
+        title={modalOption.title}
+        content={modalOption.content}
+        open={modalOpen}
+        setOpen={setModalOpen}
       />
     </>
   );
