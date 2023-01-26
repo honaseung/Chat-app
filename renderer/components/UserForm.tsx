@@ -6,6 +6,7 @@ import {
   InputLabel,
 } from "@mui/material";
 import { useState } from "react";
+import getErrMsg from "../lib/errMsg";
 import FirebaseButton from "./FirebaseButton";
 import Modal from "./Modal";
 
@@ -27,11 +28,13 @@ const UserForm = ({
   const [passwordErr, setPasswordErr] = useState(true);
   const [confirmPasswordErr, setConfirmPasswordErr] = useState(true);
 
-  const openModal = (param) => {
+  const openErrModal = (error) => {
+    const [title, content] = getErrMsg(error.code);
     setModalOption({
-      title: param.code,
-      content: param.message,
+      title,
+      content,
     });
+    setModalOpen(true);
   };
   return (
     <>
@@ -94,7 +97,7 @@ const UserForm = ({
       <FirebaseButton
         request={request}
         sucCallback={sucCallback}
-        failCallback={openModal}
+        failCallback={openErrModal}
         disabled={idErr || passwordErr || (isRegist && confirmPasswordErr)}
       >
         {isRegist ? "REGIST" : "LOGIN"}
