@@ -1,21 +1,32 @@
 import { useState } from "react";
 import Link from "next/link";
 import UserForm from "../../components/UserForm";
-import FirebaseBtn from "../../components/FirebaseBtn";
 import useCreateRequest from "../../lib/create-request";
+import { validateEmail, validatePasswod } from "../../lib/validate";
+import Modal from "../../components/Modal";
 
 const Login = () => {
   const [loginId, setLoginId] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
 
-  const handleValue = (e) => {
+  const handleValue = (e, setErr) => {
     const { name, value } = e.target;
     switch (name) {
       case "input-id":
+        if (!validateEmail(value)) {
+          setErr(true);
+        } else {
+          setErr(false);
+        }
         setLoginId(value);
         break;
 
       case "input-password":
+        if (!validatePasswod(value)) {
+          setErr(true);
+        } else {
+          setErr(false);
+        }
         setLoginPassword(value);
         break;
 
@@ -24,18 +35,19 @@ const Login = () => {
     }
   };
 
-  const [loginRequest, loginCallback, loginCondition] = useCreateRequest(
-    "C",
+  const [loginRequest, loginSucCallback] = useCreateRequest(
+    "U",
     "get",
-    "users",
+    "",
     {
       id: loginId,
       password: loginPassword,
     },
+    [],
     (response) => {
       console.log(response);
     },
-    ["id", "==", loginId, "password", "==", loginPassword]
+    null
   );
 
   return (
@@ -45,8 +57,7 @@ const Login = () => {
         password={loginPassword}
         handleValue={handleValue}
         request={loginRequest}
-        callback={loginCallback}
-        condition={loginCondition}
+        sucCallback={loginSucCallback}
       />
       <Link href="/user/regist">GO TO REGIST</Link>
       <Link href="/home">HOME</Link>

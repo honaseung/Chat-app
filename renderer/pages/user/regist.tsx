@@ -1,15 +1,8 @@
-import {
-  FilledInput,
-  FormControl,
-  FormHelperText,
-  InputLabel,
-} from "@mui/material";
 import { useState } from "react";
 import Link from "../../components/Link";
 import UserForm from "../../components/UserForm";
-import FirebaseBtn from "../../components/FirebaseBtn";
-import Alert from "../../components/Modal";
 import useCreateRequest from "../../lib/create-request";
+import { validateEmail, validatePasswod } from "../../lib/validate";
 
 const Regist = () => {
   const [registId, setRegistId] = useState("");
@@ -17,18 +10,34 @@ const Regist = () => {
   const [registPasswordConfirm, setRegistPasswordConfirm] = useState("");
   // const [auth, setAuth] = useState("C");
 
-  const handleValue = (e) => {
+  const handleValue = (e, setErr) => {
     const { name, value } = e.target;
     switch (name) {
       case "input-id":
+        if (!validateEmail(value)) {
+          setErr(true);
+        } else {
+          setErr(false);
+        }
         setRegistId(value);
         break;
 
       case "input-password":
+        if (!validatePasswod(value)) {
+          setErr(true);
+        } else {
+          setErr(false);
+        }
         setRegistPassword(value);
+        setRegistPasswordConfirm("");
         break;
 
       case "input-password-confirm":
+        if (value !== registPassword) {
+          setErr(true);
+        } else {
+          setErr(false);
+        }
         setRegistPasswordConfirm(value);
         break;
 
@@ -45,17 +54,19 @@ const Regist = () => {
     }
   };
 
-  const [registRequest, registCallback] = useCreateRequest(
-    "C",
+  const [registRequest, registSucCallback] = useCreateRequest(
+    "U",
     "set",
-    "users",
+    "",
     {
       id: registId,
       password: registPassword,
     },
+    [],
     (response) => {
       console.log(response);
-    }
+    },
+    null
   );
 
   return (
@@ -68,7 +79,7 @@ const Regist = () => {
         handleValue={handleValue}
         isRegist
         request={registRequest}
-        callback={registCallback}
+        sucCallback={registSucCallback}
       />
       <Link href="/user/login">GO TO LOGIN</Link>
       <Link href="/home">HOME</Link>
