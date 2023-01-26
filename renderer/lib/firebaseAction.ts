@@ -9,6 +9,11 @@ import {
 } from "firebase/auth";
 import { useCreateWhere } from "../lib/create-query";
 
+/**
+ * @param request 인풋값을 담은 객체
+ * @param sucCallback 성공콜백함수
+ * @param failCallback 실패콜백함수
+ */
 export async function registUser(request, sucCallback, failCallback) {
   const { inputParams } = request;
   const auth = getAuth();
@@ -25,6 +30,11 @@ export async function registUser(request, sucCallback, failCallback) {
     });
 }
 
+/**
+ * @param request 인풋값을 담은 객체
+ * @param sucCallback 성공콜백함수
+ * @param failCallback 실패콜백함수
+ */
 export async function loginUser(request, sucCallback, failCallback) {
   const { inputParams } = request;
   const auth = getAuth();
@@ -37,6 +47,10 @@ export async function loginUser(request, sucCallback, failCallback) {
     });
 }
 
+/**
+ * @param sucCallback 성공콜백함수
+ * @param failCallback 실패콜백함수
+ */
 export async function logoutUser(sucCallback, failCallback) {
   const auth = getAuth();
   signOut(auth)
@@ -48,6 +62,9 @@ export async function logoutUser(sucCallback, failCallback) {
     });
 }
 
+/**
+ * @deprecated
+ */
 export async function commonAddDoc(request, sucCallback, failCallback) {
   const { collectionType, inputParams } = request;
   await addDoc(collection(database, collectionType), inputParams).then(
@@ -57,6 +74,9 @@ export async function commonAddDoc(request, sucCallback, failCallback) {
   );
 }
 
+/**
+ * @deprecated
+ */
 export async function commonGetDocs(request, sucCallback, failCallback) {
   const { collectionType, condition } = request;
   let q = null;
@@ -71,6 +91,11 @@ export async function commonGetDocs(request, sucCallback, failCallback) {
   });
 }
 
+/**
+ * @param request 인풋값을 담은 객체
+ * @param sucCallback 성공콜백함수
+ * @param failCallback 실패콜백함수
+ */
 export async function realtimeAddDoc(request, sucCallback, failCallback) {
   const { collectionType, inputParams } = request;
   await set(ref(realtimeDatabase, collectionType), inputParams)
@@ -82,6 +107,11 @@ export async function realtimeAddDoc(request, sucCallback, failCallback) {
     });
 }
 
+/**
+ * @param request 인풋값을 담은 객체
+ * @param sucCallback 성공콜백함수
+ * @param failCallback 실패콜백함수
+ */
 export async function realtimeGetDocs(request, sucCallback, failCallback) {
   const { collectionType } = request;
   await get(child(ref(realtimeDatabase), collectionType))
