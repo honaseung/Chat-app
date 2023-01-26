@@ -13,7 +13,6 @@ const UserForm = ({
   id,
   password,
   passwordConfirm = "",
-  // auth,
   isRegist = false,
   handleValue,
   request,
@@ -90,20 +89,6 @@ const UserForm = ({
                 : "올바르게 입력하셨습니다."}
             </FormHelperText>
           </FormControl>
-          // <FormControl>
-          //   <InputLabel id="select-auth-label">AUTH</InputLabel>
-          //   <Select
-          //     labelId="select-auth-label"
-          //     id="select-auth"
-          //     value={auth}
-          //     label="AUTH"
-          //     onChange={(e) => handleValue(e)}
-          //     name="user-auth"
-          //   >
-          //     <MenuItem value="C">COMMON</MenuItem>
-          //     <MenuItem value="A">ADMIN</MenuItem>
-          //   </Select>
-          // </FormControl>
         )}
       </Container>
       <FirebaseButton
