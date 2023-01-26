@@ -3,8 +3,9 @@ export default function useCreateRequest(
   actionType,
   collectionType,
   inputParams,
-  callback,
-  condition = null
+  condition,
+  sucCallback,
+  failCallback
 ) {
   return [
     {
@@ -12,8 +13,9 @@ export default function useCreateRequest(
       actionType,
       collectionType,
       inputParams,
+      condition,
     },
-    callback,
-    condition,
+    sucCallback,
+    failCallback,
   ];
 }
