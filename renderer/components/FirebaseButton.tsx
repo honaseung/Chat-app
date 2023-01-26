@@ -1,41 +1,73 @@
 import { Button } from "@mui/material";
+import { useState } from "react";
 import {
-  firebaseCommonAddDoc,
-  firebaseCommonGetDocs,
-  firebaseRealtimeAddDoc,
-  firebaseRealtimeGetDocs,
+  commonAddDoc,
+  commonGetDocs,
+  realtimeAddDoc,
+  realtimeGetDocs,
+  registUser,
+  loginUser,
+  logoutUser,
 } from "../lib/firebaseAction";
+import Loading from "./Loading";
 
-const FirebaseButton = ({ request, callback, children }) => {
-  const firebaseAction = (request, callback) => {
+const FirebaseButton = ({
+  request,
+  sucCallback,
+  failCallback,
+  disabled,
+  children,
+}) => {
+  const [loading, setLoading] = useState(false);
+  const firebaseAction = (request, sucCallback, failCallback) => {
     const { databaseType, actionType } = request;
+    setLoading(true);
     switch (databaseType) {
       case "C":
         if (actionType === "set") {
-          firebaseCommonAddDoc(request, callback);
+          commonAddDoc(request, sucCallback, failCallback);
         }
         if (actionType === "get") {
-          firebaseCommonGetDocs(request, callback);
+          commonGetDocs(request, sucCallback, failCallback);
         }
         break;
 
       case "R":
         if (actionType === "set") {
-          firebaseRealtimeAddDoc(request, callback);
+          realtimeAddDoc(request, sucCallback, failCallback);
         }
         if (actionType === "get") {
-          firebaseRealtimeGetDocs(request, callback);
+          realtimeGetDocs(request, sucCallback, failCallback);
+        }
+        break;
+
+      case "U":
+        if (actionType === "set") {
+          registUser(request, sucCallback, failCallback);
+        }
+        if (actionType === "get") {
+          loginUser(request, sucCallback, failCallback);
+        }
+        if (actionType === "out") {
+          logoutUser(sucCallback, failCallback);
         }
         break;
 
       default:
         break;
     }
+    setLoading(false);
   };
   return (
-    <Button onClick={() => firebaseAction(request, callback)}>
-      {children}
-    </Button>
+    <>
+      <Button
+        disabled={disabled}
+        onClick={() => firebaseAction(request, sucCallback, failCallback)}
+      >
+        {children}
+      </Button>
+      <Loading loading={loading} />
+    </>
   );
 };
 
