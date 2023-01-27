@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Link from "next/link";
+import Link from "../../components/Link";
 import UserForm from "../../components/UserForm";
 import useCreateRequest from "../../lib/create-request";
 import { validateEmail, validatePasswod } from "../../lib/validate";
@@ -49,7 +49,7 @@ const Login = () => {
     [],
     (response) => {
       console.log(response);
-      // router.push();
+      router.push("users");
     },
     null
   );
