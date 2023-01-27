@@ -7,7 +7,15 @@ import {
   DialogTitle,
 } from "@mui/material";
 
-const Modal = ({ title, content, open, setOpen, handleClose = null }) => {
+const Modal = ({
+  title,
+  content,
+  open,
+  setOpen,
+  type = "",
+  onConfirm = null,
+  handleClose = null,
+}) => {
   const onClose = () => {
     if (handleClose) {
       handleClose();
@@ -22,9 +30,20 @@ const Modal = ({ title, content, open, setOpen, handleClose = null }) => {
           <DialogContentText>{content}</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button color="primary" onClick={onClose}>
-            OK
-          </Button>
+          {type === "confirm" ? (
+            <div>
+              <Button color="secondary" onClick={onClose}>
+                NO
+              </Button>
+              <Button color="primary" onClick={onConfirm}>
+                OK
+              </Button>
+            </div>
+          ) : (
+            <Button color="primary" onClick={onClose}>
+              OK
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
     </>
