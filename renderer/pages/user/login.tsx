@@ -1,14 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "../../components/Link";
 import UserForm from "../../components/UserForm";
 import useCreateRequest from "../../lib/create-request";
 import { validateEmail, validatePasswod } from "../../lib/validate";
-import Modal from "../../components/Modal";
 import { useRouter } from "next/router";
+import Modal from "../../components/Modal";
+import getErrMsg from "../../lib/errMsg";
+import useEnhancedEffect from "@mui/material/utils/useEnhancedEffect";
+import { listtUsers } from "../../lib/firebaseAction";
 
 const Login = () => {
   const [loginId, setLoginId] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+
+  // const [modalOpen, setModalOpen] = useState(false);
+  // const [modalOption, setModalOption] = useState({
+  //   title: "",
+  //   content: "",
+  // });
 
   const router = useRouter();
 
@@ -65,6 +74,12 @@ const Login = () => {
       />
       <Link href="/user/regist">GO TO REGIST</Link>
       <Link href="/home">HOME</Link>
+      {/* <Modal
+        title={modalOption.title}
+        content={modalOption.content}
+        open={modalOpen}
+        setOpen={setModalOpen}
+      /> */}
     </>
   );
 };
