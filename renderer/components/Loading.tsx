@@ -2,9 +2,8 @@ const Loading = ({ loading }) => {
   return (
     <>
       {loading && (
-        <div>
+        <div className="loading-background">
           <img src="/images/loading.gif" />
-          <img src="/images/chat-logo.png" />
         </div>
       )}
     </>
