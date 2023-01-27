@@ -10,13 +10,19 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import FirebaseButton from "../../components/FirebaseButton";
 import useCreateRequest from "../../lib/create-request";
-import { listtUsers } from "../../lib/firebaseAction";
+import { getUser, listUsers, realtimeAddDoc } from "../../lib/firebaseAction";
 import User from "../../components/User";
 import Modal from "../../components/Modal";
+import {
+  createChatRoomCollection,
+  replaceAllSpecialChar,
+} from "../../lib/utils";
 
 const Users = () => {
+  const user = getUser();
+
   useEffect(() => {
-    listtUsers(
+    listUsers(
       (response) => {
         const users = [];
         response.users.forEach((user) => {
@@ -32,7 +38,11 @@ const Users = () => {
   }, []);
 
   const [users, setUsers] = useState([]);
-  // const [targetUsers, setTargetUsers] = useState([]);
+  const [targetUser, setTargetUser] = useState({
+    displayName: "",
+    email: "",
+    phoneNumber: "",
+  });
   const [modalOption, setModalOption] = useState({
     title: "",
     content: "",
@@ -40,16 +50,6 @@ const Users = () => {
   const [modalOpen, setModalOpen] = useState(false);
 
   const router = useRouter();
-
-  // useEffect(() => {
-  //   const title = "초대";
-  //   let content = "";
-  //   targetUsers.forEach((user) => {
-  //     content +=
-  //       user.id + " " + user.displayName + " " + user.phoneNumber + "\n";
-  //   });
-  //   setModalOption({ ...modalOption, title });
-  // }, [targetUsers]);
 
   const [logoutReqeust, logoutSucCallback, logoutFailCallback] =
     useCreateRequest(
@@ -67,18 +67,47 @@ const Users = () => {
 
   const handleChat = (e, info) => {
     const { checked } = e.target;
+    const { displayName, email, phoneNumber } = info;
     const content = info.dispalyName + "(" + info.email + ")";
     const title = checked ? "초대" : "나가기";
     setModalOption({ title, content });
-    // if (checked) {
-    //   setTargetUsers([...targetUsers, info]);
-    // } else {
-    //   setTargetUsers(
-    //     targetUsers.filter((user) => {
-    //       user.email !== info.email;
-    //     })
-    //   );
-    // }
+    setTargetUser({
+      displayName,
+      email,
+      phoneNumber,
+    });
+  };
+
+  const invite = () => {
+    targetUser.email;
+    realtimeAddDoc(
+      {
+        collectionType:
+          "chat/" +
+          createChatRoomCollection(user.phoneNumber, targetUser.phoneNumber),
+        inputParams: {
+          members: {
+            [user.phoneNumber]: user.email,
+            [targetUser.phoneNumber]: targetUser.email,
+          },
+          [new Date().getTime() +
+          "-" +
+          replaceAllSpecialChar(user.email, "_") +
+          "-" +
+          user.displayName]:
+            user.email +
+            " (이)가 " +
+            targetUser.email +
+            " (을)를 " +
+            "초대하였습니다.",
+        },
+      },
+      (response) => {
+        router.push("../chat/rooms");
+      },
+      (error) => console.log(error)
+    );
+    router.push("../chat/rooms");
   };
 
   return (
@@ -132,7 +161,7 @@ const Users = () => {
       >
         INVITE
       </FirebaseButton> */}
-      <Button onClick={() => router.push("../chat/rooms")}>INVITE</Button>
+      <Button onClick={invite}>INVITE</Button>
       <Modal
         title={modalOption.title}
         content={modalOption.content}
