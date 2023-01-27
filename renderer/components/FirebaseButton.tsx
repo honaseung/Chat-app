@@ -20,8 +20,8 @@ const FirebaseButton = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const firebaseAction = (request, sucCallback, failCallback) => {
-    const { databaseType, actionType } = request;
     setLoading(true);
+    const { databaseType, actionType } = request;
     switch (databaseType) {
       case "C":
         if (actionType === "set") {
@@ -43,6 +43,7 @@ const FirebaseButton = ({
 
       case "U":
         if (actionType === "set") {
+          console.log(request);
           registUser(request, sucCallback, failCallback);
         }
         if (actionType === "get") {
