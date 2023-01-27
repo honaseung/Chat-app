@@ -1,5 +1,10 @@
-import { collection, query, getDocs, addDoc } from "firebase/firestore";
-import { ref, child, get, set } from "firebase/database";
+import {
+  collection,
+  query as firesotreQ,
+  getDocs,
+  addDoc,
+} from "firebase/firestore";
+import { ref, child, get, set, query, equalTo } from "firebase/database";
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import {
   auth,
@@ -8,7 +13,10 @@ import {
   cmmAuth,
 } from "../../firebase-config";
 
-import { useCreateWhere } from "../lib/create-query";
+import {
+  useCreateWhere,
+  useRealtimeDatabaseCreateWhere,
+} from "../lib/create-query";
 
 /**
  * @param request 인풋값을 담은 객체
@@ -16,7 +24,20 @@ import { useCreateWhere } from "../lib/create-query";
  * @param failCallback 실패콜백함수
  * @description 사용자 등록 함수
  */
-export async function listtUsers(sucCallback, failCallback) {
+export function getUser() {
+  const user = cmmAuth.currentUser;
+  if (user !== null) {
+    return user;
+  }
+}
+
+/**
+ * @param request 인풋값을 담은 객체
+ * @param sucCallback 성공콜백함수
+ * @param failCallback 실패콜백함수
+ * @description 사용자 등록 함수
+ */
+export async function listUsers(sucCallback, failCallback) {
   await auth
     .listUsers()
     .then((response) => {
@@ -113,11 +134,11 @@ export async function commonAddDoc(request, sucCallback, failCallback) {
  * @description  firestore 에 읽기 함수
  */
 export async function commonGetDocs(request, sucCallback, failCallback) {
-  const { collectionType, condition } = request;
+  const { collectionType, condition = [] } = request;
   let q = null;
   if (condition.length > 0) {
     const queryConstraints = useCreateWhere(condition);
-    q = query(collection(firestore, collectionType), ...queryConstraints);
+    q = firesotreQ(collection(firestore, collectionType), ...queryConstraints);
   } else {
     q = collection(firestore, collectionType);
   }
@@ -138,7 +159,7 @@ export async function commonGetDocs(request, sucCallback, failCallback) {
  */
 export async function realtimeAddDoc(request, sucCallback, failCallback) {
   const { collectionType, inputParams } = request;
-  console.log(inputParams);
+  console.log(request);
   await set(ref(realtimeDatabase, collectionType), inputParams)
     .then((response) => {
       if (sucCallback) sucCallback(response);
@@ -155,8 +176,15 @@ export async function realtimeAddDoc(request, sucCallback, failCallback) {
  * @description realtime Database 읽기 함수
  */
 export async function realtimeGetDocs(request, sucCallback, failCallback) {
-  const { collectionType } = request;
-  await get(child(ref(realtimeDatabase), collectionType))
+  const { collectionType, condition = [] } = request;
+  let q = null;
+  if (condition.length > 0) {
+    const queryConstraints = useRealtimeDatabaseCreateWhere(condition);
+    q = query(ref(realtimeDatabase), ...queryConstraints);
+  } else {
+    q = child(ref(realtimeDatabase), collectionType);
+  }
+  await get(q)
     .then((response) => {
       if (sucCallback) sucCallback(response);
     })
