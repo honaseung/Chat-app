@@ -5,15 +5,18 @@ import {
   FormHelperText,
   InputLabel,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import useCreateRequest from "../lib/create-request";
 import getErrMsg from "../lib/errMsg";
 import FirebaseButton from "./FirebaseButton";
 import Modal from "./Modal";
 
 const UserForm = ({
   id,
+  name = "",
   password,
   passwordConfirm = "",
+  number = "",
   isRegist = false,
   handleValue,
   request,
@@ -25,10 +28,52 @@ const UserForm = ({
     content: "",
   });
   const [idErr, setIdErr] = useState(true);
+  // const [idCkeckErr, setIdCkeckErr] = useState(true);
+  const [numberErr, setNumberErr] = useState(true);
   const [passwordErr, setPasswordErr] = useState(true);
   const [confirmPasswordErr, setConfirmPasswordErr] = useState(true);
 
+  // useEffect(() => {
+  //   setIdCkeckErr(true);
+  // }, [id]);
+
+  // const [checkIdRequest, checkIdSucCallback, checkIdFailCallback] =
+  //   useCreateRequest(
+  //     "C",
+  //     "get",
+  //     "users",
+  //     {
+  //       id,
+  //       name,
+  //       password,
+  //     },
+  //     ["id", "==", id],
+  //     (response) => {
+  //       if (response.docs.length > 0) {
+  //         const [title, content] = getErrMsg("auth/email-already-in-use");
+  //         setModalOption({
+  //           title,
+  //           content,
+  //         });
+  //         setIdCkeckErr(true);
+  //         setModalOpen(true);
+  //       } else {
+  //         setIdCkeckErr(false);
+  //       }
+  //     },
+  //     (error) => {
+  //       const [title, content] = getErrMsg(error.code);
+  //       setModalOption({
+  //         title,
+  //         content,
+  //       });
+  //       setIdCkeckErr(true);
+  //       setModalOpen(true);
+  //     }
+  //   );
+
   const openErrModal = (error) => {
+    console.log(error.code, error.message);
     const [title, content] = getErrMsg(error.code);
     setModalOption({
       title,
@@ -36,9 +81,11 @@ const UserForm = ({
     });
     setModalOpen(true);
   };
+
   return (
     <>
       <Container maxWidth="xs">
+        {/* <InputBase type="file" /> */}
         <FormControl>
           <InputLabel htmlFor="input-id">ID</InputLabel>
           <FilledInput
@@ -53,7 +100,50 @@ const UserForm = ({
           <FormHelperText id="ID">
             {idErr ? "email 을 적어주세요." : "올바르게 입력하셨습니다."}
           </FormHelperText>
+          {/* {isRegist && (
+            <FirebaseButton
+              request={checkIdRequest}
+              sucCallback={checkIdSucCallback}
+              failCallback={checkIdFailCallback}
+              disabled={idErr || !idCkeckErr}
+            >
+              {idCkeckErr ? "👉 CHECK ID" : "📌 CHECKED"}
+            </FirebaseButton>
+          )} */}
         </FormControl>
+        {isRegist && (
+          <FormControl>
+            <InputLabel htmlFor="input-name">NAME</InputLabel>
+            <FilledInput
+              value={name}
+              onChange={(e) => handleValue(e)}
+              name="input-name"
+              id="input-name"
+              aria-describedby="NAME"
+            />
+            <FormHelperText id="NAME">
+              생략시에는 ID 가 이름이 됩니다.
+            </FormHelperText>
+          </FormControl>
+        )}
+        {isRegist && (
+          <FormControl>
+            <InputLabel htmlFor="input-number">NUMBER</InputLabel>
+            <FilledInput
+              value={number}
+              onChange={(e) => handleValue(e, setNumberErr)}
+              name="input-number"
+              id="input-number"
+              aria-describedby="NUMBER"
+              error={numberErr}
+            />
+            <FormHelperText id="NUMBER">
+              {numberErr
+                ? "핸드폰 번호를 입력해주세요."
+                : "올바르게 입력하셨습니다."}
+            </FormHelperText>
+          </FormControl>
+        )}
         <FormControl>
           <InputLabel htmlFor="input-password">PASSWORD</InputLabel>
           <FilledInput
@@ -98,7 +188,11 @@ const UserForm = ({
         request={request}
         sucCallback={sucCallback}
         failCallback={openErrModal}
-        disabled={idErr || passwordErr || (isRegist && confirmPasswordErr)}
+        disabled={
+          idErr ||
+          passwordErr ||
+          (isRegist && (confirmPasswordErr || numberErr))
+        }
       >
         {isRegist ? "REGIST" : "LOGIN"}
       </FirebaseButton>
