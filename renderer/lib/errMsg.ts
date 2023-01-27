@@ -10,6 +10,8 @@ export default function getErrMsg(code: string) {
       return ["잘못된 비밀번호", "비밀번호가 틀렸습니다."];
     case "auth/email-already-in-use":
       return ["계정 중복", "이미 존재하는 계정입니다."];
+    case "auth/phone-number-already-exists":
+      return ["번호 중복", "이미 존재하는 핸드폰 번호입니다."];
     default:
       return ["오류", "관리자에게 문의하세요."];
   }
