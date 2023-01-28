@@ -1,4 +1,4 @@
-import { Button, Switch, TableCell, TableRow } from "@mui/material";
+import { Switch, TableCell, TableRow } from "@mui/material";
 
 const User = ({
   displayName,
@@ -6,6 +6,7 @@ const User = ({
   lastSignInTime,
   phoneNumber,
   handleChat,
+  mine,
 }) => {
   return (
     <>
@@ -15,16 +16,13 @@ const User = ({
         <TableCell align="center">{lastSignInTime}</TableCell>
         <TableCell align="center">{phoneNumber}</TableCell>
         <TableCell align="center">
-          <Switch
-            // checked={checked}
-            onChange={(e) => handleChat(e, { displayName, email, phoneNumber })}
-            // inputProps={{ "aria-label": "controlled" }}
-          />
-          <Button
-            onClick={(e) => handleChat(e, { displayName, email, phoneNumber })}
-          >
-            초대
-          </Button>
+          {!mine && (
+            <Switch
+              onChange={(e) =>
+                handleChat(e, { displayName, email, phoneNumber })
+              }
+            />
+          )}
         </TableCell>
       </TableRow>
     </>
