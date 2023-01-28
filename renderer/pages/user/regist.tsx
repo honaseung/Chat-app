@@ -1,8 +1,9 @@
 import { useRouter } from "next/router";
 import { useState } from "react";
 import Link from "../../components/Link";
+import Loading from "../../components/Loading";
 import UserForm from "../../components/UserForm";
-import useCreateRequest from "../../lib/create-request";
+import { registUser } from "../../lib/firebaseApi";
 import {
   validateEmail,
   validatePasswod,
@@ -15,6 +16,8 @@ const Regist = () => {
   const [registPassword, setRegistPassword] = useState("");
   const [registPhoneNumber, setRegistPhoneNumber] = useState("");
   const [registPasswordConfirm, setRegistPasswordConfirm] = useState("");
+
+  const [loading, setLoading] = useState(false);
 
   const router = useRouter();
 
@@ -67,23 +70,27 @@ const Regist = () => {
     }
   };
 
-  const [registRequest, registSucCallback] = useCreateRequest(
-    "U",
-    "set",
-    "",
-    {
-      email: registId,
-      displayName: registName ? registName : registId,
-      phoneNumber: "+82" + registPhoneNumber.slice(1),
-      password: registPassword,
-    },
-    [],
-    (response) => {
-      console.log(response);
-      router.push("login");
-    },
-    null
-  );
+  const regist = (failCallback) => {
+    setLoading(true);
+    registUser(
+      {
+        inputParams: {
+          email: registId,
+          displayName: registName ? registName : registId.split("@")[0],
+          phoneNumber: "+82" + registPhoneNumber.slice(1),
+          password: registPassword,
+        },
+      },
+      () => {
+        setLoading(false);
+        router.push("login");
+      },
+      (error) => {
+        setLoading(false);
+        failCallback(error);
+      }
+    );
+  };
 
   return (
     <>
@@ -95,11 +102,11 @@ const Regist = () => {
         name={registName}
         handleValue={handleValue}
         isRegist
-        request={registRequest}
-        sucCallback={registSucCallback}
+        request={regist}
       />
       <Link href="/user/login">GO TO LOGIN</Link>
       <Link href="/home">HOME</Link>
+      {loading && <Loading />}
     </>
   );
 };
