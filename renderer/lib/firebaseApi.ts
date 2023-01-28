@@ -22,11 +22,9 @@ import {
   cmmAuth,
 } from "../../firebase-config";
 
-import {
-  useCreateWhere,
-  useRealtimeDatabaseCreateWhere,
-} from "../lib/create-query";
+import { useCreateWhere, useRealtimeDatabaseCreateWhere } from "./create-query";
 import { replaceAllSpecialChar } from "./utils";
+import { Irequest } from "../type/firebaseApi";
 
 /**
  * @param request 인풋값을 담은 객체
@@ -47,7 +45,7 @@ export function getUser() {
  * @param failCallback 실패콜백함수
  * @description 사용자 등록 함수
  */
-export async function listUsers(sucCallback, failCallback) {
+export async function listUsers(sucCallback: Function, failCallback: Function) {
   await auth
     .listUsers()
     .then((response) => {
@@ -64,7 +62,11 @@ export async function listUsers(sucCallback, failCallback) {
  * @param failCallback 실패콜백함수
  * @description 사용자 등록 함수
  */
-export async function registUser(request, sucCallback, failCallback) {
+export async function registUser(
+  request: Irequest,
+  sucCallback: Function,
+  failCallback: Function
+) {
   const { inputParams } = request;
   await auth
     .createUser({
@@ -92,7 +94,11 @@ export async function registUser(request, sucCallback, failCallback) {
  * @param failCallback 실패콜백함수
  * @description 사용자 로그인 함수
  */
-export async function loginUser(request, sucCallback, failCallback) {
+export async function loginUser(
+  request: Irequest,
+  sucCallback: Function,
+  failCallback: Function
+) {
   const { inputParams } = request;
   await signInWithEmailAndPassword(
     cmmAuth,
@@ -112,7 +118,10 @@ export async function loginUser(request, sucCallback, failCallback) {
  * @param failCallback 실패콜백함수
  * @description 사용자 로그 아웃 함수
  */
-export async function logoutUser(sucCallback, failCallback) {
+export async function logoutUser(
+  sucCallback: Function,
+  failCallback: Function
+) {
   signOut(cmmAuth)
     .then((response) => {
       if (sucCallback) sucCallback(response);
@@ -126,7 +135,11 @@ export async function logoutUser(sucCallback, failCallback) {
  * @deprecated
  * @description firestore 에 저장 함수
  */
-export async function commonAddDoc(request, sucCallback, failCallback) {
+export async function commonAddDoc(
+  request: Irequest,
+  sucCallback: Function,
+  failCallback: Function
+) {
   const { collectionType, inputParams } = request;
   await addDoc(collection(firestore, collectionType), inputParams)
     .then((response) => {
@@ -141,7 +154,11 @@ export async function commonAddDoc(request, sucCallback, failCallback) {
  * @deprecated
  * @description  firestore 에 읽기 함수
  */
-export async function commonGetDocs(request, sucCallback, failCallback) {
+export async function commonGetDocs(
+  request: Irequest,
+  sucCallback: Function,
+  failCallback: Function
+) {
   const { collectionType, condition = [] } = request;
   let q = null;
   if (condition.length > 0) {
@@ -165,7 +182,11 @@ export async function commonGetDocs(request, sucCallback, failCallback) {
  * @param failCallback 실패콜백함수
  * @description realtime Database 저장 함수
  */
-export async function realtimeAddDoc(request, sucCallback, failCallback) {
+export async function realtimeAddDoc(
+  request: Irequest,
+  sucCallback: Function,
+  failCallback: Function
+) {
   const { collectionType, inputParams } = request;
   await set(ref(realtimeDatabase, collectionType), inputParams)
     .then((response) => {
@@ -182,7 +203,11 @@ export async function realtimeAddDoc(request, sucCallback, failCallback) {
  * @param failCallback 실패콜백함수
  * @description realtime Database 읽기 함수
  */
-export async function realtimeGetDocs(request, sucCallback, failCallback) {
+export async function realtimeGetDocs(
+  request: Irequest,
+  sucCallback: Function,
+  failCallback: Function
+) {
   const { collectionType, condition = [] } = request;
   let q = null;
   if (condition.length > 0) {
@@ -206,7 +231,10 @@ export async function realtimeGetDocs(request, sucCallback, failCallback) {
  * @param failCallback 실패콜백함수
  * @description realtime Database 읽기 함수
  */
-export async function realtimeGetRoomDocs(sucCallback, failCallback) {
+export async function realtimeGetRoomDocs(
+  sucCallback: Function,
+  failCallback: Function
+) {
   const userInfo = cmmAuth.currentUser;
   const queryConstraints = useRealtimeDatabaseCreateWhere([
     replaceAllSpecialChar(userInfo.email, "_"),
@@ -228,18 +256,19 @@ export async function realtimeGetRoomDocs(sucCallback, failCallback) {
  * @param failCallback 실패콜백함수
  * @description realtime Database 읽기 함수
  */
-export async function realtimeExitRoomDocs(request, sucCallback, failCallback) {
+export async function realtimeExitRoomDocs(
+  request: Irequest,
+  sucCallback: Function
+) {
   const { collectionType, inputParams } = request;
-  console.log(collectionType.replace(`-${inputParams}_`, ""));
-  const newCollectionType = collectionType.replace(`-${inputParams}`, "");
+  const newCollectionType = collectionType.replace(
+    `-${inputParams.changedId}`,
+    ""
+  );
   await get(child(ref(realtimeDatabase), collectionType)).then((data) => {
-    console.log("remove", collectionType);
     remove(child(ref(realtimeDatabase), collectionType)).then((response) => {
-      console.log("remove", response);
-      console.log("set", newCollectionType);
       set(child(ref(realtimeDatabase), newCollectionType), data.val()).then(
         (response) => {
-          console.log("set", response);
           if (sucCallback) sucCallback();
         }
       );
@@ -253,13 +282,9 @@ export async function realtimeExitRoomDocs(request, sucCallback, failCallback) {
  * @param failCallback 실패콜백함수
  * @description realtime Database 읽기 함수
  */
-export async function realtimeListenOn(request, sucCallback, failCallback) {
+export async function realtimeListenOn(request: Irequest, sucCallback) {
   const { collectionType } = request;
-  await onChildAdded(
-    child(ref(realtimeDatabase), collectionType),
-    sucCallback,
-    failCallback
-  );
+  onChildAdded(child(ref(realtimeDatabase), collectionType), sucCallback);
 }
 /**
  * @param request 인풋값을 담은 객체
@@ -267,7 +292,7 @@ export async function realtimeListenOn(request, sucCallback, failCallback) {
  * @param failCallback 실패콜백함수
  * @description realtime Database 읽기 함수
  */
-export async function realtimeListenOff(request) {
+export async function realtimeListenOff(request: Irequest) {
   const { collectionType } = request;
   await off(child(ref(realtimeDatabase), collectionType), "child_added");
 }

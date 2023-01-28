@@ -7,7 +7,7 @@ import { useRouter } from "next/router";
 import Modal from "../../components/Modal";
 import getErrMsg from "../../lib/errMsg";
 import useEnhancedEffect from "@mui/material/utils/useEnhancedEffect";
-import { listtUsers } from "../../lib/firebaseAction";
+import { listUsers } from "../../lib/firebaseApi";
 
 const Login = () => {
   const [loginId, setLoginId] = useState("");
