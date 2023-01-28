@@ -7,7 +7,7 @@ import {
   realtimeGetDocs,
   realtimeListenOff,
   realtimeListenOn,
-} from "../../lib/firebaseAction";
+} from "../../lib/firebaseApi";
 import {
   replaceAllSpecialChar,
   createChatRoomCollection,
@@ -75,14 +75,10 @@ const Room = () => {
   const [text, setText] = useState("");
 
   useEffect(() => {
-    realtimeListenOn(
-      { collectionType },
-      (response) => {
-        console.log("realtimeListenOn");
-        getConversation();
-      },
-      (error) => console.log(error)
-    );
+    realtimeListenOn({ collectionType }, () => {
+      console.log("realtimeListenOn");
+      getConversation();
+    });
   }, []);
 
   const goToRooms = () => {
@@ -92,20 +88,19 @@ const Room = () => {
   };
 
   const exitRoom = async () => {
-    const inputParams = replaceAllSpecialChar(user.email, "_");
+    const changedId = replaceAllSpecialChar(user.email, "_");
     await realtimeListenOff({ collectionType });
     await realtimeExitRoomDocs(
       {
         collectionType,
-        inputParams,
+        inputParams: { changedId },
       },
       () => {
         addMessage(
           `${user.email} 님이 나가셨습니다.`,
-          collectionType.replace(`-${inputParams}`, "")
+          collectionType.replace(`-${changedId}`, "")
         );
-      },
-      null
+      }
     );
     router.push("rooms");
   };

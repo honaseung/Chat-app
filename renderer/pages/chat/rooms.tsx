@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getUser, realtimeGetDocs } from "../../lib/firebaseAction";
+import { getUser, realtimeGetDocs } from "../../lib/firebaseApi";
 import { Button } from "@mui/material";
 import { useRouter } from "next/router";
 import { createLocaleDateString, replaceAllSpecialChar } from "../../lib/utils";

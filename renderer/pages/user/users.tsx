@@ -10,13 +10,14 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import FirebaseButton from "../../components/FirebaseButton";
 import useCreateRequest from "../../lib/create-request";
-import { getUser, listUsers, realtimeAddDoc } from "../../lib/firebaseAction";
+import { getUser, listUsers, realtimeAddDoc } from "../../lib/firebaseApi";
 import User from "../../components/User";
 import Modal from "../../components/Modal";
 import {
   createChatRoomCollection,
   replaceAllSpecialChar,
 } from "../../lib/utils";
+import { Iuser } from "../../type/user";
 
 const Users = () => {
   const user = getUser();
@@ -24,7 +25,7 @@ const Users = () => {
   useEffect(() => {
     listUsers(
       (response) => {
-        const users = [];
+        const users: Iuser[] = [];
         response.users.forEach((user) => {
           users.push(user.toJSON());
         });

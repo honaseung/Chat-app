@@ -8,7 +8,7 @@ import {
   registUser,
   loginUser,
   logoutUser,
-} from "../lib/firebaseAction";
+} from "../lib/firebaseApi";
 import Loading from "./Loading";
 
 const FirebaseButton = ({
