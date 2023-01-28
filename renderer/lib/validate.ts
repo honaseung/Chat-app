@@ -12,3 +12,11 @@ export function validatePhoneNumber(number) {
   const regPhoneNumber = /^01([0|1|6|7|8|9])-?([0-9]{3,4})-?([0-9]{4})$/;
   return number && regPhoneNumber.test(number);
 }
+
+export function validateSameDay(targetDate: Date, compareDate: Date) {
+  return (
+    targetDate.getFullYear() === compareDate.getFullYear() &&
+    targetDate.getMonth() === compareDate.getMonth() &&
+    targetDate.getDay() === compareDate.getDay()
+  );
+}

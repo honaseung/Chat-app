@@ -43,7 +43,6 @@ const FirebaseButton = ({
 
       case "U":
         if (actionType === "set") {
-          console.log(request);
           registUser(request, sucCallback, failCallback);
         }
         if (actionType === "get") {

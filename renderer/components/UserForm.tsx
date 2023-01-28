@@ -73,7 +73,6 @@ const UserForm = ({
   //   );
 
   const openErrModal = (error) => {
-    console.log(error.code, error.message);
     const [title, content] = getErrMsg(error.code);
     setModalOption({
       title,

@@ -10,19 +10,24 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import FirebaseButton from "../../components/FirebaseButton";
 import useCreateRequest from "../../lib/create-request";
-import { listtUsers } from "../../lib/firebaseAction";
+import { getUser, listUsers, realtimeAddDoc } from "../../lib/firebaseAction";
 import User from "../../components/User";
 import Modal from "../../components/Modal";
+import {
+  createChatRoomCollection,
+  replaceAllSpecialChar,
+} from "../../lib/utils";
 
 const Users = () => {
+  const user = getUser();
+
   useEffect(() => {
-    listtUsers(
+    listUsers(
       (response) => {
         const users = [];
         response.users.forEach((user) => {
           users.push(user.toJSON());
         });
-        console.log(users);
         setUsers(users);
       },
       (error) => {
@@ -32,7 +37,7 @@ const Users = () => {
   }, []);
 
   const [users, setUsers] = useState([]);
-  // const [targetUsers, setTargetUsers] = useState([]);
+  const [targetUsers, setTargetUsers] = useState([]);
   const [modalOption, setModalOption] = useState({
     title: "",
     content: "",
@@ -40,16 +45,6 @@ const Users = () => {
   const [modalOpen, setModalOpen] = useState(false);
 
   const router = useRouter();
-
-  // useEffect(() => {
-  //   const title = "초대";
-  //   let content = "";
-  //   targetUsers.forEach((user) => {
-  //     content +=
-  //       user.id + " " + user.displayName + " " + user.phoneNumber + "\n";
-  //   });
-  //   setModalOption({ ...modalOption, title });
-  // }, [targetUsers]);
 
   const [logoutReqeust, logoutSucCallback, logoutFailCallback] =
     useCreateRequest(
@@ -67,18 +62,45 @@ const Users = () => {
 
   const handleChat = (e, info) => {
     const { checked } = e.target;
+    const { displayName, email, phoneNumber } = info;
     const content = info.dispalyName + "(" + info.email + ")";
     const title = checked ? "초대" : "나가기";
     setModalOption({ title, content });
-    // if (checked) {
-    //   setTargetUsers([...targetUsers, info]);
-    // } else {
-    //   setTargetUsers(
-    //     targetUsers.filter((user) => {
-    //       user.email !== info.email;
-    //     })
-    //   );
-    // }
+    if (checked) setTargetUsers(targetUsers.concat([email]));
+    else setTargetUsers(targetUsers.filter((user) => user !== info.email));
+  };
+
+  const invite = () => {
+    realtimeAddDoc(
+      {
+        collectionType:
+          "chat/" +
+          "-" +
+          new Date().getTime() +
+          createChatRoomCollection(targetUsers.concat([user.email])),
+        inputParams: {
+          [new Date().getTime() +
+          "-" +
+          replaceAllSpecialChar(user.email, "_") +
+          "-" +
+          user.displayName]:
+            user.email +
+            " (이)가 " +
+            targetUsers.join(" (와)과 ") +
+            " (을)를 " +
+            "초대하였습니다.",
+        },
+      },
+      (response) => {
+        router.push("../chat/rooms");
+      },
+      (error) => console.log(error)
+    );
+    router.push("../chat/rooms");
+  };
+
+  const goToRooms = () => {
+    router.push("../chat/rooms");
   };
 
   return (
@@ -86,7 +108,7 @@ const Users = () => {
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell colSpan={6} align="center">
+            <TableCell colSpan={5} align="center">
               <h2>USER INFO</h2>
             </TableCell>
           </TableRow>
@@ -96,22 +118,22 @@ const Users = () => {
             <TableCell align="center">LAST LOGIN</TableCell>
             <TableCell align="center">NUMBER</TableCell>
             <TableCell align="center">INVITE</TableCell>
-            <TableCell align="center">INVITE</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {users.map((user) => (
+          {users.map((u) => (
             <User
-              key={user.uid}
-              displayName={user.displayName}
-              email={user.email}
+              key={u.uid}
+              displayName={u.displayName}
+              email={u.email}
               lastSignInTime={
-                user.metadata.lastSignInTime
-                  ? new Date(user.metadata.lastSignInTime).toLocaleDateString()
+                u.metadata.lastSignInTime
+                  ? new Date(u.metadata.lastSignInTime).toLocaleDateString()
                   : "Never"
               }
-              phoneNumber={user.phoneNumber}
+              phoneNumber={u.phoneNumber}
               handleChat={handleChat}
+              mine={u.email === user.email}
             />
           ))}
         </TableBody>
@@ -132,7 +154,8 @@ const Users = () => {
       >
         INVITE
       </FirebaseButton> */}
-      <Button onClick={() => router.push("../chat/rooms")}>INVITE</Button>
+      <Button onClick={invite}>INVITE</Button>
+      <Button onClick={goToRooms}>GO TO ROOMS</Button>
       <Modal
         title={modalOption.title}
         content={modalOption.content}

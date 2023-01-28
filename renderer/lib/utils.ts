@@ -15,3 +15,33 @@ export function deepCopy(target: object) {
   }
   return clone;
 }
+
+/**
+ *
+ * @param original 특수문자를 변경할 대상
+ * @returns 특수문자가 변경된 대상
+ * @description 특수문자 전부를 변경 합니다.
+ */
+export function replaceAllSpecialChar(original: string, replace: string = "") {
+  return original.replaceAll(
+    /[\{\}\[\]\/?.,;:|\)*~`!^_+<>@\#$%&\\\=\(\'\"]/g,
+    replace
+  );
+}
+
+/**
+ *
+ * @param yourId 초대를 하는 당사자의 ID
+ * @param targetId 초대를 받는 상대방의 ID
+ * @returns 당사자와 상대방의 ID 를 순차정렬한 뒤 하나의 문자열로 반환합니다.
+ */
+export function createChatRoomCollection(targetIds: string[]) {
+  let roomTitle = "";
+  targetIds.forEach((id) => (roomTitle += `-${id}`));
+  console.log(replaceAllSpecialChar(roomTitle, "_"));
+  return replaceAllSpecialChar(roomTitle, "_");
+}
+
+export function createLocaleDateString(target: string) {
+  return new Date(parseInt(target, 10)).toLocaleDateString();
+}
