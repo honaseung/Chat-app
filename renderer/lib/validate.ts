@@ -14,10 +14,6 @@ export function validatePhoneNumber(number) {
 }
 
 export function validateSameDay(targetDate: Date, compareDate: Date) {
-  console.log(
-    targetDate.toLocaleDateString(),
-    compareDate.toLocaleDateString()
-  );
   return (
     targetDate.getFullYear() === compareDate.getFullYear() &&
     targetDate.getMonth() === compareDate.getMonth() &&
