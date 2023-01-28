@@ -1,16 +1,21 @@
 import {
   Button,
+  Fab,
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableRow,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import FirebaseButton from "../../components/FirebaseButton";
-import useCreateRequest from "../../lib/create-request";
-import { getUser, listUsers, realtimeAddDoc } from "../../lib/firebaseApi";
+import {
+  getUser,
+  listUsers,
+  logoutUser,
+  realtimeAddDoc,
+} from "../../lib/firebaseApi";
 import User from "../../components/User";
 import Modal from "../../components/Modal";
 import {
@@ -18,13 +23,17 @@ import {
   replaceAllSpecialChar,
 } from "../../lib/utils";
 import { Iuser } from "../../type/user";
+import Loading from "../../components/Loading";
+import Link from "../../components/Link";
 
 const Users = () => {
   const user = getUser();
 
   useEffect(() => {
+    setLoading(true);
     listUsers(
       (response) => {
+        setLoading(false);
         const users: Iuser[] = [];
         response.users.forEach((user) => {
           users.push(user.toJSON());
@@ -32,6 +41,7 @@ const Users = () => {
         setUsers(users);
       },
       (error) => {
+        setLoading(false);
         console.log(error);
       }
     );
@@ -45,33 +55,41 @@ const Users = () => {
   });
   const [modalOpen, setModalOpen] = useState(false);
 
+  const [loading, setLoading] = useState(false);
+
   const router = useRouter();
 
-  const [logoutReqeust, logoutSucCallback, logoutFailCallback] =
-    useCreateRequest(
-      "U",
-      "out",
-      "",
-      {},
-      [],
-      (response) => {
-        console.log(response);
+  const logout = () => {
+    setLoading(true);
+    logoutUser(
+      () => {
         router.push("/home");
+        setLoading(false);
       },
-      null
+      (error) => {
+        console.log(error);
+        setLoading(false);
+      }
     );
+  };
 
   const handleChat = (e, info) => {
     const { checked } = e.target;
     const { displayName, email, phoneNumber } = info;
-    const content = info.dispalyName + "(" + info.email + ")";
-    const title = checked ? "초대" : "나가기";
-    setModalOption({ title, content });
     if (checked) setTargetUsers(targetUsers.concat([email]));
     else setTargetUsers(targetUsers.filter((user) => user !== info.email));
   };
 
   const invite = () => {
+    setModalOption({
+      title: "초대",
+      content: `${targetUsers.join(" 와\n ")} 를 초대합니다.`,
+    });
+    setModalOpen(true);
+  };
+
+  const confirmInvite = () => {
+    setLoading(true);
     realtimeAddDoc(
       {
         collectionType:
@@ -93,78 +111,86 @@ const Users = () => {
         },
       },
       (response) => {
+        setLoading(false);
         router.push("../chat/rooms");
       },
-      (error) => console.log(error)
+      (error) => {
+        setLoading(false);
+        console.log(error);
+      }
     );
-    router.push("../chat/rooms");
-  };
-
-  const goToRooms = () => {
-    router.push("../chat/rooms");
   };
 
   return (
     <>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell colSpan={5} align="center">
-              <h2>USER INFO</h2>
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell align="center">NAME</TableCell>
-            <TableCell align="center">ID</TableCell>
-            <TableCell align="center">LAST LOGIN</TableCell>
-            <TableCell align="center">NUMBER</TableCell>
-            <TableCell align="center">INVITE</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {users.map((u) => (
-            <User
-              key={u.uid}
-              displayName={u.displayName}
-              email={u.email}
-              lastSignInTime={
-                u.metadata.lastSignInTime
-                  ? new Date(u.metadata.lastSignInTime).toLocaleDateString()
-                  : "Never"
-              }
-              phoneNumber={u.phoneNumber}
-              handleChat={handleChat}
-              mine={u.email === user.email}
-            />
-          ))}
-        </TableBody>
-      </Table>
-      <FirebaseButton
-        request={logoutReqeust}
-        sucCallback={logoutSucCallback}
-        failCallback={logoutFailCallback}
-        disabled={false}
-      >
-        LOGOUT
-      </FirebaseButton>
-      {/* <FirebaseButton
-        request={logoutReqeust}
-        sucCallback={logoutSucCallback}
-        failCallback={logoutFailCallback}
-        disabled={false}
-      >
-        INVITE
-      </FirebaseButton> */}
-      <Button onClick={invite}>INVITE</Button>
-      <Button onClick={goToRooms}>GO TO ROOMS</Button>
-      <Modal
-        title={modalOption.title}
-        content={modalOption.content}
-        open={modalOpen}
-        setOpen={setModalOpen}
-        type="confirm"
-        // onConfirm={}
-      />
+      {loading ? (
+        <Loading />
+      ) : (
+        <>
+          <div className="header">
+            <Fab color="primary" aria-label="add">
+              {/* <AddIcon /> */}
+              <Button className="btn" onClick={logout}>
+                LOGOUT
+              </Button>
+            </Fab>
+            <Button
+              className="btn"
+              disabled={targetUsers.length === 0}
+              onClick={invite}
+            >
+              INVITE
+            </Button>
+            <Fab color="primary" aria-label="edit">
+              <Link className="btn" href={"../chat/rooms"}>
+                GO TO ROOMS
+              </Link>
+            </Fab>
+          </div>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell colSpan={6} align="center">
+                  <h2>USER INFO</h2>
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell align="center">NAME</TableCell>
+                <TableCell align="center">ID</TableCell>
+                <TableCell align="center">LAST LOGIN</TableCell>
+                <TableCell align="center">NUMBER</TableCell>
+                <TableCell align="center">INVITE</TableCell>
+                {/* <TableCell align="center">ONLINE</TableCell> */}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {users.map((u) => (
+                <User
+                  key={u.uid}
+                  displayName={u.displayName}
+                  email={u.email}
+                  lastSignInTime={
+                    u.metadata.lastSignInTime
+                      ? new Date(u.metadata.lastSignInTime).toLocaleDateString()
+                      : "Never"
+                  }
+                  phoneNumber={u.phoneNumber}
+                  handleChat={handleChat}
+                  mine={u.email === user?.email}
+                />
+              ))}
+            </TableBody>
+          </Table>
+          <Modal
+            title={modalOption.title}
+            content={modalOption.content}
+            open={modalOpen}
+            setOpen={setModalOpen}
+            type="confirm"
+            onConfirm={confirmInvite}
+          />
+        </>
+      )}
     </>
   );
 };
