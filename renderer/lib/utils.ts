@@ -24,7 +24,7 @@ export function deepCopy(target: object) {
  */
 export function replaceAllSpecialChar(original: string, replace: string = "") {
   return original.replaceAll(
-    /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/g,
+    /[\{\}\[\]\/?.,;:|\)*~`!^_+<>@\#$%&\\\=\(\'\"]/g,
     replace
   );
 }
@@ -35,6 +35,13 @@ export function replaceAllSpecialChar(original: string, replace: string = "") {
  * @param targetId 초대를 받는 상대방의 ID
  * @returns 당사자와 상대방의 ID 를 순차정렬한 뒤 하나의 문자열로 반환합니다.
  */
-export function createChatRoomCollection(yourId: string, targetId: string) {
-  return [yourId, targetId].sort().join("-");
+export function createChatRoomCollection(targetIds: string[]) {
+  let roomTitle = "";
+  targetIds.forEach((id) => (roomTitle += `-${id}`));
+  console.log(replaceAllSpecialChar(roomTitle, "_"));
+  return replaceAllSpecialChar(roomTitle, "_");
+}
+
+export function createLocaleDateString(target: string) {
+  return new Date(parseInt(target, 10)).toLocaleDateString();
 }
