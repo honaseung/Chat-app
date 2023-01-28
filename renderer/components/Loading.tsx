@@ -1,11 +1,9 @@
-const Loading = ({ loading }) => {
+const Loading = () => {
   return (
     <>
-      {loading && (
-        <div className="loading-background">
-          <img src="/images/loading.gif" />
-        </div>
-      )}
+      <div className="loading-background">
+        <img src="/images/loading.gif" />
+      </div>
     </>
   );
 };

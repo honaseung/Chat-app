@@ -1,14 +1,14 @@
 import {
+  Button,
   Container,
   FilledInput,
   FormControl,
   FormHelperText,
   InputLabel,
 } from "@mui/material";
-import { useEffect, useState } from "react";
-import useCreateRequest from "../lib/create-request";
+import { useState } from "react";
 import getErrMsg from "../lib/errMsg";
-import FirebaseButton from "./FirebaseButton";
+import Loading from "./Loading";
 import Modal from "./Modal";
 
 const UserForm = ({
@@ -20,7 +20,6 @@ const UserForm = ({
   isRegist = false,
   handleValue,
   request,
-  sucCallback,
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalOption, setModalOption] = useState({
@@ -28,49 +27,11 @@ const UserForm = ({
     content: "",
   });
   const [idErr, setIdErr] = useState(true);
-  // const [idCkeckErr, setIdCkeckErr] = useState(true);
   const [numberErr, setNumberErr] = useState(true);
   const [passwordErr, setPasswordErr] = useState(true);
   const [confirmPasswordErr, setConfirmPasswordErr] = useState(true);
 
-  // useEffect(() => {
-  //   setIdCkeckErr(true);
-  // }, [id]);
-
-  // const [checkIdRequest, checkIdSucCallback, checkIdFailCallback] =
-  //   useCreateRequest(
-  //     "C",
-  //     "get",
-  //     "users",
-  //     {
-  //       id,
-  //       name,
-  //       password,
-  //     },
-  //     ["id", "==", id],
-  //     (response) => {
-  //       if (response.docs.length > 0) {
-  //         const [title, content] = getErrMsg("auth/email-already-in-use");
-  //         setModalOption({
-  //           title,
-  //           content,
-  //         });
-  //         setIdCkeckErr(true);
-  //         setModalOpen(true);
-  //       } else {
-  //         setIdCkeckErr(false);
-  //       }
-  //     },
-  //     (error) => {
-  //       const [title, content] = getErrMsg(error.code);
-  //       setModalOption({
-  //         title,
-  //         content,
-  //       });
-  //       setIdCkeckErr(true);
-  //       setModalOpen(true);
-  //     }
-  //   );
+  const [loading, setLoading] = useState(false);
 
   const openErrModal = (error) => {
     const [title, content] = getErrMsg(error.code);
@@ -99,16 +60,6 @@ const UserForm = ({
           <FormHelperText id="ID">
             {idErr ? "email 을 적어주세요." : "올바르게 입력하셨습니다."}
           </FormHelperText>
-          {/* {isRegist && (
-            <FirebaseButton
-              request={checkIdRequest}
-              sucCallback={checkIdSucCallback}
-              failCallback={checkIdFailCallback}
-              disabled={idErr || !idCkeckErr}
-            >
-              {idCkeckErr ? "👉 CHECK ID" : "📌 CHECKED"}
-            </FirebaseButton>
-          )} */}
         </FormControl>
         {isRegist && (
           <FormControl>
@@ -183,10 +134,8 @@ const UserForm = ({
           </FormControl>
         )}
       </Container>
-      <FirebaseButton
-        request={request}
-        sucCallback={sucCallback}
-        failCallback={openErrModal}
+      <Button
+        onClick={() => request(openErrModal)}
         disabled={
           idErr ||
           passwordErr ||
@@ -194,13 +143,14 @@ const UserForm = ({
         }
       >
         {isRegist ? "REGIST" : "LOGIN"}
-      </FirebaseButton>
+      </Button>
       <Modal
         title={modalOption.title}
         content={modalOption.content}
         open={modalOpen}
         setOpen={setModalOpen}
       />
+      {loading && <Loading />}
     </>
   );
 };

@@ -1,30 +1,31 @@
-import { Button, TextareaAutosize } from "@mui/material";
+import { Button, Skeleton, TextField } from "@mui/material";
 import { useState, useEffect } from "react";
 import {
   getUser,
   realtimeAddDoc,
   realtimeExitRoomDocs,
   realtimeGetDocs,
-  realtimeListenOff,
-  realtimeListenOn,
+  realtimeChatListenOff,
+  realtimeChatListenOn,
 } from "../../lib/firebaseApi";
-import {
-  replaceAllSpecialChar,
-  createChatRoomCollection,
-} from "../../lib/utils";
+import { replaceAllSpecialChar } from "../../lib/utils";
 import Message from "../../components/Message";
 import { validateSameDay } from "../../lib/validate";
 import { useRouter } from "next/router";
+import Loading from "../../components/Loading";
 
 const Room = () => {
   const user = getUser();
   const router = useRouter();
   const room = router.query.room;
   const collectionType = "chat/" + room;
+
   const getConversation = () => {
+    setLoading(true);
     realtimeGetDocs(
       { collectionType },
       (response) => {
+        setLoading(false);
         const res = response.val();
         setOriConversation(res);
         const messages = Object.keys(response.val()).map((key, idx, whole) => {
@@ -45,7 +46,10 @@ const Room = () => {
         });
         setConversation(messages);
       },
-      (error) => console.log(error)
+      (error) => {
+        setLoading(false);
+        console.log(error);
+      }
     );
   };
 
@@ -53,6 +57,7 @@ const Room = () => {
     info: string = null,
     newCollectionType: string = null
   ) => {
+    setLoading(true);
     realtimeAddDoc(
       {
         collectionType: newCollectionType || collectionType,
@@ -65,8 +70,14 @@ const Room = () => {
           user.displayName]: info || text,
         },
       },
-      (response) => console.log(response),
-      (error) => console.log(error)
+      (response) => {
+        setLoading(false);
+        console.log(response);
+      },
+      (error) => {
+        setLoading(false);
+        console.log(error);
+      }
     );
   };
 
@@ -74,22 +85,25 @@ const Room = () => {
   const [conversation, setConversation] = useState([]);
   const [text, setText] = useState("");
 
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
-    realtimeListenOn({ collectionType }, () => {
+    realtimeChatListenOn({ collectionType }, () => {
       console.log("realtimeListenOn");
       getConversation();
     });
   }, []);
 
   const goToRooms = () => {
-    realtimeListenOff({ collectionType });
+    realtimeChatListenOff({ collectionType });
     console.log("realtimeListenOff");
     router.push("rooms");
   };
 
   const exitRoom = async () => {
+    setLoading(true);
     const changedId = replaceAllSpecialChar(user.email, "_");
-    await realtimeListenOff({ collectionType });
+    await realtimeChatListenOff({ collectionType });
     await realtimeExitRoomDocs(
       {
         collectionType,
@@ -107,35 +121,50 @@ const Room = () => {
 
   return (
     <>
-      {conversation &&
-        conversation.map((message, idx) => {
-          return (
-            <>
-              {!validateSameDay(message.date, message.prevDate) ? (
-                <div key={idx} className="conversation-date">
-                  {message.date.toLocaleDateString()}
-                </div>
-              ) : null}
-              <Message
-                messageKey={message.key}
-                targetId={message.targetId.split("_")[0]}
-                userName={message.userName}
-                text={message.text}
-                mine={
-                  replaceAllSpecialChar(user.email, "_") === message.targetId
-                }
-                time={message.date.toLocaleTimeString()}
-              />
-            </>
-          );
-        })}
-      <TextareaAutosize
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-      />
-      <Button onClick={() => addMessage()}>보내기</Button>
-      <Button onClick={goToRooms}>목록으로 돌아가기</Button>
-      <Button onClick={exitRoom}>방에서 나가기</Button>
+      {loading ? (
+        <Loading />
+      ) : (
+        <>
+          {conversation &&
+            conversation.map((message, idx) => {
+              return (
+                <>
+                  {!validateSameDay(message.date, message.prevDate) ? (
+                    <>
+                      <Skeleton animation={false} />
+                      <div key={idx} className="conversation-date">
+                        {message.date.toLocaleDateString()}
+                      </div>
+                    </>
+                  ) : null}
+                  <Message
+                    messageKey={message.key}
+                    targetId={message.targetId.split("_")[0]}
+                    userName={message.userName}
+                    text={message.text}
+                    mine={
+                      replaceAllSpecialChar(user.email, "_") ===
+                      message.targetId
+                    }
+                    time={message.date.toLocaleTimeString()}
+                  />
+                </>
+              );
+            })}
+          <TextField
+            sx={{ width: "100%" }}
+            label="메세지"
+            multiline
+            rows={4}
+            variant="filled"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          />
+          <Button onClick={() => addMessage()}>보내기</Button>
+          <Button onClick={goToRooms}>목록으로 돌아가기</Button>
+          <Button onClick={exitRoom}>방에서 나가기</Button>
+        </>
+      )}
     </>
   );
 };

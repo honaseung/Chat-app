@@ -1,3 +1,6 @@
+/**
+ * @deprecated
+ */
 export default function useCreateRequest(
   databaseType: database,
   actionType: action,

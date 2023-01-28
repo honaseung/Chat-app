@@ -25,6 +25,7 @@ import {
 import { useCreateWhere, useRealtimeDatabaseCreateWhere } from "./create-query";
 import { replaceAllSpecialChar } from "./utils";
 import { Irequest } from "../type/firebaseApi";
+import { Iuser } from "../type/user";
 
 /**
  * @param request 인풋값을 담은 객체
@@ -106,11 +107,28 @@ export async function loginUser(
     inputParams.password
   )
     .then((response) => {
-      if (sucCallback) sucCallback(response);
+      if (sucCallback) {
+        onlineUser(cmmAuth.currentUser);
+        sucCallback(response);
+      }
     })
     .catch((error) => {
       if (failCallback) failCallback(error);
     });
+}
+
+/**
+ * @param request 인풋값을 담은 객체
+ * @param sucCallback 성공콜백함수
+ * @param failCallback 실패콜백함수
+ * @description 사용자 로그인 함수
+ */
+async function onlineUser(user: Iuser) {
+  await set(
+    ref(realtimeDatabase, `online/${cmmAuth.currentUser.phoneNumber}`),
+    cmmAuth.currentUser.email
+  );
+  // await (child(ref(realtimeDatabase), "collectionType"), sucCallback);
 }
 
 /**
@@ -122,13 +140,30 @@ export async function logoutUser(
   sucCallback: Function,
   failCallback: Function
 ) {
+  offlineUser(cmmAuth.currentUser);
   signOut(cmmAuth)
     .then((response) => {
-      if (sucCallback) sucCallback(response);
+      if (sucCallback) {
+        sucCallback(response);
+      }
     })
     .catch((error) => {
       if (failCallback) failCallback(error);
     });
+}
+
+/**
+ * @param request 인풋값을 담은 객체
+ * @param sucCallback 성공콜백함수
+ * @param failCallback 실패콜백함수
+ * @description 사용자 로그인 함수
+ */
+async function offlineUser(user: Iuser) {
+  await set(
+    ref(realtimeDatabase, `online/${cmmAuth.currentUser.phoneNumber}`),
+    null
+  );
+  // await (child(ref(realtimeDatabase), "collectionType"), sucCallback);
 }
 
 /**
@@ -230,6 +265,7 @@ export async function realtimeGetDocs(
  * @param sucCallback 성공콜백함수
  * @param failCallback 실패콜백함수
  * @description realtime Database 읽기 함수
+ * @deprecated
  */
 export async function realtimeGetRoomDocs(
   sucCallback: Function,
@@ -282,17 +318,18 @@ export async function realtimeExitRoomDocs(
  * @param failCallback 실패콜백함수
  * @description realtime Database 읽기 함수
  */
-export async function realtimeListenOn(request: Irequest, sucCallback) {
+export async function realtimeChatListenOn(request: Irequest, sucCallback) {
   const { collectionType } = request;
   onChildAdded(child(ref(realtimeDatabase), collectionType), sucCallback);
 }
+
 /**
  * @param request 인풋값을 담은 객체
  * @param sucCallback 성공콜백함수
  * @param failCallback 실패콜백함수
  * @description realtime Database 읽기 함수
  */
-export async function realtimeListenOff(request: Irequest) {
+export async function realtimeChatListenOff(request: Irequest) {
   const { collectionType } = request;
   await off(child(ref(realtimeDatabase), collectionType), "child_added");
 }

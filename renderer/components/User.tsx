@@ -15,6 +15,7 @@ const User = ({
         <TableCell align="center">{email}</TableCell>
         <TableCell align="center">{lastSignInTime}</TableCell>
         <TableCell align="center">{phoneNumber}</TableCell>
+        {/* <TableCell align="center">ONLINE</TableCell> */}
         <TableCell align="center">
           {!mine && (
             <Switch

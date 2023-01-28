@@ -11,6 +11,9 @@ import {
 } from "../lib/firebaseApi";
 import Loading from "./Loading";
 
+/**
+ * @deprecated
+ */
 const FirebaseButton = ({
   request,
   sucCallback,
