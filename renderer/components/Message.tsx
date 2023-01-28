@@ -1,8 +1,8 @@
-const Message = ({ id, name, time, message, mine }) => {
+const Message = ({ messageKey, targetId, userName, time, text, mine }) => {
   return (
     <>
-      <div className={mine ? "msg-mine" : "msg-others"}>
-        {id} {time} {name} {message}
+      <div key={messageKey} className={mine ? "msg-mine" : "msg-others"}>
+        {targetId} {time} {userName} {text}
       </div>
     </>
   );
