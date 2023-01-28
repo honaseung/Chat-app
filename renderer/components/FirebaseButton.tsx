@@ -69,7 +69,7 @@ const FirebaseButton = ({
       >
         {children}
       </Button>
-      <Loading loading={loading} />
+      {loading && <Loading />}
     </>
   );
 };
