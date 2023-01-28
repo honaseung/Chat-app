@@ -1,23 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "../../components/Link";
 import UserForm from "../../components/UserForm";
-import useCreateRequest from "../../lib/create-request";
 import { validateEmail, validatePasswod } from "../../lib/validate";
 import { useRouter } from "next/router";
-import Modal from "../../components/Modal";
-import getErrMsg from "../../lib/errMsg";
-import useEnhancedEffect from "@mui/material/utils/useEnhancedEffect";
-import { listUsers } from "../../lib/firebaseApi";
+import { loginUser } from "../../lib/firebaseApi";
+import Loading from "../../components/Loading";
 
 const Login = () => {
   const [loginId, setLoginId] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
 
-  // const [modalOpen, setModalOpen] = useState(false);
-  // const [modalOption, setModalOption] = useState({
-  //   title: "",
-  //   content: "",
-  // });
+  const [loading, setLoading] = useState(false);
 
   const router = useRouter();
 
@@ -47,21 +40,20 @@ const Login = () => {
     }
   };
 
-  const [loginRequest, loginSucCallback] = useCreateRequest(
-    "U",
-    "get",
-    "",
-    {
-      id: loginId,
-      password: loginPassword,
-    },
-    [],
-    (response) => {
-      console.log(response);
-      router.push("users");
-    },
-    null
-  );
+  const login = (failCallback) => {
+    setLoading(true);
+    loginUser(
+      { inputParams: { id: loginId, password: loginPassword } },
+      () => {
+        setLoading(false);
+        router.push("users");
+      },
+      (error) => {
+        setLoading(false);
+        failCallback(error);
+      }
+    );
+  };
 
   return (
     <>
@@ -69,17 +61,11 @@ const Login = () => {
         id={loginId}
         password={loginPassword}
         handleValue={handleValue}
-        request={loginRequest}
-        sucCallback={loginSucCallback}
+        request={login}
       />
       <Link href="/user/regist">GO TO REGIST</Link>
       <Link href="/home">HOME</Link>
-      {/* <Modal
-        title={modalOption.title}
-        content={modalOption.content}
-        open={modalOpen}
-        setOpen={setModalOpen}
-      /> */}
+      {loading && <Loading />}
     </>
   );
 };
