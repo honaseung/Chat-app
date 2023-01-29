@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 import {
   collection,
   query as firesotreQ,
@@ -25,7 +27,8 @@ import {
 import { useCreateWhere, useRealtimeDatabaseCreateWhere } from "./create-query";
 import { replaceAllSpecialChar } from "./utils";
 import { Irequest } from "../type/firebaseApi";
-import { Iuser } from "../type/user";
+import { Iuser, defaultUser } from "../type/user";
+import { User } from "firebase/auth";
 
 /**
  * @param request 인풋값을 담은 객체
@@ -68,15 +71,15 @@ export async function registUser(
   sucCallback: Function,
   failCallback: Function
 ) {
-  const { inputParams } = request;
+  const { userParam } = request || defaultUser;
   await auth
     .createUser({
-      email: inputParams.email,
+      email: userParam?.email,
       emailVerified: false,
-      phoneNumber: inputParams.phoneNumber,
-      password: inputParams.password,
-      displayName: inputParams.displayName,
-      // photoURL: inputParams.photoURL,
+      phoneNumber: userParam?.phoneNumber,
+      password: userParam?.password,
+      displayName: userParam?.displayName,
+      // photoURL: userParam?.photoURL,
       disabled: false,
     })
     .then((response) => {
@@ -100,15 +103,15 @@ export async function loginUser(
   sucCallback: Function,
   failCallback: Function
 ) {
-  const { inputParams } = request;
+  const { userParam } = request || defaultUser;
   await signInWithEmailAndPassword(
     cmmAuth,
-    inputParams.id,
-    inputParams.password
+    userParam?.id || "",
+    userParam?.password || ""
   )
     .then((response) => {
       if (sucCallback) {
-        onlineUser(cmmAuth.currentUser);
+        // if (cmmAuth) onlineUser(cmmAuth.currentUser);
         sucCallback(response);
       }
     })
@@ -123,11 +126,8 @@ export async function loginUser(
  * @param failCallback 실패콜백함수
  * @description 사용자 로그인 함수
  */
-async function onlineUser(user: Iuser) {
-  await set(
-    ref(realtimeDatabase, `online/${cmmAuth.currentUser.phoneNumber}`),
-    cmmAuth.currentUser.email
-  );
+async function onlineUser(user: User | null) {
+  await set(ref(realtimeDatabase, `online/${user?.phoneNumber}`), user?.email);
   // await (child(ref(realtimeDatabase), "collectionType"), sucCallback);
 }
 
@@ -140,7 +140,7 @@ export async function logoutUser(
   sucCallback: Function,
   failCallback: Function
 ) {
-  offlineUser(cmmAuth.currentUser);
+  // offlineUser(cmmAuth.currentUser);
   signOut(cmmAuth)
     .then((response) => {
       if (sucCallback) {
@@ -158,11 +158,8 @@ export async function logoutUser(
  * @param failCallback 실패콜백함수
  * @description 사용자 로그인 함수
  */
-async function offlineUser(user: Iuser) {
-  await set(
-    ref(realtimeDatabase, `online/${cmmAuth.currentUser.phoneNumber}`),
-    null
-  );
+async function offlineUser(user: Iuser | null) {
+  await set(ref(realtimeDatabase, `online/${user?.phoneNumber}`), null);
   // await (child(ref(realtimeDatabase), "collectionType"), sucCallback);
 }
 
@@ -222,8 +219,8 @@ export async function realtimeAddDoc(
   sucCallback: Function,
   failCallback: Function
 ) {
-  const { collectionType, inputParams } = request;
-  await set(ref(realtimeDatabase, collectionType), inputParams)
+  const { collectionType, roomParam } = request;
+  await set(ref(realtimeDatabase, collectionType), roomParam)
     .then((response) => {
       if (sucCallback) sucCallback(response);
     })
@@ -243,7 +240,7 @@ export async function realtimeGetDocs(
   sucCallback: Function,
   failCallback: Function
 ) {
-  const { collectionType, condition = [] } = request;
+  const { collectionType = "", condition = [] } = request;
   let q = null;
   if (condition.length > 0) {
     const queryConstraints = useRealtimeDatabaseCreateWhere(condition);
@@ -273,7 +270,7 @@ export async function realtimeGetRoomDocs(
 ) {
   const userInfo = cmmAuth.currentUser;
   const queryConstraints = useRealtimeDatabaseCreateWhere([
-    replaceAllSpecialChar(userInfo.email, "_"),
+    replaceAllSpecialChar(userInfo?.email || "", "_"),
     "chat",
   ]);
   const q = query(ref(realtimeDatabase), ...queryConstraints);
@@ -296,17 +293,17 @@ export async function realtimeExitRoomDocs(
   request: Irequest,
   sucCallback: Function
 ) {
-  const { collectionType, inputParams } = request;
-  const newCollectionType = collectionType.replace(
-    `-${inputParams.changedId}`,
+  const { collectionType = "", roomParam } = request;
+  const newCollectionType = collectionType?.replace(
+    `-${roomParam?.changedId || ""}`,
     ""
   );
+  console.log(collectionType, newCollectionType, roomParam);
   await get(child(ref(realtimeDatabase), collectionType)).then((data) => {
-    remove(child(ref(realtimeDatabase), collectionType)).then((response) => {
-      set(child(ref(realtimeDatabase), newCollectionType), data.val()).then(
-        (response) => {
-          if (sucCallback) sucCallback();
-        }
+    remove(child(ref(realtimeDatabase), collectionType)).then(() => {
+      realtimeAddDoc(
+        { collectionType: newCollectionType, roomParam: data.val() },
+        sucCallback
       );
     });
   });
@@ -318,8 +315,11 @@ export async function realtimeExitRoomDocs(
  * @param failCallback 실패콜백함수
  * @description realtime Database 읽기 함수
  */
-export async function realtimeChatListenOn(request: Irequest, sucCallback) {
-  const { collectionType } = request;
+export async function realtimeChatListenOn(
+  request: Irequest,
+  sucCallback: () => void
+) {
+  const { collectionType = "" } = request;
   onChildAdded(child(ref(realtimeDatabase), collectionType), sucCallback);
 }
 
@@ -330,6 +330,6 @@ export async function realtimeChatListenOn(request: Irequest, sucCallback) {
  * @description realtime Database 읽기 함수
  */
 export async function realtimeChatListenOff(request: Irequest) {
-  const { collectionType } = request;
+  const { collectionType = "" } = request;
   await off(child(ref(realtimeDatabase), collectionType), "child_added");
 }
