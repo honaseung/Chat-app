@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, Dispatch, SetStateAction } from "react";
 import Link from "../../components/Link";
 import UserForm from "../../components/UserForm";
 import { validateEmail, validatePasswod } from "../../lib/validate";
 import { useRouter } from "next/router";
 import { loginUser } from "../../lib/firebaseApi";
 import Loading from "../../components/Loading";
+import { defaultUser } from "../../type/user";
 
-const Login = () => {
+const Login: React.FunctionComponent = () => {
   const [loginId, setLoginId] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
 
@@ -14,7 +15,7 @@ const Login = () => {
 
   const router = useRouter();
 
-  const handleValue = (e, setErr) => {
+  const handleValue = (e: React.ChangeEvent<HTMLInputElement>, setErr: Dispatch<SetStateAction<boolean>> = () => { }) => {
     const { name, value } = e.target;
     switch (name) {
       case "input-id":
@@ -40,15 +41,15 @@ const Login = () => {
     }
   };
 
-  const login = (failCallback) => {
+  const login = (failCallback: Function) => {
     setLoading(true);
     loginUser(
-      { inputParams: { id: loginId, password: loginPassword } },
+      { userParam: { ...defaultUser, id: loginId, password: loginPassword } },
       () => {
         setLoading(false);
-        router.push("users");
+        router.push("users", undefined, { shallow: true });
       },
-      (error) => {
+      (error: any) => {
         setLoading(false);
         failCallback(error);
       }
@@ -61,8 +62,7 @@ const Login = () => {
         id={loginId}
         password={loginPassword}
         handleValue={handleValue}
-        request={login}
-      />
+        request={login} />
       <Link href="/user/regist">GO TO REGIST</Link>
       <Link href="/home">HOME</Link>
       {loading && <Loading />}
