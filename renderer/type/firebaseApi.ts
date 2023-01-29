@@ -5,7 +5,9 @@ import { Iuser } from "./user";
  */
 export interface Irequest {
   collectionType?: string;
-  inputParams?: Iuser;
+  userParam?: Iuser;
+  roomParam?: { [x: string]: string };
+  inputParams?: object;
   condition?: string[];
 }
 
