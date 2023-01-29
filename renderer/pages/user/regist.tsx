@@ -1,5 +1,5 @@
+import { useState, Dispatch, SetStateAction } from "react";
 import { useRouter } from "next/router";
-import { useState } from "react";
 import Link from "../../components/Link";
 import Loading from "../../components/Loading";
 import UserForm from "../../components/UserForm";
@@ -10,7 +10,7 @@ import {
   validatePhoneNumber,
 } from "../../lib/validate";
 
-const Regist = () => {
+const Regist: React.FunctionComponent = () => {
   const [registId, setRegistId] = useState("");
   const [registName, setRegistName] = useState("");
   const [registPassword, setRegistPassword] = useState("");
@@ -21,7 +21,10 @@ const Regist = () => {
 
   const router = useRouter();
 
-  const handleValue = (e, setErr) => {
+  const handleValue = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setErr: Dispatch<SetStateAction<boolean>>
+  ) => {
     const { name, value } = e.target;
     switch (name) {
       case "input-id":
@@ -70,11 +73,12 @@ const Regist = () => {
     }
   };
 
-  const regist = (failCallback) => {
+  const regist = (failCallback: Function) => {
     setLoading(true);
     registUser(
       {
-        inputParams: {
+        userParam: {
+          id: registId,
           email: registId,
           displayName: registName ? registName : registId.split("@")[0],
           phoneNumber: "+82" + registPhoneNumber.slice(1),
@@ -83,9 +87,9 @@ const Regist = () => {
       },
       () => {
         setLoading(false);
-        router.push("login");
+        router.push("login", undefined, { shallow: true });
       },
-      (error) => {
+      (error: object) => {
         setLoading(false);
         failCallback(error);
       }
