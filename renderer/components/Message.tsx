@@ -1,6 +1,15 @@
 import { Avatar, Chip, Paper } from "@mui/material";
 
-const Message = ({ messageKey, targetId, userName, time, text, mine }) => {
+type Message = {
+  messageKey: string,
+  targetId: string,
+  userName: string,
+  time: string,
+  text: string,
+  mine: boolean,
+}
+
+const Message: React.FunctionComponent<Message> = ({ messageKey, targetId, userName, time, text, mine }) => {
   return (
     <>
       <div key={messageKey} className={mine ? "msg-mine" : "msg-others"}>
@@ -8,7 +17,6 @@ const Message = ({ messageKey, targetId, userName, time, text, mine }) => {
         <Chip label={time} color="secondary" size="small" />
         {userName}
         <Paper
-          variant="outlined"
           square
           elevation={12}
           sx={{ textAlign: "left" }}
