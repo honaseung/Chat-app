@@ -14,13 +14,10 @@ import {
   listUsers,
   logoutUser,
   realtimeAddDoc,
+  realtimeInviteRoom,
 } from "../../lib/firebaseApi";
 import User from "../../components/User";
-import Modal from "../../components/Modal";
-import {
-  createChatRoomCollection,
-  replaceAllSpecialChar,
-} from "../../lib/utils";
+import InviteModal from "../../components/InviteModal";
 import Loading from "../../components/Loading";
 import Link from "../../components/Link";
 import { ListUsersResult } from "firebase-admin/lib/auth/base-auth";
@@ -52,6 +49,8 @@ const Users: React.FunctionComponent = () => {
 
   const [users, setUsers] = useState<object[]>([]);
   const [targetUsers, setTargetUsers] = useState<string[]>([]);
+  const [targetPhoneNumber, setTargetPhoneNumber] = useState<object>();
+  const [roomTitle, setRoomTitle] = useState<string>('');
   const [modalOption, setModalOption] = useState({
     title: "",
     content: "",
@@ -78,9 +77,17 @@ const Users: React.FunctionComponent = () => {
 
   const handleChat = (e: React.ChangeEvent<HTMLInputElement>, info: Iuser = { ...defaultUser }) => {
     const { checked } = e.target;
-    const { email } = info;
-    if (checked) setTargetUsers(targetUsers.concat([email]));
-    else setTargetUsers(targetUsers.filter((user) => user !== info.email));
+    const { email, phoneNumber } = info;
+    if (checked) {
+      setTargetUsers(targetUsers.concat([email]));
+      setTargetPhoneNumber({ ...targetPhoneNumber, [phoneNumber]: email });
+    }
+    else {
+      setTargetUsers(targetUsers.filter((user) => user !== info.email));
+      const tmpTargetPhoneNumber = { ...targetPhoneNumber };
+      delete tmpTargetPhoneNumber[phoneNumber];
+      setTargetPhoneNumber({ tmpTargetPhoneNumber });
+    }
   };
 
   const invite = () => {
@@ -93,24 +100,26 @@ const Users: React.FunctionComponent = () => {
 
   const confirmInvite = () => {
     setLoading(true);
-    realtimeAddDoc(
+    realtimeInviteRoom(
       {
         collectionType:
           "chat/" +
-          "-" +
-          new Date().getTime() +
-          createChatRoomCollection(targetUsers.concat([user?.email || ''])),
+          roomTitle +
+          "_" +
+          new Date().getTime(),
         roomParam: {
+          title: roomTitle,
           [new Date().getTime() +
-            "-" +
-            replaceAllSpecialChar(user?.email || '', "_") +
-            "-" +
-            user.displayName]:
-            user.email +
+            "_" +
+            user?.phoneNumber +
+            "_" + user.displayName]:
+            user.displayName +
+            "(" + user.email + ")" +
             " (이)가 " +
             targetUsers.join(" (와)과 ") +
             " (을)를 " +
             "초대하였습니다.",
+          members: targetPhoneNumber,
         },
       },
       () => {
@@ -182,14 +191,13 @@ const Users: React.FunctionComponent = () => {
               ))}
             </TableBody>
           </Table>
-          <Modal
-            title={modalOption.title}
+          <InviteModal
             content={modalOption.content}
             open={modalOpen}
             setOpen={setModalOpen}
-            type="confirm"
             onConfirm={confirmInvite}
-          />
+            roomTitle={roomTitle}
+            setRoomTitle={setRoomTitle} onClose={() => { }} />
         </>
       )}
     </>

@@ -12,8 +12,6 @@ type Modal = {
   content: string,
   open: boolean,
   setOpen(b: boolean): void,
-  type?: string,
-  onConfirm?: Function,
   handleClose?: Function,
 }
 
@@ -22,9 +20,7 @@ const Modal: React.FunctionComponent<Modal> = ({
   content,
   open,
   setOpen,
-  type = "",
-  onConfirm = () => { },
-  handleClose = () => { },
+  handleClose = () => { }
 }) => {
   const onClose = () => {
     if (handleClose) {
@@ -40,20 +36,9 @@ const Modal: React.FunctionComponent<Modal> = ({
           <DialogContentText>{content}</DialogContentText>
         </DialogContent>
         <DialogActions>
-          {type === "confirm" ? (
-            <div>
-              <Button color="secondary" onClick={onClose}>
-                NO
-              </Button>
-              <Button color="primary" onClick={() => onConfirm()}>
-                OK
-              </Button>
-            </div>
-          ) : (
-            <Button color="primary" onClick={onClose}>
-              OK
-            </Button>
-          )}
+          <Button color="primary" onClick={onClose}>
+            OK
+          </Button>
         </DialogActions>
       </Dialog>
     </>

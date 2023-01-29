@@ -52,6 +52,7 @@ const Login: React.FunctionComponent = () => {
       (error: any) => {
         setLoading(false);
         failCallback(error);
+        console.log(error);
       }
     );
   };

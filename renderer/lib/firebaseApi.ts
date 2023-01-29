@@ -21,6 +21,7 @@ import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import {
   auth,
   firestore,
+  database,
   realtimeDatabase,
   cmmAuth,
 } from "../../firebase-config";
@@ -174,13 +175,22 @@ export async function commonAddDoc(
   failCallback: Function
 ) {
   const { collectionType, inputParams } = request;
-  await addDoc(collection(firestore, collectionType), inputParams)
-    .then((response) => {
-      if (sucCallback) sucCallback(response);
-    })
-    .catch((error) => {
-      if (failCallback) failCallback(error);
-    });
+  database
+    .ref("TEST")
+    .child("title")
+    .get()
+    .then((response) => console.log(response.val()));
+  // await database
+  //   .ref(collectionType)
+  //   .set(inputParams)
+  //   .then((response) => console.log(response));
+  // await addDoc(collection(firestore, collectionType), inputParams)
+  //   .then((response) => {
+  //     if (sucCallback) sucCallback(response);
+  //   })
+  //   .catch((error) => {
+  //     if (failCallback) failCallback(error);
+  //   });
 }
 
 /**
@@ -201,6 +211,27 @@ export async function commonGetDocs(
     q = collection(firestore, collectionType);
   }
   await getDocs(q)
+    .then((response) => {
+      if (sucCallback) sucCallback(response);
+    })
+    .catch((error) => {
+      if (failCallback) failCallback(error);
+    });
+}
+
+/**
+ * @param request 인풋값을 담은 객체
+ * @param sucCallback 성공콜백함수
+ * @param failCallback 실패콜백함수
+ * @description realtime Database 저장 함수
+ */
+export async function realtimeInviteRoom(
+  request: Irequest,
+  sucCallback: Function,
+  failCallback: Function
+) {
+  const { collectionType, roomParam } = request;
+  await set(ref(realtimeDatabase, collectionType), roomParam)
     .then((response) => {
       if (sucCallback) sucCallback(response);
     })
