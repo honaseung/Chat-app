@@ -1,4 +1,4 @@
-import { Button, Skeleton, TextField } from "@mui/material";
+import { Button, TextField } from "@mui/material";
 import { useState, useEffect } from "react";
 import {
   getUser,
@@ -14,7 +14,7 @@ import { validateSameDay } from "../../lib/validate";
 import { useRouter } from "next/router";
 import Loading from "../../components/Loading";
 
-const Room = () => {
+const Room: React.FunctionComponent = () => {
   const user = getUser();
   const router = useRouter();
   const room = router.query.room;
@@ -24,7 +24,7 @@ const Room = () => {
     setLoading(true);
     realtimeGetDocs(
       { collectionType },
-      (response) => {
+      (response: any) => {
         setLoading(false);
         const res = response.val();
         setOriConversation(res);
@@ -46,7 +46,7 @@ const Room = () => {
         });
         setConversation(messages);
       },
-      (error) => {
+      (error: any) => {
         setLoading(false);
         console.log(error);
       }
@@ -54,70 +54,73 @@ const Room = () => {
   };
 
   const addMessage = (
-    info: string = null,
-    newCollectionType: string = null
+    info: string = '',
+    newCollectionType: string = ''
   ) => {
     setLoading(true);
     realtimeAddDoc(
       {
         collectionType: newCollectionType || collectionType,
-        inputParams: {
+        roomParam: {
           ...oriConversation,
           [new Date().getTime() +
-          "-" +
-          replaceAllSpecialChar(user.email, "_") +
-          "-" +
-          user.displayName]: info || text,
-        },
+            "-" +
+            replaceAllSpecialChar(user?.email || '', "_") +
+            "-" +
+            user?.displayName || '']: info || text,
+        }
       },
-      (response) => {
+      (response: any) => {
         setLoading(false);
         console.log(response);
       },
-      (error) => {
+      (error: any) => {
         setLoading(false);
         console.log(error);
       }
     );
   };
 
-  const [oriConversation, setOriConversation] = useState({});
-  const [conversation, setConversation] = useState([]);
+  const [oriConversation, setOriConversation] = useState<object>({});
+  const [conversation, setConversation] = useState<Imessage[]>([]);
   const [text, setText] = useState("");
 
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     realtimeChatListenOn({ collectionType }, () => {
-      console.log("realtimeListenOn");
       getConversation();
     });
   }, []);
 
   const goToRooms = () => {
     realtimeChatListenOff({ collectionType });
-    console.log("realtimeListenOff");
-    router.push("rooms");
+    router.push("rooms", undefined, { shallow: true });
   };
 
   const exitRoom = async () => {
     setLoading(true);
-    const changedId = replaceAllSpecialChar(user.email, "_");
+    const changedId = replaceAllSpecialChar(user?.email || '', "_");
     await realtimeChatListenOff({ collectionType });
     await realtimeExitRoomDocs(
       {
         collectionType,
-        inputParams: { changedId },
+        roomParam: { changedId },
       },
       () => {
+        setLoading(false);
         addMessage(
-          `${user.email} 님이 나가셨습니다.`,
+          `${user?.email || ''} 님이 나가셨습니다.`,
           collectionType.replace(`-${changedId}`, "")
         );
       }
     );
     router.push("rooms");
   };
+
+  if (loading) {
+    return null;
+  }
 
   return (
     <>
@@ -126,13 +129,12 @@ const Room = () => {
       ) : (
         <>
           {conversation &&
-            conversation.map((message, idx) => {
+            conversation.map((message: Imessage, idx) => {
               return (
-                <>
+                <div key={idx}>
                   {!validateSameDay(message.date, message.prevDate) ? (
                     <>
-                      <Skeleton animation={false} />
-                      <div key={idx} className="conversation-date">
+                      <div key={message.date.toLocaleDateString()} className="conversation-date">
                         {message.date.toLocaleDateString()}
                       </div>
                     </>
@@ -143,12 +145,13 @@ const Room = () => {
                     userName={message.userName}
                     text={message.text}
                     mine={
-                      replaceAllSpecialChar(user.email, "_") ===
+                      replaceAllSpecialChar(user?.email || '', "_") ===
                       message.targetId
                     }
                     time={message.date.toLocaleTimeString()}
+                    key={idx}
                   />
-                </>
+                </div>
               );
             })}
           <TextField
