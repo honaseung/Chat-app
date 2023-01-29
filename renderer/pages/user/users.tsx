@@ -4,7 +4,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHead,
   TableRow,
 } from "@mui/material";
@@ -22,33 +21,37 @@ import {
   createChatRoomCollection,
   replaceAllSpecialChar,
 } from "../../lib/utils";
-import { Iuser } from "../../type/user";
 import Loading from "../../components/Loading";
 import Link from "../../components/Link";
+import { ListUsersResult } from "firebase-admin/lib/auth/base-auth";
+import { UserRecord } from "firebase-admin/lib/auth/user-record";
+import { SetStateAction } from "react";
+import { Iuser, defaultUser } from "../../type/user";
+import { User as firebaseUser } from "firebase/auth";
 
-const Users = () => {
-  const user = getUser();
+const Users: React.FunctionComponent = () => {
+  const user: firebaseUser | Iuser = getUser() || defaultUser;
 
   useEffect(() => {
     setLoading(true);
     listUsers(
-      (response) => {
+      (response: ListUsersResult) => {
         setLoading(false);
-        const users: Iuser[] = [];
-        response.users.forEach((user) => {
+        const users: SetStateAction<object[]> = [];
+        response.users.forEach((user: UserRecord) => {
           users.push(user.toJSON());
         });
         setUsers(users);
       },
-      (error) => {
+      (error: any) => {
         setLoading(false);
         console.log(error);
       }
     );
   }, []);
 
-  const [users, setUsers] = useState([]);
-  const [targetUsers, setTargetUsers] = useState([]);
+  const [users, setUsers] = useState<object[]>([]);
+  const [targetUsers, setTargetUsers] = useState<string[]>([]);
   const [modalOption, setModalOption] = useState({
     title: "",
     content: "",
@@ -63,19 +66,19 @@ const Users = () => {
     setLoading(true);
     logoutUser(
       () => {
-        router.push("/home");
+        router.push("/home", undefined, { shallow: true });
         setLoading(false);
       },
-      (error) => {
+      (error: any) => {
         console.log(error);
         setLoading(false);
       }
     );
   };
 
-  const handleChat = (e, info) => {
+  const handleChat = (e: React.ChangeEvent<HTMLInputElement>, info: Iuser = { ...defaultUser }) => {
     const { checked } = e.target;
-    const { displayName, email, phoneNumber } = info;
+    const { email } = info;
     if (checked) setTargetUsers(targetUsers.concat([email]));
     else setTargetUsers(targetUsers.filter((user) => user !== info.email));
   };
@@ -96,13 +99,13 @@ const Users = () => {
           "chat/" +
           "-" +
           new Date().getTime() +
-          createChatRoomCollection(targetUsers.concat([user.email])),
-        inputParams: {
+          createChatRoomCollection(targetUsers.concat([user?.email || ''])),
+        roomParam: {
           [new Date().getTime() +
-          "-" +
-          replaceAllSpecialChar(user.email, "_") +
-          "-" +
-          user.displayName]:
+            "-" +
+            replaceAllSpecialChar(user?.email || '', "_") +
+            "-" +
+            user.displayName]:
             user.email +
             " (이)가 " +
             targetUsers.join(" (와)과 ") +
@@ -110,16 +113,20 @@ const Users = () => {
             "초대하였습니다.",
         },
       },
-      (response) => {
+      () => {
         setLoading(false);
         router.push("../chat/rooms");
       },
-      (error) => {
+      (error: any) => {
         setLoading(false);
         console.log(error);
       }
     );
   };
+
+  if (loading) {
+    return null;
+  }
 
   return (
     <>
@@ -128,11 +135,9 @@ const Users = () => {
       ) : (
         <>
           <div className="header">
-            <Fab color="primary" aria-label="add">
+            <Fab color="primary" aria-label="add" onClick={logout}>
               {/* <AddIcon /> */}
-              <Button className="btn" onClick={logout}>
-                LOGOUT
-              </Button>
+              LOGOUT
             </Fab>
             <Button
               className="btn"
@@ -164,7 +169,7 @@ const Users = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {users.map((u) => (
+              {users.map((u: any) => (
                 <User
                   key={u.uid}
                   displayName={u.displayName}
