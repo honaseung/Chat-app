@@ -1,6 +1,15 @@
 import { Switch, TableCell, TableRow } from "@mui/material";
 
-const User = ({
+type User = {
+  displayName: string,
+  email: string,
+  lastSignInTime: string,
+  phoneNumber: string,
+  handleChat: Function,
+  mine: boolean,
+}
+
+const User: React.FunctionComponent<User> = ({
   displayName,
   email,
   lastSignInTime,
