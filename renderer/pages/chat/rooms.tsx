@@ -42,10 +42,6 @@ const Rooms: React.FunctionComponent = () => {
     );
   }, []);
 
-  if (loading) {
-    return null;
-  }
-
   return (
     <>
       {loading ? (

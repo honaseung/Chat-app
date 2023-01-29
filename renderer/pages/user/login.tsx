@@ -47,7 +47,7 @@ const Login: React.FunctionComponent = () => {
       { userParam: { ...defaultUser, id: loginId, password: loginPassword } },
       () => {
         setLoading(false);
-        router.push("users", undefined, { shallow: true });
+        router.push("users");
       },
       (error: any) => {
         setLoading(false);

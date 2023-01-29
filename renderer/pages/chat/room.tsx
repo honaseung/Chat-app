@@ -13,6 +13,7 @@ import Message from "../../components/Message";
 import { validateSameDay } from "../../lib/validate";
 import { useRouter } from "next/router";
 import Loading from "../../components/Loading";
+import { Imessage } from "../../type/message";
 
 const Room: React.FunctionComponent = () => {
   const user = getUser();
@@ -57,6 +58,7 @@ const Room: React.FunctionComponent = () => {
     info: string = '',
     newCollectionType: string = ''
   ) => {
+    if (text === '') return;
     setLoading(true);
     realtimeAddDoc(
       {
@@ -71,8 +73,8 @@ const Room: React.FunctionComponent = () => {
         }
       },
       (response: any) => {
+        setText('');
         setLoading(false);
-        console.log(response);
       },
       (error: any) => {
         setLoading(false);
@@ -117,10 +119,6 @@ const Room: React.FunctionComponent = () => {
     );
     router.push("rooms");
   };
-
-  if (loading) {
-    return null;
-  }
 
   return (
     <>

@@ -14,6 +14,7 @@ import {
   remove,
   query,
   onChildAdded,
+  onChildRemoved,
   off,
 } from "firebase/database";
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
@@ -298,7 +299,6 @@ export async function realtimeExitRoomDocs(
     `-${roomParam?.changedId || ""}`,
     ""
   );
-  console.log(collectionType, newCollectionType, roomParam);
   await get(child(ref(realtimeDatabase), collectionType)).then((data) => {
     remove(child(ref(realtimeDatabase), collectionType)).then(() => {
       realtimeAddDoc(
@@ -321,6 +321,7 @@ export async function realtimeChatListenOn(
 ) {
   const { collectionType = "" } = request;
   onChildAdded(child(ref(realtimeDatabase), collectionType), sucCallback);
+  // onChildRemoved(child(ref(realtimeDatabase), "chat"), (snapshot: DataSnapshot) => console.log('snapshot', snapshot));
 }
 
 /**

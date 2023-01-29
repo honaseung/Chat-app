@@ -124,10 +124,6 @@ const Users: React.FunctionComponent = () => {
     );
   };
 
-  if (loading) {
-    return null;
-  }
-
   return (
     <>
       {loading ? (

@@ -1,4 +1,4 @@
-interface Imessage {
+export interface Imessage {
   targetId: string;
   userName: string;
   prevDate: Date;
