@@ -1,4 +1,4 @@
-const Loading = () => {
+const Loading: React.FunctionComponent = () => {
   return (
     <>
       <div className="loading-background">
