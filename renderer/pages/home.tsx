@@ -1,4 +1,4 @@
-import { Fragment, useState, useEffect } from "react";
+import { Fragment } from "react";
 import Head from "next/head";
 import Typography from "@mui/material/Typography";
 import Link from "../components/Link";
