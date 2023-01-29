@@ -8,10 +8,20 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import getErrMsg from "../lib/errMsg";
-import Loading from "./Loading";
 import Modal from "./Modal";
 
-const UserForm = ({
+type UserForm = {
+  id: string,
+  name?: string,
+  password: string,
+  passwordConfirm?: string,
+  number?: string,
+  isRegist?: boolean,
+  handleValue(e: React.ChangeEvent<HTMLInputElement>, s?: Function): void,
+  request(s: Function): void,
+}
+
+const UserForm: React.FunctionComponent<UserForm> = ({
   id,
   name = "",
   password,
@@ -31,9 +41,7 @@ const UserForm = ({
   const [passwordErr, setPasswordErr] = useState(true);
   const [confirmPasswordErr, setConfirmPasswordErr] = useState(true);
 
-  const [loading, setLoading] = useState(false);
-
-  const openErrModal = (error) => {
+  const openErrModal = (error: any) => {
     const [title, content] = getErrMsg(error.code);
     setModalOption({
       title,
@@ -50,7 +58,7 @@ const UserForm = ({
           <InputLabel htmlFor="input-id">ID</InputLabel>
           <FilledInput
             value={id}
-            onChange={(e) => handleValue(e, setIdErr)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleValue(e, setIdErr)}
             name="input-id"
             id="input-id"
             aria-describedby="ID"
@@ -66,7 +74,7 @@ const UserForm = ({
             <InputLabel htmlFor="input-name">NAME</InputLabel>
             <FilledInput
               value={name}
-              onChange={(e) => handleValue(e)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleValue(e)}
               name="input-name"
               id="input-name"
               aria-describedby="NAME"
@@ -81,7 +89,7 @@ const UserForm = ({
             <InputLabel htmlFor="input-number">NUMBER</InputLabel>
             <FilledInput
               value={number}
-              onChange={(e) => handleValue(e, setNumberErr)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleValue(e, setNumberErr)}
               name="input-number"
               id="input-number"
               aria-describedby="NUMBER"
@@ -98,7 +106,7 @@ const UserForm = ({
           <InputLabel htmlFor="input-password">PASSWORD</InputLabel>
           <FilledInput
             value={password}
-            onChange={(e) => handleValue(e, setPasswordErr)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleValue(e, setPasswordErr)}
             name="input-password"
             id="input-password"
             aria-describedby="PASSWORD"
@@ -118,7 +126,7 @@ const UserForm = ({
             </InputLabel>
             <FilledInput
               value={passwordConfirm}
-              onChange={(e) => handleValue(e, setConfirmPasswordErr)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleValue(e, setConfirmPasswordErr)}
               name="input-password-confirm"
               id="input-password-confirm"
               aria-describedby="PASSWORD-CONFIRM"
@@ -150,7 +158,6 @@ const UserForm = ({
         open={modalOpen}
         setOpen={setModalOpen}
       />
-      {loading && <Loading />}
     </>
   );
 };
