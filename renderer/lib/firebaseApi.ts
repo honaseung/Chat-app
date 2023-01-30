@@ -17,8 +17,17 @@ import {
   onChildRemoved,
   off,
 } from "firebase/database";
-import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut,
+  setPersistence,
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  browserSessionPersistence,
+} from "firebase/auth";
+import admin, {
   auth,
   firestore,
   database,
@@ -39,10 +48,9 @@ import { User } from "firebase/auth";
  * @description 사용자 등록 함수
  */
 export function getUser() {
-  const user = cmmAuth.currentUser;
-  if (user !== null) {
-    return user;
-  }
+  // auth.verifyIdToken()
+  const user = getAuth().currentUser;
+  if (user) return user;
 }
 
 /**
@@ -73,7 +81,7 @@ export async function registUser(
   sucCallback: Function,
   failCallback: Function
 ) {
-  const { userParam } = request || defaultUser;
+  const { userParam } = request || { defaultUser };
   await auth
     .createUser({
       email: userParam?.email,
@@ -103,17 +111,20 @@ export async function registUser(
 export async function loginUser(
   request: Irequest,
   sucCallback: Function,
-  failCallback: Function
+  failCallback: Function,
+  listenCallback: Function
 ) {
-  const { userParam } = request || defaultUser;
+  const { userParam } = request || { defaultUser };
   await signInWithEmailAndPassword(
     cmmAuth,
-    userParam?.id || "",
+    userParam?.email || "",
     userParam?.password || ""
   )
     .then((response) => {
       if (sucCallback) {
-        // if (cmmAuth) onlineUser(cmmAuth.currentUser);
+        // setPersistence(cmmAuth, browserSessionPersistence).then(() => {
+        //   onAuthStateChanged(cmmAuth, (user) => {});
+        // });
         sucCallback(response);
       }
     })
@@ -246,13 +257,41 @@ export async function realtimeInviteRoom(
  * @param failCallback 실패콜백함수
  * @description realtime Database 저장 함수
  */
-export async function realtimeAddDoc(
-  request: Irequest,
+export async function realtimeSendMessage(
+  request: any,
   sucCallback: Function,
   failCallback: Function
 ) {
-  const { collectionType, roomParam } = request;
-  await set(ref(realtimeDatabase, collectionType), roomParam)
+  const { collectionType, messages } = request;
+  await set(ref(realtimeDatabase, collectionType), messages)
+    .then((response) => {
+      if (sucCallback) sucCallback(response);
+    })
+    .catch((error) => {
+      if (failCallback) failCallback(error);
+    });
+}
+
+/**
+ * @param request 인풋값을 담은 객체
+ * @param sucCallback 성공콜백함수
+ * @param failCallback 실패콜백함수
+ * @description realtime Database 읽기 함수
+ */
+export async function realtimeGetRooms(
+  request: any,
+  sucCallback: Function,
+  failCallback: Function
+) {
+  const { collectionType = "", condition = [] } = request;
+  let q = null;
+  if (condition.length > 0) {
+    const queryConstraints = useRealtimeDatabaseCreateWhere(condition);
+    q = query(ref(realtimeDatabase), ...queryConstraints);
+  } else {
+    q = child(ref(realtimeDatabase), collectionType);
+  }
+  await get(q)
     .then((response) => {
       if (sucCallback) sucCallback(response);
     })
@@ -323,21 +362,17 @@ export async function realtimeGetRoomDocs(
  */
 export async function realtimeExitRoomDocs(
   request: Irequest,
-  sucCallback: Function
+  sucCallback: Function,
+  failCallback: Function
 ) {
   const { collectionType = "", roomParam } = request;
-  const newCollectionType = collectionType?.replace(
-    `-${roomParam?.changedId || ""}`,
-    ""
-  );
-  await get(child(ref(realtimeDatabase), collectionType)).then((data) => {
-    remove(child(ref(realtimeDatabase), collectionType)).then(() => {
-      realtimeAddDoc(
-        { collectionType: newCollectionType, roomParam: data.val() },
-        sucCallback
-      );
+  await set(ref(realtimeDatabase, collectionType), roomParam)
+    .then((response) => {
+      if (sucCallback) sucCallback(response);
+    })
+    .catch((error) => {
+      if (failCallback) failCallback(error);
     });
-  });
 }
 
 /**

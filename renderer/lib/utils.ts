@@ -45,6 +45,6 @@ export function createChatRoomCollection(targetIds: string[]) {
   return replaceAllSpecialChar(roomTitle, "_");
 }
 
-export function createLocaleDateString(target: string) {
+export function createLocaleDateString(target: number) {
   return new Date(parseInt(target, 10)).toLocaleDateString();
 }

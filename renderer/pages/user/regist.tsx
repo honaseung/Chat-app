@@ -9,6 +9,7 @@ import {
   validatePasswod,
   validatePhoneNumber,
 } from "../../lib/validate";
+import { defaultUser } from "../../type/user";
 
 const Regist: React.FunctionComponent = () => {
   const [registId, setRegistId] = useState("");
@@ -78,10 +79,10 @@ const Regist: React.FunctionComponent = () => {
     registUser(
       {
         userParam: {
-          id: registId,
+          ...defaultUser,
           email: registId,
           displayName: registName ? registName : registId.split("@")[0],
-          phoneNumber: "+82" + registPhoneNumber.slice(1),
+          phoneNumber: `+82${registPhoneNumber.slice(1)}`,
           password: registPassword,
         },
       },
@@ -107,9 +108,9 @@ const Regist: React.FunctionComponent = () => {
         handleValue={handleValue}
         isRegist
         request={regist}
-      />
-      <Link href="/user/login">GO TO LOGIN</Link>
-      <Link href="/home">HOME</Link>
+      >
+        <Link href="/user/login">GO TO LOGIN</Link>
+      </UserForm>
       {loading && <Loading />}
     </>
   );

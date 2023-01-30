@@ -1,8 +1,9 @@
 export interface Imessage {
-  targetId: string;
-  userName: string;
-  prevDate: Date;
-  date: Date;
-  key: string;
-  text: string;
+  userId?: string;
+  userName?: string;
+  prevDate?: number;
+  date?: number;
+  text?: string;
 }
+
+export interface IdetailMessage {}

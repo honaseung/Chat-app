@@ -9,19 +9,24 @@ import { createLocaleDateString } from "../lib/utils";
 import Loading from "./Loading";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import { Imessage } from "../type/message";
+import { Iuser } from "../type/user";
 
 type Room = {
-  room: string;
+  title: string;
+  created: number;
+  members: Iuser[];
+  lastMessage: string;
 };
 
-const Room: React.FunctionComponent<Room> = ({ room }) => {
+const Room: React.FunctionComponent<Room> = ({ title, created, members, lastMessage }) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const enterRoom = (room: string) => {
+  const enterRoom = (roomKey: number) => {
     setLoading(true);
     router.push({
       pathname: "room",
-      query: { room },
+      query: { roomKey },
     }, undefined, { shallow: true });
   };
 
@@ -32,35 +37,32 @@ const Room: React.FunctionComponent<Room> = ({ room }) => {
       ) : (
         <Card sx={{ minWidth: 275, mt: 1, backgroundColor: "#d8ede7" }}>
           <CardContent>
-            {room.split("-").map((title, idx) => {
-              if (idx == 0) return null;
-              return idx === 1 ? (
-                <div key={title}>
-                  <Typography
-                    sx={{ fontSize: 14 }}
-                    color="text.secondary"
-                    gutterBottom
-                    key={title}
-                  >
-                    {"생성 날짜: " + createLocaleDateString(title)}
-                  </Typography>
-                  <Typography variant="h5" component="div" key={idx}>
-                    참여자:
-                  </Typography>
-                </div>
-              ) : (
-                <Typography
-                  sx={{ textAlign: "right" }}
-                  color="text.secondary"
-                  key={idx}
-                >
-                  {title.split("_")[0]}
-                </Typography>
-              );
-            })}
+            <Typography
+              sx={{ fontSize: 14 }}
+              color="text.secondary"
+              gutterBottom
+            >
+              {"생성 날짜: " + createLocaleDateString(created)}
+            </Typography>
+            {title}
+            <Typography variant="h5" component="div">
+              참여자:
+            </Typography>
+            {members && members.map((member, idx) => (
+
+              <Typography
+                sx={{ textAlign: "right" }}
+                color="text.secondary"
+                key={idx}
+              >
+                {`${member.userName}(${member.userId})`}
+              </Typography>
+            ))
+            }
+            마지막 메세지: {lastMessage}
           </CardContent>
           <CardActions>
-            <Button onClick={() => enterRoom(room)}>들어가기</Button>
+            <Button onClick={() => enterRoom(created)}>들어가기</Button>
           </CardActions>
         </Card>
       )}

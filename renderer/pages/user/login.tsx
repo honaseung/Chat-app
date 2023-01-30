@@ -15,7 +15,10 @@ const Login: React.FunctionComponent = () => {
 
   const router = useRouter();
 
-  const handleValue = (e: React.ChangeEvent<HTMLInputElement>, setErr: Dispatch<SetStateAction<boolean>> = () => { }) => {
+  const handleValue = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setErr: Dispatch<SetStateAction<boolean>> = () => { }
+  ) => {
     const { name, value } = e.target;
     switch (name) {
       case "input-id":
@@ -44,7 +47,9 @@ const Login: React.FunctionComponent = () => {
   const login = (failCallback: Function) => {
     setLoading(true);
     loginUser(
-      { userParam: { ...defaultUser, id: loginId, password: loginPassword } },
+      {
+        userParam: { ...defaultUser, email: loginId, password: loginPassword },
+      },
       () => {
         setLoading(false);
         router.push("users");
@@ -53,6 +58,9 @@ const Login: React.FunctionComponent = () => {
         setLoading(false);
         failCallback(error);
         console.log(error);
+      },
+      () => {
+        return router.push("/home");
       }
     );
   };
@@ -63,9 +71,9 @@ const Login: React.FunctionComponent = () => {
         id={loginId}
         password={loginPassword}
         handleValue={handleValue}
-        request={login} />
-      <Link href="/user/regist">GO TO REGIST</Link>
-      <Link href="/home">HOME</Link>
+        request={login}>
+        <Link href="/user/regist">GO TO REGIST</Link>
+      </UserForm>
       {loading && <Loading />}
     </>
   );

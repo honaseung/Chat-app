@@ -1,0 +1,34 @@
+.user-form {
+  display: block;
+  text-align: center;
+}
+
+.user-form-container {
+  display: block;
+  margin-top: 5%;
+  border: 5px #aaaa slod;
+  border-radius: 20px;
+}
+
+.user-form-input {
+  display: block;
+  margin-top: 2%;
+}
+
+.user-form-title {
+  text-align: center;
+  font-weight: 750;
+  font-size: 3rem;
+}
+
+.user-form-button-container {
+  position: absolute;
+  bottom: 0;
+  text-align: center;
+}
+
+.user-form-button {
+}
+
+.user-form-link {
+}

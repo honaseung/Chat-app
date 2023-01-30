@@ -1,6 +1,7 @@
 import {
   Button,
   Container,
+  Fab,
   FilledInput,
   FormControl,
   FormHelperText,
@@ -9,6 +10,7 @@ import {
 import { useState } from "react";
 import getErrMsg from "../lib/errMsg";
 import Modal from "./Modal";
+import Link from "./Link";
 
 type UserForm = {
   id: string,
@@ -19,6 +21,7 @@ type UserForm = {
   isRegist?: boolean,
   handleValue(e: React.ChangeEvent<HTMLInputElement>, s?: Function): void,
   request(s: Function): void,
+  children?: React.ReactNode
 }
 
 const UserForm: React.FunctionComponent<UserForm> = ({
@@ -30,6 +33,7 @@ const UserForm: React.FunctionComponent<UserForm> = ({
   isRegist = false,
   handleValue,
   request,
+  children,
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalOption, setModalOption] = useState({
@@ -52,106 +56,135 @@ const UserForm: React.FunctionComponent<UserForm> = ({
 
   return (
     <>
-      <Container maxWidth="xs">
-        {/* <InputBase type="file" /> */}
-        <FormControl>
-          <InputLabel htmlFor="input-id">ID</InputLabel>
-          <FilledInput
-            value={id}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleValue(e, setIdErr)}
-            name="input-id"
-            id="input-id"
-            aria-describedby="ID"
-            type="email"
-            error={idErr}
-          />
-          <FormHelperText id="ID">
-            {idErr ? "email 을 적어주세요." : "올바르게 입력하셨습니다."}
-          </FormHelperText>
-        </FormControl>
-        {isRegist && (
-          <FormControl>
-            <InputLabel htmlFor="input-name">NAME</InputLabel>
+      <Container maxWidth="sm" className="user-form">
+        <img src="/images/login.png" height="280" width="280" />
+        <div className="user-form-title">
+          {isRegist ? "회원가입" : "로그인"}을 해주세요.
+        </div>
+        <Container maxWidth="xs" className="user-form-container">
+          {/* <InputBase type="file" /> */}
+          <FormControl fullWidth>
+            <InputLabel htmlFor="input-id">ID</InputLabel>
             <FilledInput
-              value={name}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleValue(e)}
-              name="input-name"
-              id="input-name"
-              aria-describedby="NAME"
+              className="user-form-input"
+              value={id}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                handleValue(e, setIdErr)
+              }
+              name="input-id"
+              id="input-id"
+              aria-describedby="ID"
+              type="email"
+              error={idErr}
             />
-            <FormHelperText id="NAME">
-              생략시에는 ID 가 이름이 됩니다.
+            <FormHelperText id="ID">
+              {idErr ? "email 을 적어주세요." : "올바르게 입력하셨습니다."}
             </FormHelperText>
           </FormControl>
-        )}
-        {isRegist && (
-          <FormControl>
-            <InputLabel htmlFor="input-number">NUMBER</InputLabel>
+          {isRegist && (
+            <FormControl fullWidth>
+              <InputLabel htmlFor="input-name">NAME</InputLabel>
+              <FilledInput
+                className="user-form-input"
+                value={name}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  handleValue(e)
+                }
+                name="input-name"
+                id="input-name"
+                aria-describedby="NAME"
+              />
+              <FormHelperText id="NAME">
+                생략시에는 ID 가 이름이 됩니다.
+              </FormHelperText>
+            </FormControl>
+          )}
+          {isRegist && (
+            <FormControl fullWidth>
+              <InputLabel htmlFor="input-number">NUMBER</InputLabel>
+              <FilledInput
+                className="user-form-input"
+                value={number}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  handleValue(e, setNumberErr)
+                }
+                name="input-number"
+                id="input-number"
+                aria-describedby="NUMBER"
+                error={numberErr}
+              />
+              <FormHelperText id="NUMBER">
+                {numberErr
+                  ? "핸드폰 번호를 입력해주세요."
+                  : "올바르게 입력하셨습니다."}
+              </FormHelperText>
+            </FormControl>
+          )}
+          <FormControl fullWidth>
+            <InputLabel htmlFor="input-password">PASSWORD</InputLabel>
             <FilledInput
-              value={number}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleValue(e, setNumberErr)}
-              name="input-number"
-              id="input-number"
-              aria-describedby="NUMBER"
-              error={numberErr}
-            />
-            <FormHelperText id="NUMBER">
-              {numberErr
-                ? "핸드폰 번호를 입력해주세요."
-                : "올바르게 입력하셨습니다."}
-            </FormHelperText>
-          </FormControl>
-        )}
-        <FormControl>
-          <InputLabel htmlFor="input-password">PASSWORD</InputLabel>
-          <FilledInput
-            value={password}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleValue(e, setPasswordErr)}
-            name="input-password"
-            id="input-password"
-            aria-describedby="PASSWORD"
-            type="password"
-            error={passwordErr}
-          />
-          <FormHelperText id="PASSWORD">
-            {passwordErr
-              ? "최소 6자 에서 최대 10자"
-              : "올바르게 입력하셨습니다."}
-          </FormHelperText>
-        </FormControl>
-        {isRegist && (
-          <FormControl>
-            <InputLabel htmlFor="input-password-confirm">
-              PASSWORD CONFIRM
-            </InputLabel>
-            <FilledInput
-              value={passwordConfirm}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleValue(e, setConfirmPasswordErr)}
-              name="input-password-confirm"
-              id="input-password-confirm"
-              aria-describedby="PASSWORD-CONFIRM"
+              className="user-form-input"
+              value={password}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                handleValue(e, setPasswordErr)
+              }
+              name="input-password"
+              id="input-password"
+              aria-describedby="PASSWORD"
               type="password"
-              disabled={passwordErr}
-              error={confirmPasswordErr}
+              error={passwordErr}
             />
-            <FormHelperText id="PASSWORD-CONFIRM">
-              {confirmPasswordErr
-                ? "동일하게 적어주세요."
+            <FormHelperText id="PASSWORD">
+              {passwordErr
+                ? "최소 6자 에서 최대 10자"
                 : "올바르게 입력하셨습니다."}
             </FormHelperText>
           </FormControl>
-        )}
+          {isRegist && (
+            <FormControl fullWidth>
+              <InputLabel htmlFor="input-password-confirm">
+                PASSWORD CONFIRM
+              </InputLabel>
+              <FilledInput
+                className="user-form-input"
+                value={passwordConfirm}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  handleValue(e, setConfirmPasswordErr)
+                }
+                name="input-password-confirm"
+                id="input-password-confirm"
+                aria-describedby="PASSWORD-CONFIRM"
+                type="password"
+                disabled={passwordErr}
+                error={confirmPasswordErr}
+              />
+              <FormHelperText id="PASSWORD-CONFIRM">
+                {confirmPasswordErr
+                  ? "동일하게 적어주세요."
+                  : "올바르게 입력하셨습니다."}
+              </FormHelperText>
+            </FormControl>
+          )}
+        </Container>
+        <div className="user-form-button-container">
+          <Fab
+            className="user-form-button"
+            onClick={() => request(openErrModal)}
+            disabled={
+              idErr ||
+              passwordErr ||
+              (isRegist && (confirmPasswordErr || numberErr))
+            }
+          >
+            {isRegist ? "REGIST" : "LOGIN"}
+          </Fab>
+          <Link className="user-form-link" href="/home">
+            HOME
+          </Link>
+          {children}
+        </div>
+        <div className=""></div>
       </Container>
-      <Button
-        onClick={() => request(openErrModal)}
-        disabled={
-          idErr ||
-          passwordErr ||
-          (isRegist && (confirmPasswordErr || numberErr))
-        }
-      >
-        {isRegist ? "REGIST" : "LOGIN"}
-      </Button>
       <Modal
         title={modalOption.title}
         content={modalOption.content}

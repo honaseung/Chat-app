@@ -1,8 +1,8 @@
 import { Switch, TableCell, TableRow } from "@mui/material";
 
 type User = {
-  displayName: string,
-  email: string,
+  userName: string,
+  userId: string,
   lastSignInTime: string,
   phoneNumber: string,
   handleChat: Function,
@@ -10,8 +10,8 @@ type User = {
 }
 
 const User: React.FunctionComponent<User> = ({
-  displayName,
-  email,
+  userName,
+  userId,
   lastSignInTime,
   phoneNumber,
   handleChat,
@@ -20,8 +20,8 @@ const User: React.FunctionComponent<User> = ({
   return (
     <>
       <TableRow>
-        <TableCell align="center">{displayName}</TableCell>
-        <TableCell align="center">{email}</TableCell>
+        <TableCell align="center">{userName}</TableCell>
+        <TableCell align="center">{userId}</TableCell>
         <TableCell align="center">{lastSignInTime}</TableCell>
         <TableCell align="center">{phoneNumber}</TableCell>
         {/* <TableCell align="center">ONLINE</TableCell> */}
@@ -29,7 +29,7 @@ const User: React.FunctionComponent<User> = ({
           {!mine && (
             <Switch
               onChange={(e) =>
-                handleChat(e, { displayName, email, phoneNumber })
+                handleChat(e, { userName, userId, phoneNumber })
               }
             />
           )}

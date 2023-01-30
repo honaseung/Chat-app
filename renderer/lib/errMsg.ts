@@ -12,7 +12,10 @@ export default function getErrMsg(code: string) {
       return ["계정 중복", "이미 존재하는 계정입니다."];
     case "auth/phone-number-already-exists":
       return ["번호 중복", "이미 존재하는 핸드폰 번호입니다."];
+    case "auth/invalid-phone-number":
+      return ["잘못된 핸드폰 번호", "핸드폰를 확인해주십시오."];
     default:
+      console.log(code);
       return ["오류", "관리자에게 문의하세요."];
   }
 }

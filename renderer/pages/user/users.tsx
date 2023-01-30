@@ -13,7 +13,6 @@ import {
   getUser,
   listUsers,
   logoutUser,
-  realtimeAddDoc,
   realtimeInviteRoom,
 } from "../../lib/firebaseApi";
 import User from "../../components/User";
@@ -24,19 +23,18 @@ import { ListUsersResult } from "firebase-admin/lib/auth/base-auth";
 import { UserRecord } from "firebase-admin/lib/auth/user-record";
 import { SetStateAction } from "react";
 import { Iuser, defaultUser } from "../../type/user";
-import { User as firebaseUser } from "firebase/auth";
 
 const Users: React.FunctionComponent = () => {
-  const user: firebaseUser | Iuser = getUser() || defaultUser;
+  const user: Iuser = getUser();
 
   useEffect(() => {
     setLoading(true);
     listUsers(
       (response: ListUsersResult) => {
         setLoading(false);
-        const users: SetStateAction<object[]> = [];
+        const users: SetStateAction<Iuser[]> = [];
         response.users.forEach((user: UserRecord) => {
-          users.push(user.toJSON());
+          users.push(user.toJSON() as Iuser);
         });
         setUsers(users);
       },
@@ -47,10 +45,15 @@ const Users: React.FunctionComponent = () => {
     );
   }, []);
 
-  const [users, setUsers] = useState<object[]>([]);
-  const [targetUsers, setTargetUsers] = useState<string[]>([]);
-  const [targetPhoneNumber, setTargetPhoneNumber] = useState<object>();
-  const [roomTitle, setRoomTitle] = useState<string>('');
+  const [users, setUsers] = useState<Iuser[]>([]);
+  const [targetUsers, setTargetUsers] = useState<Iuser[]>([{
+    ...defaultUser,
+    phoneNumber: user?.phoneNumber,
+    userId: user?.email,
+    userName: user?.displayName,
+  }]);
+
+  const [roomTitle, setRoomTitle] = useState<string>("");
   const [modalOption, setModalOption] = useState({
     title: "",
     content: "",
@@ -75,51 +78,59 @@ const Users: React.FunctionComponent = () => {
     );
   };
 
-  const handleChat = (e: React.ChangeEvent<HTMLInputElement>, info: Iuser = { ...defaultUser }) => {
+  const handleChat = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    info: Iuser = { ...defaultUser }
+  ) => {
     const { checked } = e.target;
-    const { email, phoneNumber } = info;
+    const { userName, userId, phoneNumber } = info;
     if (checked) {
-      setTargetUsers(targetUsers.concat([email]));
-      setTargetPhoneNumber({ ...targetPhoneNumber, [phoneNumber]: email });
-    }
-    else {
-      setTargetUsers(targetUsers.filter((user) => user !== info.email));
-      const tmpTargetPhoneNumber = { ...targetPhoneNumber };
-      delete tmpTargetPhoneNumber[phoneNumber];
-      setTargetPhoneNumber({ tmpTargetPhoneNumber });
+      setTargetUsers(
+        targetUsers.concat([{ ...defaultUser, userName, userId, phoneNumber }])
+      );
+    } else {
+      setTargetUsers(targetUsers.filter((user) => user.userId !== info.userId));
     }
   };
 
   const invite = () => {
     setModalOption({
       title: "초대",
-      content: `${targetUsers.join(" 와\n ")} 를 초대합니다.`,
+      content: `${targetUsers
+        .map((user) => user.userName)
+        .join(" 와\n ")} 를 초대합니다.`,
     });
     setModalOpen(true);
   };
 
   const confirmInvite = () => {
     setLoading(true);
+    const createdTime = new Date().getTime();
     realtimeInviteRoom(
       {
-        collectionType:
-          "chat/" +
-          roomTitle +
-          "_" +
-          new Date().getTime(),
+        collectionType: "chat/" + createdTime,
         roomParam: {
           title: roomTitle,
-          [new Date().getTime() +
-            "_" +
-            user?.phoneNumber +
-            "_" + user.displayName]:
-            user.displayName +
-            "(" + user.email + ")" +
-            " (이)가 " +
-            targetUsers.join(" (와)과 ") +
-            " (을)를 " +
-            "초대하였습니다.",
-          members: targetPhoneNumber,
+          messages: [{
+            userId: user.email,
+            userName: user.displayName,
+            prevDate: 0,
+            date: createdTime,
+            text:
+              user.displayName +
+              "(" +
+              user.email +
+              ")" +
+              " (이)가 " +
+              targetUsers
+                .map((user) => user.userName)
+                .join(" 와\n ") +
+              " (을)를 " +
+              "초대하였습니다.",
+          }],
+          // length: 1,
+          members: targetUsers,
+          created: createdTime,
         },
       },
       () => {
@@ -177,8 +188,8 @@ const Users: React.FunctionComponent = () => {
               {users.map((u: any) => (
                 <User
                   key={u.uid}
-                  displayName={u.displayName}
-                  email={u.email}
+                  userName={u.displayName}
+                  userId={u.email}
                   lastSignInTime={
                     u.metadata.lastSignInTime
                       ? new Date(u.metadata.lastSignInTime).toLocaleDateString()
@@ -197,7 +208,9 @@ const Users: React.FunctionComponent = () => {
             setOpen={setModalOpen}
             onConfirm={confirmInvite}
             roomTitle={roomTitle}
-            setRoomTitle={setRoomTitle} onClose={() => { }} />
+            setRoomTitle={setRoomTitle}
+            onClose={() => { }}
+          />
         </>
       )}
     </>

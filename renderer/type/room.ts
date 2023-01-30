@@ -1,8 +1,10 @@
+import { Imessage } from "./message";
 import { Iuser } from "./user";
 
 export interface Iroom {
   title?: string;
-  messages?: { [x: string]: string };
-  members?: object;
-  changedId?: string;
+  messages?: Imessage[];
+  members?: Iuser[];
+  created?: number;
+  length?: number;
 }

@@ -6,6 +6,7 @@ import type { EmotionCache } from "@emotion/cache";
 import createEmotionCache from "../lib/create-emotion-cache";
 import { CacheProvider } from "@emotion/react";
 import "../styles/loading.css";
+import "../styles/userForm.css";
 
 const clientSideEmotionCache = createEmotionCache();
 
