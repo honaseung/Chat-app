@@ -18,7 +18,7 @@ import { UserRecord } from "firebase-admin/lib/auth/user-record";
 import { SetStateAction } from "react";
 import { Iuser, defaultUser } from "../../type/user";
 
-import InviteSnackbar from "../../components/IniviteSnackbar";
+import InviteSnackbar from "../../components/InviteSnackbar";
 import UserData from "../../components/UserData";
 
 const Users: React.FunctionComponent = () => {

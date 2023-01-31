@@ -1,9 +1,6 @@
 import { Button, TextField } from "@mui/material";
 import { useRouter } from "next/router";
-import {
-  realtimeChatListenOff,
-  realtimeExitRoomDocs,
-} from "../lib/firebaseApi";
+import { realtimeChatListenOff, realtimeExitRoom } from "../lib/firebaseApi";
 import { Iroom } from "../type/room";
 import { Imessage } from "../type/message";
 import { Iuser } from "../type/user";
@@ -41,7 +38,7 @@ const MessageInput: React.FunctionComponent<MessageInput> = ({
   const exitRoom = async () => {
     setLoading(true);
     await realtimeChatListenOff({ collectionType });
-    await realtimeExitRoomDocs(
+    await realtimeExitRoom(
       {
         collectionType: collectionType,
         roomParam: {

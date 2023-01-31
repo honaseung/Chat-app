@@ -2,12 +2,10 @@ import { Button, TextField } from "@mui/material";
 import { useState, useEffect } from "react";
 import {
   getUser,
-  realtimeExitRoomDocs,
-  realtimeGetDocs,
-  realtimeChatListenOff,
   realtimeChatListenOn,
   realtimeSendMessage,
   realtimeInviteListenOff,
+  realtimeGetRoom,
 } from "../../lib/firebaseApi";
 import Message from "../../components/Message";
 import { validateSameDay } from "../../lib/validate";
@@ -18,14 +16,20 @@ import { Iuser } from "../../type/user";
 import { Imessage } from "../../type/message";
 import MessageInput from "../../components/MessageInput";
 
+/**
+ * @description 메세지 컴포넌트와 메세지 인풋 컴포넌트를 보여주는 페이지 컴포넌트 입니다.
+ */
 const Room: React.FunctionComponent = () => {
   const router = useRouter();
   const roomKey = router.query.roomKey;
   const collectionType = "chat/" + roomKey;
   const userInfo: Iuser = getUser();
 
-  const getRoomInfo = () => {
-    realtimeGetDocs(
+  /**
+   * @description 방 정보 가져오기 함수
+   */
+  const getRoomInfo = (): void => {
+    realtimeGetRoom(
       { collectionType },
       (response: any) => {
         const roomInfo = response.val();
@@ -39,7 +43,10 @@ const Room: React.FunctionComponent = () => {
     );
   };
 
-  const sendMessage = () => {
+  /**
+   * @description 메세지 정보 기록 함수
+   */
+  const sendMessage = (): void => {
     if (text === "") return;
     realtimeSendMessage(
       {
@@ -55,7 +62,7 @@ const Room: React.FunctionComponent = () => {
           },
         ],
       },
-      (response: any) => {
+      () => {
         setText("");
       },
       (error: any) => {

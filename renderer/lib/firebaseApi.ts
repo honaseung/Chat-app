@@ -1,11 +1,9 @@
 //@ts-check
-
 import {
   ref,
   child,
   get,
   set,
-  query,
   onChildAdded,
   onChildRemoved,
   off,
@@ -17,18 +15,15 @@ import {
   browserSessionPersistence,
   IdTokenResult,
 } from "firebase/auth";
-import admin, { auth, realtimeDatabase, cmmAuth } from "../../firebase-config";
+import { auth, realtimeDatabase, cmmAuth } from "../../firebase-config";
 
-import { useRealtimeDatabaseCreateWhere } from "./create-query";
 import { Irequest } from "../type/firebaseApi";
-import { defaultUser } from "../type/user";
 import { Iroom } from "../type/room";
+import { defaultUser } from "../type/user";
 
 /**
- * @param request 인풋값을 담은 객체
- * @param sucCallback 성공콜백함수
  * @param failCallback 실패콜백함수
- * @description 사용자 등록 함수
+ * @description 사용자 정보 가져오기 함수
  */
 export function getUser(failCallback?: Function) {
   // auth.verifyIdToken()
@@ -40,10 +35,9 @@ export function getUser(failCallback?: Function) {
 }
 
 /**
- * @param request 인풋값을 담은 객체
  * @param sucCallback 성공콜백함수
  * @param failCallback 실패콜백함수
- * @description 사용자 등록 함수
+ * @description 사용자 목록 가져오기 함수
  */
 export async function listUsers(
   sucCallback?: Function,
@@ -59,6 +53,12 @@ export async function listUsers(
     });
 }
 
+/**
+ * @param sucCallback 성공콜백함수
+ * @param failCallback 실패콜백함수
+ * @description 로그인중인 유저 가져오기
+ * @deprecated
+ */
 export async function getOnlineUsers(
   sucCallback?: Function,
   failCallback?: Function
@@ -73,7 +73,7 @@ export async function getOnlineUsers(
 }
 
 /**
- * @param request 인풋값을 담은 객체
+ * @param request 유저 정보를 담은 객체
  * @param sucCallback 성공콜백함수
  * @param failCallback 실패콜백함수
  * @description 사용자 등록 함수
@@ -105,7 +105,7 @@ export async function registUser(
 }
 
 /**
- * @param request 인풋값을 담은 객체
+ * @param request 유저 정보를 담은 객체
  * @param sucCallback 성공콜백함수
  * @param failCallback 실패콜백함수
  * @description 사용자 로그인 함수
@@ -164,10 +164,11 @@ export async function loginUser(
 // }
 
 /**
- * @param request 인풋값을 담은 객체
+ * @param uid 유저 uid
  * @param sucCallback 성공콜백함수
  * @param failCallback 실패콜백함수
- * @description 사용자 로그인 함수
+ * @description 사용자 로그인 상태 기록 함수
+ * @deprecated
  */
 async function onlineUser(
   uid: string,
@@ -207,10 +208,10 @@ export async function logoutUser(
 }
 
 /**
- * @param request 인풋값을 담은 객체
+ * @param uid 사용자 uid
  * @param sucCallback 성공콜백함수
  * @param failCallback 실패콜백함수
- * @description 사용자 로그인 함수
+ * @description 사용자 로그인 상태 제거 함수
  */
 async function offlineUser(
   uid: string,
@@ -228,10 +229,10 @@ async function offlineUser(
 }
 
 /**
- * @param request 인풋값을 담은 객체
+ * @param request 방 정보를 담은 객체
  * @param sucCallback 성공콜백함수
  * @param failCallback 실패콜백함수
- * @description realtime Database 저장 함수
+ * @description 방 초대 함수
  */
 export async function realtimeInviteRoom(
   request: Irequest,
@@ -250,10 +251,10 @@ export async function realtimeInviteRoom(
 }
 
 /**
- * @param request 인풋값을 담은 객체
+ * @param request 방 정보 객체
  * @param sucCallback 성공콜백함수
  * @param failCallback 실패콜백함수
- * @description realtime Database 저장 함수
+ * @description 방 초대를 정보 기록 함수
  */
 export async function realtimeNoticeInvite(
   roomParam: Iroom,
@@ -275,10 +276,10 @@ export async function realtimeNoticeInvite(
 }
 
 /**
- * @param request 인풋값을 담은 객체
+ * @param request 메세지 정보를 담은 객체
  * @param sucCallback 성공콜백함수
  * @param failCallback 실패콜백함수
- * @description realtime Database 저장 함수
+ * @description 메세지 정보 기록 함수
  */
 export async function realtimeSendMessage(
   request: any,
@@ -296,25 +297,15 @@ export async function realtimeSendMessage(
 }
 
 /**
- * @param request 인풋값을 담은 객체
  * @param sucCallback 성공콜백함수
  * @param failCallback 실패콜백함수
- * @description realtime Database 읽기 함수
+ * @description 방 목록 가져오기 함수
  */
 export async function realtimeGetRooms(
-  request: any,
   sucCallback: Function,
   failCallback: Function
 ) {
-  const { collectionType = "", condition = [] } = request;
-  let q = null;
-  if (condition.length > 0) {
-    const queryConstraints = useRealtimeDatabaseCreateWhere(condition);
-    q = query(ref(realtimeDatabase), ...queryConstraints);
-  } else {
-    q = child(ref(realtimeDatabase), collectionType);
-  }
-  await get(q)
+  await get(child(ref(realtimeDatabase), "chat"))
     .then((response) => {
       if (sucCallback) sucCallback(response);
     })
@@ -324,25 +315,18 @@ export async function realtimeGetRooms(
 }
 
 /**
- * @param request 인풋값을 담은 객체
+ * @param request 방 정보 가져오기 함수
  * @param sucCallback 성공콜백함수
  * @param failCallback 실패콜백함수
  * @description realtime Database 읽기 함수
  */
-export async function realtimeGetDocs(
+export async function realtimeGetRoom(
   request: Irequest,
   sucCallback: Function,
   failCallback: Function
 ) {
-  const { collectionType = "", condition = [] } = request;
-  let q = null;
-  if (condition.length > 0) {
-    const queryConstraints = useRealtimeDatabaseCreateWhere(condition);
-    q = query(ref(realtimeDatabase), ...queryConstraints);
-  } else {
-    q = child(ref(realtimeDatabase), collectionType);
-  }
-  await get(q)
+  const { collectionType } = request;
+  await get(child(ref(realtimeDatabase), collectionType))
     .then((response) => {
       if (sucCallback) sucCallback(response);
     })
@@ -352,17 +336,17 @@ export async function realtimeGetDocs(
 }
 
 /**
- * @param request 인풋값을 담은 객체
+ * @param request 방 정보를 담은 객체
  * @param sucCallback 성공콜백함수
  * @param failCallback 실패콜백함수
- * @description realtime Database 읽기 함수
+ * @description 방에서 나가기 함수
  */
-export async function realtimeExitRoomDocs(
+export async function realtimeExitRoom(
   request: Irequest,
   sucCallback: Function,
   failCallback: Function
 ) {
-  const { collectionType = "", roomParam } = request;
+  const { collectionType, roomParam } = request;
   await set(ref(realtimeDatabase, collectionType), roomParam)
     .then((response) => {
       if (sucCallback) sucCallback(response);
@@ -373,10 +357,8 @@ export async function realtimeExitRoomDocs(
 }
 
 /**
- * @param request 인풋값을 담은 객체
  * @param sucCallback 성공콜백함수
- * @param failCallback 실패콜백함수
- * @description realtime Database 읽기 함수
+ * @description 방 초대 듣기 함수
  */
 export function realtimeInviteListenOn(
   sucCallback: (snapshot: DataSnapshot, previousChildName?: string) => unknown
@@ -386,20 +368,15 @@ export function realtimeInviteListenOn(
 }
 
 /**
- * @param request 인풋값을 담은 객체
- * @param sucCallback 성공콜백함수
- * @param failCallback 실패콜백함수
- * @description realtime Database 읽기 함수
+ * @description 방 초대 듣기 종료 함수
  */
 export function realtimeInviteListenOff() {
   off(child(ref(realtimeDatabase), `notice/chat`), "child_added");
 }
 
 /**
- * @param request 인풋값을 담은 객체
  * @param sucCallback 성공콜백함수
- * @param failCallback 실패콜백함수
- * @description realtime Database 읽기 함수
+ * @description 방 생성 듣기 함수
  */
 export function realtimeRoomListenOn(
   sucCallback: (snapshot: DataSnapshot, previousChildName?: string) => unknown
@@ -409,35 +386,29 @@ export function realtimeRoomListenOn(
 }
 
 /**
- * @param request 인풋값을 담은 객체
- * @param sucCallback 성공콜백함수
- * @param failCallback 실패콜백함수
- * @description realtime Database 읽기 함수
+ * @description 방 생성 듣기 종료 함수
  */
 export function realtimeRoomListenOff() {
   off(child(ref(realtimeDatabase), "chat/"), "child_added");
 }
 
 /**
- * @param request 인풋값을 담은 객체
+ * @param request database path 값을 담은 객체
  * @param sucCallback 성공콜백함수
- * @param failCallback 실패콜백함수
- * @description realtime Database 읽기 함수
+ * @description 채팅 실시간 듣기 함수
  */
 export function realtimeChatListenOn(
   request: Irequest,
   sucCallback: () => void
 ) {
-  const { collectionType = "" } = request;
+  const { collectionType } = request;
   onChildAdded(child(ref(realtimeDatabase), collectionType), sucCallback);
   // onChildRemoved(child(ref(realtimeDatabase), "chat"), (snapshot: DataSnapshot) => console.log('snapshot', snapshot));
 }
 
 /**
- * @param request 인풋값을 담은 객체
- * @param sucCallback 성공콜백함수
- * @param failCallback 실패콜백함수
- * @description realtime Database 읽기 함수
+ * @param request database path 값을 담은 객체
+ * @description 채팅 실시간 종료 함수
  */
 export function realtimeChatListenOff(request: Irequest) {
   const { collectionType = "" } = request;
@@ -445,10 +416,9 @@ export function realtimeChatListenOff(request: Irequest) {
 }
 
 /**
- * @param request 인풋값을 담은 객체
  * @param sucCallback 성공콜백함수
- * @param failCallback 실패콜백함수
- * @description realtime Database 읽기 함수
+ * @description 사용자 로그인 듣기 함수
+ * @deprecated
  */
 export function realtimeOnlineUserListenOn(sucCallback: () => void) {
   onChildAdded(child(ref(realtimeDatabase), "onlineUser"), sucCallback);
@@ -456,10 +426,7 @@ export function realtimeOnlineUserListenOn(sucCallback: () => void) {
 }
 
 /**
- * @param request 인풋값을 담은 객체
- * @param sucCallback 성공콜백함수
- * @param failCallback 실패콜백함수
- * @description realtime Database 읽기 함수
+ * @description 사용자 로그인 듣기 종료 함수
  */
 export function realtimeOnlineUserListenOff() {
   off(child(ref(realtimeDatabase), "onlineUser"), "child_changed");

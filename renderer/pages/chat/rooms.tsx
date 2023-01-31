@@ -11,29 +11,30 @@ import Loading from "../../components/Loading";
 import Room from "../../components/Room";
 import { Iroom } from "../../type/room";
 import { Iuser } from "../../type/user";
-import InviteSnackbar from "../../components/IniviteSnackbar";
+import InviteSnackbar from "../../components/InviteSnackbar";
 
+/**
+ * @description 방 컴포넌트를 보여주는 페이지 컴포넌트입니다.
+ */
 const Rooms: React.FunctionComponent = () => {
   const router = useRouter();
   const userInfo: Iuser = getUser();
 
   const [rooms, setRooms] = useState<Iroom[]>([]);
-
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setLoading(true);
-    getRooms();
     realtimeRoomListenOn(() => {
       getRooms();
     });
   }, []);
 
-  const getRooms = () => {
+  /**
+   * @description 방 목록 가져오기 함수
+   */
+  const getRooms = (): void => {
     realtimeGetRooms(
-      {
-        collectionType: "chat",
-      },
       (response: any) => {
         setLoading(false);
         if (response) {
@@ -49,6 +50,10 @@ const Rooms: React.FunctionComponent = () => {
     );
   };
 
+  /**
+   * @param rooms 방 정보 목록
+   * @returns 메세지 개수가 세팅된 방 정보
+   */
   const setMessagesLength = (rooms: any) => {
     const tmpRooms = Object.keys(rooms).map((roomKey: string) => {
       const tmpRoom = {
@@ -60,11 +65,16 @@ const Rooms: React.FunctionComponent = () => {
     return tmpRooms;
   };
 
+  /**
+   *
+   * @param allRooms 모든 방 목록의 키 값
+   * @returns 내가 속한 방 목록과 오픈 그룹방 정보
+   */
   const getMyRooms = (allRooms: any): Iroom[] => {
     const myRooms: Iroom[] = [];
     Object.keys(allRooms).map((room: string) => {
       if (
-        room.includes("_") ||
+        room.includes("GLOBAL") ||
         allRooms[room].members?.some((member: Iuser) => {
           return member.userId === userInfo?.email;
         })
