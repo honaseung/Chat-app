@@ -15,10 +15,7 @@ import InviteSnackbar from "../../components/IniviteSnackbar";
 
 const Rooms: React.FunctionComponent = () => {
   const router = useRouter();
-  const userInfo: Iuser = getUser(() => {
-    console.log("logouted");
-    router.push("/home", undefined, { shallow: true });
-  });
+  const userInfo: Iuser = getUser();
 
   const [rooms, setRooms] = useState<Iroom[]>([]);
 

@@ -3,13 +3,11 @@ import { Fab, Table, TableBody, TableHead } from "@mui/material";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import {
-  getOnlineUsers,
   getUser,
   listUsers,
   logoutUser,
   realtimeInviteRoom,
   realtimeOnlineUserListenOff,
-  realtimeOnlineUserListenOn,
 } from "../../lib/firebaseApi";
 
 import User from "../../components/User";
@@ -25,10 +23,7 @@ import UserData from "../../components/UserData";
 
 const Users: React.FunctionComponent = () => {
   const router = useRouter();
-  const userInfo: Iuser = getUser(() => {
-    console.log("logouted");
-    router.push("/home", undefined, { shallow: true });
-  });
+  const userInfo: Iuser = getUser();
 
   useEffect(() => {
     setLoading(true);

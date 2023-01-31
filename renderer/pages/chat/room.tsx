@@ -22,10 +22,7 @@ const Room: React.FunctionComponent = () => {
   const router = useRouter();
   const roomKey = router.query.roomKey;
   const collectionType = "chat/" + roomKey;
-  const userInfo: Iuser = getUser(() => {
-    console.log("logouted");
-    router.push("/home", undefined, { shallow: true });
-  });
+  const userInfo: Iuser = getUser();
 
   const getRoomInfo = () => {
     realtimeGetDocs(

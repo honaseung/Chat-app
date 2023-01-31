@@ -30,7 +30,7 @@ import { Iroom } from "../type/room";
  * @param failCallback 실패콜백함수
  * @description 사용자 등록 함수
  */
-export function getUser(failCallback) {
+export function getUser(failCallback?: Function) {
   // auth.verifyIdToken()
   const user = cmmAuth.currentUser;
   if (user) return user;

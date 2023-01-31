@@ -7,10 +7,7 @@ import { Iuser } from "../type/user";
 const InviteSnackbar: React.FunctionComponent = () => {
   const now = Date.now();
   const router = useRouter();
-  const userInfo: Iuser = getUser(() => {
-    console.log("logouted");
-    router.push("/home", undefined, { shallow: true });
-  });
+  const userInfo: Iuser = getUser();
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarOption, setSnackbarOption] = useState({
