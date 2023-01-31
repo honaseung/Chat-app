@@ -7,8 +7,8 @@ export default function useCreateRequest(
   collectionType: collection,
   inputParams: object,
   condition: string[],
-  sucCallback: Function,
-  failCallback: Function
+  sucCallback: void,
+  failCallback: void
 ) {
   const request: Irequest = {
     databaseType,

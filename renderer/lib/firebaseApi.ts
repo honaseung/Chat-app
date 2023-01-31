@@ -1,4 +1,4 @@
-//@ts-nocheck
+//@ts-check
 
 import {
   collection,
@@ -16,6 +16,7 @@ import {
   onChildAdded,
   onChildRemoved,
   off,
+  DataSnapshot,
 } from "firebase/database";
 import {
   onAuthStateChanged,
@@ -26,6 +27,8 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   browserSessionPersistence,
+  IdTokenResult,
+  onIdTokenChanged,
 } from "firebase/auth";
 import admin, {
   auth,
@@ -49,7 +52,7 @@ import { User } from "firebase/auth";
  */
 export function getUser() {
   // auth.verifyIdToken()
-  const user = getAuth().currentUser;
+  const user = cmmAuth.currentUser;
   if (user) return user;
 }
 
@@ -59,9 +62,27 @@ export function getUser() {
  * @param failCallback 실패콜백함수
  * @description 사용자 등록 함수
  */
-export async function listUsers(sucCallback: Function, failCallback: Function) {
+export async function listUsers(
+  sucCallback?: Function,
+  failCallback?: Function
+) {
   await auth
     .listUsers()
+    .then((response) => {
+      console.log(response.users);
+      if (sucCallback) sucCallback(response);
+    })
+    .catch((error) => {
+      if (failCallback) failCallback(error);
+    });
+}
+
+export async function getOnlineUsers(
+  uid: string,
+  sucCallback?: Function,
+  failCallback?: Function
+) {
+  await get(ref(realtimeDatabase, `onlineUser/${uid}`))
     .then((response) => {
       if (sucCallback) sucCallback(response);
     })
@@ -111,8 +132,7 @@ export async function registUser(
 export async function loginUser(
   request: Irequest,
   sucCallback: Function,
-  failCallback: Function,
-  listenCallback: Function
+  failCallback: Function
 ) {
   const { userParam } = request || { defaultUser };
   await signInWithEmailAndPassword(
@@ -120,12 +140,17 @@ export async function loginUser(
     userParam?.email || "",
     userParam?.password || ""
   )
-    .then((response) => {
+    .then(async (response) => {
       if (sucCallback) {
-        // setPersistence(cmmAuth, browserSessionPersistence).then(() => {
-        //   onAuthStateChanged(cmmAuth, (user) => {});
-        // });
-        sucCallback(response);
+        await onlineUser(response.user.uid, null, failCallback);
+        await response.user
+          .getIdTokenResult()
+          .then((token: IdTokenResult) => {
+            sucCallback(new Date(token.expirationTime).toLocaleTimeString());
+          })
+          .catch((error) => {
+            if (failCallback) failCallback(error);
+          });
       }
     })
     .catch((error) => {
@@ -133,14 +158,47 @@ export async function loginUser(
     });
 }
 
+// /**
+//  * @param request 인풋값을 담은 객체
+//  * @param sucCallback 성공콜백함수
+//  * @param failCallback 실패콜백함수
+//  * @description realtime Database 저장 함수
+//  */
+// export async function getUserToken(
+//   sucCallback: Function,
+//   failCallback: Function
+// ) {
+//   ref(realtimeDatabase, "onlineUser");
+//   await cmmAuth.currentUser
+//     .getIdTokenResult()
+//     .then((value: IdTokenResult) => {
+//       if (sucCallback) sucCallback(value.token);
+//     })
+//     .catch((error) => {
+//       if (failCallback) failCallback(error);
+//     });
+// }
+
 /**
  * @param request 인풋값을 담은 객체
  * @param sucCallback 성공콜백함수
  * @param failCallback 실패콜백함수
  * @description 사용자 로그인 함수
  */
-async function onlineUser(user: User | null) {
-  await set(ref(realtimeDatabase, `online/${user?.phoneNumber}`), user?.email);
+async function onlineUser(
+  uid: string,
+  sucCallback?: Function,
+  failCallback?: Function
+) {
+  await set(ref(realtimeDatabase, "onlineUser"), {
+    [uid]: true,
+  })
+    .then(() => {
+      if (sucCallback) sucCallback();
+    })
+    .catch((error) => {
+      if (failCallback) failCallback(error);
+    });
   // await (child(ref(realtimeDatabase), "collectionType"), sucCallback);
 }
 
@@ -153,7 +211,7 @@ export async function logoutUser(
   sucCallback: Function,
   failCallback: Function
 ) {
-  // offlineUser(cmmAuth.currentUser);
+  await offlineUser(cmmAuth.currentUser.uid, null, failCallback);
   signOut(cmmAuth)
     .then((response) => {
       if (sucCallback) {
@@ -171,63 +229,19 @@ export async function logoutUser(
  * @param failCallback 실패콜백함수
  * @description 사용자 로그인 함수
  */
-async function offlineUser(user: Iuser | null) {
-  await set(ref(realtimeDatabase, `online/${user?.phoneNumber}`), null);
-  // await (child(ref(realtimeDatabase), "collectionType"), sucCallback);
-}
-
-/**
- * @deprecated
- * @description firestore 에 저장 함수
- */
-export async function commonAddDoc(
-  request: Irequest,
-  sucCallback: Function,
-  failCallback: Function
+async function offlineUser(
+  uid: string,
+  sucCallback?: Function,
+  failCallback?: Function
 ) {
-  const { collectionType, inputParams } = request;
-  database
-    .ref("TEST")
-    .child("title")
-    .get()
-    .then((response) => console.log(response.val()));
-  // await database
-  //   .ref(collectionType)
-  //   .set(inputParams)
-  //   .then((response) => console.log(response));
-  // await addDoc(collection(firestore, collectionType), inputParams)
-  //   .then((response) => {
-  //     if (sucCallback) sucCallback(response);
-  //   })
-  //   .catch((error) => {
-  //     if (failCallback) failCallback(error);
-  //   });
-}
-
-/**
- * @deprecated
- * @description  firestore 에 읽기 함수
- */
-export async function commonGetDocs(
-  request: Irequest,
-  sucCallback: Function,
-  failCallback: Function
-) {
-  const { collectionType, condition = [] } = request;
-  let q = null;
-  if (condition.length > 0) {
-    const queryConstraints = useCreateWhere(condition);
-    q = firesotreQ(collection(firestore, collectionType), ...queryConstraints);
-  } else {
-    q = collection(firestore, collectionType);
-  }
-  await getDocs(q)
-    .then((response) => {
-      if (sucCallback) sucCallback(response);
+  await set(ref(realtimeDatabase, "onlineUser"), { [uid]: false })
+    .then(() => {
+      if (sucCallback) sucCallback();
     })
     .catch((error) => {
       if (failCallback) failCallback(error);
     });
+  // await (child(ref(realtimeDatabase), "collectionType"), sucCallback);
 }
 
 /**
@@ -333,32 +347,6 @@ export async function realtimeGetDocs(
  * @param sucCallback 성공콜백함수
  * @param failCallback 실패콜백함수
  * @description realtime Database 읽기 함수
- * @deprecated
- */
-export async function realtimeGetRoomDocs(
-  sucCallback: Function,
-  failCallback: Function
-) {
-  const userInfo = cmmAuth.currentUser;
-  const queryConstraints = useRealtimeDatabaseCreateWhere([
-    replaceAllSpecialChar(userInfo?.email || "", "_"),
-    "chat",
-  ]);
-  const q = query(ref(realtimeDatabase), ...queryConstraints);
-  await get(q)
-    .then((response) => {
-      if (sucCallback) sucCallback(response);
-    })
-    .catch((error) => {
-      if (failCallback) failCallback(error);
-    });
-}
-
-/**
- * @param request 인풋값을 담은 객체
- * @param sucCallback 성공콜백함수
- * @param failCallback 실패콜백함수
- * @description realtime Database 읽기 함수
  */
 export async function realtimeExitRoomDocs(
   request: Irequest,
@@ -373,6 +361,29 @@ export async function realtimeExitRoomDocs(
     .catch((error) => {
       if (failCallback) failCallback(error);
     });
+}
+
+/**
+ * @param request 인풋값을 담은 객체
+ * @param sucCallback 성공콜백함수
+ * @param failCallback 실패콜백함수
+ * @description realtime Database 읽기 함수
+ */
+export async function realtimeRoomListenOn(
+  sucCallback: (snapshot: DataSnapshot, previousChildName?: string) => unknown
+) {
+  onChildAdded(child(ref(realtimeDatabase), "chat"), sucCallback);
+  // onChildRemoved(child(ref(realtimeDatabase), "chat"), (snapshot: DataSnapshot) => console.log('snapshot', snapshot));
+}
+
+/**
+ * @param request 인풋값을 담은 객체
+ * @param sucCallback 성공콜백함수
+ * @param failCallback 실패콜백함수
+ * @description realtime Database 읽기 함수
+ */
+export async function realtimeRoomListenOff() {
+  await off(child(ref(realtimeDatabase), "chat"), "child_added");
 }
 
 /**
@@ -399,4 +410,25 @@ export async function realtimeChatListenOn(
 export async function realtimeChatListenOff(request: Irequest) {
   const { collectionType = "" } = request;
   await off(child(ref(realtimeDatabase), collectionType), "child_added");
+}
+
+/**
+ * @param request 인풋값을 담은 객체
+ * @param sucCallback 성공콜백함수
+ * @param failCallback 실패콜백함수
+ * @description realtime Database 읽기 함수
+ */
+export async function realtimeOnlineUserListenOn(sucCallback: () => void) {
+  onChildAdded(child(ref(realtimeDatabase), "onlineUser"), sucCallback);
+  // onChildRemoved(child(ref(realtimeDatabase), "chat"), (snapshot: DataSnapshot) => console.log('snapshot', snapshot));
+}
+
+/**
+ * @param request 인풋값을 담은 객체
+ * @param sucCallback 성공콜백함수
+ * @param failCallback 실패콜백함수
+ * @description realtime Database 읽기 함수
+ */
+export async function realtimeOnlineUserListenOff(request: Irequest) {
+  await off(child(ref(realtimeDatabase), "onlineUser"), "child_added");
 }

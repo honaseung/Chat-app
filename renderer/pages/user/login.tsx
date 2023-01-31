@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import { loginUser } from "../../lib/firebaseApi";
 import Loading from "../../components/Loading";
 import { defaultUser } from "../../type/user";
+import { Fab } from "@mui/material";
 
 const Login: React.FunctionComponent = () => {
   const [loginId, setLoginId] = useState("");
@@ -17,7 +18,7 @@ const Login: React.FunctionComponent = () => {
 
   const handleValue = (
     e: React.ChangeEvent<HTMLInputElement>,
-    setErr: Dispatch<SetStateAction<boolean>> = () => { }
+    setErr: Dispatch<SetStateAction<boolean>> = () => {}
   ) => {
     const { name, value } = e.target;
     switch (name) {
@@ -50,17 +51,14 @@ const Login: React.FunctionComponent = () => {
       {
         userParam: { ...defaultUser, email: loginId, password: loginPassword },
       },
-      () => {
+      (response: string) => {
         setLoading(false);
-        router.push("users");
+        router.push("users", { query: { tokenExpireTime: response } });
       },
       (error: any) => {
         setLoading(false);
         failCallback(error);
         console.log(error);
-      },
-      () => {
-        return router.push("/home");
       }
     );
   };
@@ -71,9 +69,8 @@ const Login: React.FunctionComponent = () => {
         id={loginId}
         password={loginPassword}
         handleValue={handleValue}
-        request={login}>
-        <Link href="/user/regist">GO TO REGIST</Link>
-      </UserForm>
+        request={login}
+      />
       {loading && <Loading />}
     </>
   );

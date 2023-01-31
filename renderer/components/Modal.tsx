@@ -8,19 +8,19 @@ import {
 } from "@mui/material";
 
 type Modal = {
-  title: string,
-  content: string,
-  open: boolean,
-  setOpen(b: boolean): void,
-  handleClose?: Function,
-}
+  title: string;
+  content: string;
+  open: boolean;
+  setOpen(b: boolean): void;
+  handleClose?: void;
+};
 
 const Modal: React.FunctionComponent<Modal> = ({
   title,
   content,
   open,
   setOpen,
-  handleClose = () => { }
+  handleClose = () => {},
 }) => {
   const onClose = () => {
     if (handleClose) {

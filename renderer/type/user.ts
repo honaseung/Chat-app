@@ -6,6 +6,7 @@ export interface Iuser extends User {
   userName?: string;
   userId?: string;
   password?: string;
+  online?: boolean;
 }
 
 export const defaultUser: Iuser = {

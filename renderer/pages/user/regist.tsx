@@ -108,9 +108,7 @@ const Regist: React.FunctionComponent = () => {
         handleValue={handleValue}
         isRegist
         request={regist}
-      >
-        <Link href="/user/login">GO TO LOGIN</Link>
-      </UserForm>
+      />
       {loading && <Loading />}
     </>
   );
