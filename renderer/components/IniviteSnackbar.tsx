@@ -2,11 +2,15 @@ import { Snackbar } from "@mui/material";
 import { useState, useEffect } from "react";
 import { getUser, realtimeInviteListenOn } from "../lib/firebaseApi";
 import { useRouter } from "next/router";
+import { Iuser } from "../type/user";
 
 const InviteSnackbar: React.FunctionComponent = () => {
-  const userInfo = getUser();
   const now = Date.now();
   const router = useRouter();
+  const userInfo: Iuser = getUser(() => {
+    console.log("logouted");
+    router.push("/home", undefined, { shallow: true });
+  });
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarOption, setSnackbarOption] = useState({

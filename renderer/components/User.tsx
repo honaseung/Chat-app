@@ -1,14 +1,17 @@
-import { Switch, TableCell, TableRow } from "@mui/material";
+import { Button, Switch, TableCell, TableRow } from "@mui/material";
 import React from "react";
+import { Iuser, defaultUser } from "../type/user";
 
 type User = {
   userName: string;
   userId: string;
   lastSignInTime: string;
   phoneNumber: string;
-  handleChat(e: React.ChangeEvent<HTMLInputElement>, i: any): void;
   mine: boolean;
-  online: boolean;
+  // online: boolean;
+  inviteOne: boolean;
+  handleTargetUser(e: React.MouseEvent<HTMLButtonElement>, info: Iuser): void;
+  handleTargetUsers(e: React.ChangeEvent<HTMLInputElement>, info: Iuser): void;
 };
 
 const User: React.FunctionComponent<User> = ({
@@ -16,9 +19,11 @@ const User: React.FunctionComponent<User> = ({
   userId,
   lastSignInTime,
   phoneNumber,
-  handleChat,
   mine,
-  online,
+  // online,
+  inviteOne,
+  handleTargetUser,
+  handleTargetUsers,
 }) => {
   return (
     <>
@@ -28,15 +33,33 @@ const User: React.FunctionComponent<User> = ({
         <TableCell align="center">{lastSignInTime}</TableCell>
         <TableCell align="center">{phoneNumber}</TableCell>
         <TableCell align="center">
-          {!mine && (
+          {mine ? null : inviteOne ? (
+            <Button
+              onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
+                handleTargetUser(e, {
+                  ...defaultUser,
+                  userName,
+                  userId,
+                  phoneNumber,
+                })
+              }
+            >
+              INVITE
+            </Button>
+          ) : (
             <Switch
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                handleChat(e, { userName, userId, phoneNumber })
+                handleTargetUsers(e, {
+                  ...defaultUser,
+                  userName,
+                  userId,
+                  phoneNumber,
+                })
               }
             />
           )}
         </TableCell>
-        <TableCell align="center">{online ? "ONLINE" : ""}</TableCell>
+        {/* <TableCell align="center">{online ? "ONLINE" : ""}</TableCell> */}
       </TableRow>
     </>
   );

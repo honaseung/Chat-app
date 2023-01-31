@@ -1,5 +1,6 @@
 import {
   Button,
+  ButtonGroup,
   Dialog,
   DialogActions,
   DialogContent,
@@ -60,18 +61,21 @@ const InviteModal: React.FunctionComponent<InviteModal> = ({
             />
             <FormHelperText id="TITLE">방 제목을 입력해주세요.</FormHelperText>
           </FormControl>
-          <div>
+          <ButtonGroup>
             <Button color="secondary" onClick={onClose}>
               NO
             </Button>
             <Button
               color="primary"
-              onClick={() => onConfirm()}
+              onClick={() => {
+                onConfirm();
+                setRoomTitle("");
+              }}
               disabled={!roomTitle}
             >
               OK
             </Button>
-          </div>
+          </ButtonGroup>
         </DialogActions>
       </Dialog>
     </>

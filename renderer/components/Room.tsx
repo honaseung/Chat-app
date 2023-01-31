@@ -49,7 +49,7 @@ const Room: React.FunctionComponent<Room> = ({
           sx={{
             minWidth: 275,
             mt: 1,
-            backgroundColor: created ? "#d8ede7" : "#d8eda1",
+            backgroundColor: !!created ? "#d8ede7" : "#d8eda1",
           }}
         >
           <CardContent>
@@ -58,11 +58,11 @@ const Room: React.FunctionComponent<Room> = ({
               color="text.secondary"
               gutterBottom
             >
-              {created ? `생성 날짜: ${createLocaleDateString(created)}` : ""}
+              {!!created ? `생성 날짜: ${createLocaleDateString(created)}` : ""}
             </Typography>
             {title}
             <Typography variant="h5" component="div">
-              {created ? "참여자:" : "누구나 참여 가능"}
+              {!!created ? "참여자:" : "누구나 참여 가능"}
             </Typography>
             {members &&
               members.map((member, idx) => (
@@ -78,7 +78,7 @@ const Room: React.FunctionComponent<Room> = ({
           </CardContent>
           <CardActions>
             <Button
-              onClick={() => enterRoom(created ? created : "0_GLOBAL_ROOM")}
+              onClick={() => enterRoom(!!created ? created : "0_GLOBAL_ROOM")}
             >
               들어가기
             </Button>

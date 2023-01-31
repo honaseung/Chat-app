@@ -16,12 +16,16 @@ import Loading from "../../components/Loading";
 import { Iroom } from "../../type/room";
 import { Iuser } from "../../type/user";
 import { Imessage } from "../../type/message";
+import MessageInput from "../../components/MessageInput";
 
 const Room: React.FunctionComponent = () => {
-  const userInfo: Iuser = getUser();
   const router = useRouter();
   const roomKey = router.query.roomKey;
   const collectionType = "chat/" + roomKey;
+  const userInfo: Iuser = getUser(() => {
+    console.log("logouted");
+    router.push("/home", undefined, { shallow: true });
+  });
 
   const getRoomInfo = () => {
     realtimeGetDocs(
@@ -80,43 +84,6 @@ const Room: React.FunctionComponent = () => {
     realtimeInviteListenOff();
   }, []);
 
-  const goToRooms = () => {
-    realtimeChatListenOff({ collectionType });
-    router.push("rooms", undefined, { shallow: true });
-  };
-
-  const exitRoom = async () => {
-    setLoading(true);
-    await realtimeChatListenOff({ collectionType });
-    await realtimeExitRoomDocs(
-      {
-        collectionType: collectionType,
-        roomParam: {
-          title: roomInfo.title,
-          created: roomInfo.created,
-          messages: [
-            ...messages,
-            {
-              userId: userInfo.email,
-              userName: userInfo.displayName,
-              prevDate: messages[messages.length - 1].date,
-              date: Date.now(),
-              text: `${userInfo?.email || ""} 님이 나가셨습니다.`,
-            },
-          ],
-          members: members.filter((member) => member.userId !== userInfo.email),
-        },
-      },
-      () => {
-        setLoading(false);
-      },
-      (error) => {
-        console.log(error);
-      }
-    );
-    router.push("rooms", undefined, { shallow: true });
-  };
-
   return (
     <>
       {loading ? (
@@ -148,20 +115,17 @@ const Room: React.FunctionComponent = () => {
                 </div>
               );
             })}
-          <TextField
-            sx={{ width: "100%" }}
-            label="메세지"
-            multiline
-            rows={4}
-            variant="filled"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
+          <MessageInput
+            collectionType={collectionType}
+            setLoading={setLoading}
+            roomInfo={roomInfo}
+            messages={messages}
+            userInfo={userInfo}
+            members={members}
+            text={text}
+            setText={setText}
+            sendMessage={sendMessage}
           />
-          <Button onClick={() => sendMessage()}>보내기</Button>
-          <Button onClick={goToRooms}>목록으로 돌아가기</Button>
-          {typeof roomKey !== "string" && (
-            <Button onClick={exitRoom}>방에서 나가기</Button>
-          )}
         </>
       )}
     </>

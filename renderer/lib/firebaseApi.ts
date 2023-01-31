@@ -1,50 +1,27 @@
 //@ts-check
 
 import {
-  collection,
-  query as firesotreQ,
-  getDocs,
-  addDoc,
-} from "firebase/firestore";
-import {
   ref,
   child,
   get,
   set,
-  remove,
   query,
   onChildAdded,
   onChildRemoved,
-  onChildChanged,
   off,
   DataSnapshot,
 } from "firebase/database";
 import {
-  onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
-  setPersistence,
-  getAuth,
-  GoogleAuthProvider,
-  signInWithPopup,
   browserSessionPersistence,
   IdTokenResult,
-  onIdTokenChanged,
-  Persistence,
 } from "firebase/auth";
-import admin, {
-  auth,
-  firestore,
-  database,
-  realtimeDatabase,
-  cmmAuth,
-} from "../../firebase-config";
+import admin, { auth, realtimeDatabase, cmmAuth } from "../../firebase-config";
 
-import { useCreateWhere, useRealtimeDatabaseCreateWhere } from "./create-query";
-import { replaceAllSpecialChar } from "./utils";
+import { useRealtimeDatabaseCreateWhere } from "./create-query";
 import { Irequest } from "../type/firebaseApi";
-import { Iuser, defaultUser } from "../type/user";
-import { User } from "firebase/auth";
+import { defaultUser } from "../type/user";
 import { Iroom } from "../type/room";
 
 /**
@@ -53,10 +30,13 @@ import { Iroom } from "../type/room";
  * @param failCallback 실패콜백함수
  * @description 사용자 등록 함수
  */
-export function getUser() {
+export function getUser(failCallback) {
   // auth.verifyIdToken()
   const user = cmmAuth.currentUser;
   if (user) return user;
+  else {
+    if (failCallback) failCallback();
+  }
 }
 
 /**
