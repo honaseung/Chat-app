@@ -1,4 +1,3 @@
-import React from "react";
 import Head from "next/head";
 import type { AppProps } from "next/app";
 import { CssBaseline, ThemeProvider } from "@mui/material";
@@ -6,6 +5,8 @@ import theme from "../lib/theme";
 import type { EmotionCache } from "@emotion/cache";
 import createEmotionCache from "../lib/create-emotion-cache";
 import { CacheProvider } from "@emotion/react";
+import "../styles/loading.css";
+import "../styles/userForm.css";
 
 const clientSideEmotionCache = createEmotionCache();
 

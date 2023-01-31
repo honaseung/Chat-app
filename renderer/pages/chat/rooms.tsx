@@ -1,63 +1,126 @@
 import { useState, useEffect } from "react";
-import { getUser, realtimeGetDocs } from "../../lib/firebaseApi";
+import {
+  getUser,
+  realtimeGetRooms,
+  realtimeRoomListenOff,
+  realtimeRoomListenOn,
+} from "../../lib/firebaseApi";
 import { Button } from "@mui/material";
 import { useRouter } from "next/router";
-import { createLocaleDateString, replaceAllSpecialChar } from "../../lib/utils";
+import Loading from "../../components/Loading";
+import Room from "../../components/Room";
+import { Iroom } from "../../type/room";
+import { Iuser } from "../../type/user";
+import InviteSnackbar from "../../components/InviteSnackbar";
 
-const Rooms = () => {
-  const user = getUser();
-
+/**
+ * @description 방 컴포넌트를 보여주는 페이지 컴포넌트입니다.
+ */
+const Rooms: React.FunctionComponent = () => {
   const router = useRouter();
+  const userInfo: Iuser = getUser();
 
-  const [rooms, setRooms] = useState([]);
+  const [rooms, setRooms] = useState<Iroom[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    realtimeGetDocs(
-      {
-        collectionType: "chat",
-      },
-      (response) => {
-        const res = response.val();
-        const list = Object.keys(res).filter((el) => {
-          if (el.includes(replaceAllSpecialChar(user.email, "_"))) {
-            return res[el];
-          }
-        });
-        setRooms(list);
-      },
-      (err) => console.log(err)
-    );
-  }, []);
-  const enterRoom = (idx, room) => {
-    router.push({
-      pathname: "room",
-      query: { room },
+    setLoading(true);
+    realtimeRoomListenOn(() => {
+      getRooms();
     });
+  }, []);
+
+  /**
+   * @description 방 목록 가져오기 함수
+   */
+  const getRooms = (): void => {
+    realtimeGetRooms(
+      (response: any) => {
+        setLoading(false);
+        if (response) {
+          const rooms = response.val();
+          setMessagesLength(rooms);
+          setRooms(getMyRooms(rooms));
+        }
+      },
+      (error: any) => {
+        setLoading(false);
+        console.log(error);
+      }
+    );
   };
+
+  /**
+   * @param rooms 방 정보 목록
+   * @returns 메세지 개수가 세팅된 방 정보
+   */
+  const setMessagesLength = (rooms: any) => {
+    const tmpRooms = Object.keys(rooms).map((roomKey: string) => {
+      const tmpRoom = {
+        ...rooms[roomKey],
+        length: Object.keys(rooms[roomKey].messages),
+      };
+      return tmpRoom;
+    });
+    return tmpRooms;
+  };
+
+  /**
+   *
+   * @param allRooms 모든 방 목록의 키 값
+   * @returns 내가 속한 방 목록과 오픈 그룹방 정보
+   */
+  const getMyRooms = (allRooms: any): Iroom[] => {
+    const myRooms: Iroom[] = [];
+    Object.keys(allRooms).map((room: string) => {
+      if (
+        room.includes("GLOBAL") ||
+        allRooms[room].members?.some((member: Iuser) => {
+          return member.userId === userInfo?.email;
+        })
+      ) {
+        myRooms.push(allRooms[room]);
+      }
+    });
+    return myRooms;
+  };
+
   return (
     <>
-      {rooms &&
-        rooms.map((room, idx) => {
-          return (
-            <>
-              참여자:
-              {room.split("-").map((title, idx) => {
-                if (idx == 0) return null;
-                return idx === 1 ? (
-                  <div key={idx}>
-                    {"생성 날짜: " + createLocaleDateString(title)}
-                  </div>
-                ) : (
-                  <div key={idx}>{title.split("_")[0]}</div>
-                );
-              })}
-              <Button key={idx + 1} onClick={() => enterRoom(idx, room)}>
-                들어가기
-              </Button>
-            </>
+      {loading ? (
+        <Loading />
+      ) : rooms.length > 0 ? (
+        rooms.map((room, i) => {
+          return room.created === 0 ? (
+            <Room
+              title={room.title}
+              created={room.created}
+              members={room.members}
+              lastMessage={room.messages[room.messages.length - 1].text}
+              key={i}
+            />
+          ) : (
+            <Room
+              title={room.title}
+              created={room.created}
+              members={room.members}
+              lastMessage={room.messages[room.messages.length - 1].text}
+              key={i}
+            />
           );
-        })}
-      <Button onClick={() => router.push("../user/users")}>Back</Button>
+        })
+      ) : (
+        <div>참여중인 방이 없습니다.</div>
+      )}
+      <Button
+        onClick={() => {
+          realtimeRoomListenOff();
+          router.push("../user/users", undefined, { shallow: true });
+        }}
+      >
+        Back
+      </Button>
+      <InviteSnackbar />
     </>
   );
 };

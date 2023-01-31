@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { Button } from "@mui/material";
 import { useState } from "react";
 import {
@@ -11,6 +12,9 @@ import {
 } from "../lib/firebaseApi";
 import Loading from "./Loading";
 
+/**
+ * @deprecated
+ */
 const FirebaseButton = ({
   request,
   sucCallback,
@@ -66,7 +70,7 @@ const FirebaseButton = ({
       >
         {children}
       </Button>
-      <Loading loading={loading} />
+      {loading && <Loading />}
     </>
   );
 };

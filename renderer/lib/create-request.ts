@@ -1,11 +1,14 @@
+/**
+ * @deprecated
+ */
 export default function useCreateRequest(
   databaseType: database,
   actionType: action,
   collectionType: collection,
   inputParams: object,
   condition: string[],
-  sucCallback: Function,
-  failCallback: Function
+  sucCallback: void,
+  failCallback: void
 ) {
   const request: Irequest = {
     databaseType,

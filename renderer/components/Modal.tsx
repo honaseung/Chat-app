@@ -7,14 +7,20 @@ import {
   DialogTitle,
 } from "@mui/material";
 
-const Modal = ({
+type Modal = {
+  title: string;
+  content: string;
+  open: boolean;
+  setOpen(b: boolean): void;
+  handleClose?: void;
+};
+
+const Modal: React.FunctionComponent<Modal> = ({
   title,
   content,
   open,
   setOpen,
-  type = "",
-  onConfirm = null,
-  handleClose = null,
+  handleClose = () => {},
 }) => {
   const onClose = () => {
     if (handleClose) {
@@ -30,20 +36,9 @@ const Modal = ({
           <DialogContentText>{content}</DialogContentText>
         </DialogContent>
         <DialogActions>
-          {type === "confirm" ? (
-            <div>
-              <Button color="secondary" onClick={onClose}>
-                NO
-              </Button>
-              <Button color="primary" onClick={onConfirm}>
-                OK
-              </Button>
-            </div>
-          ) : (
-            <Button color="primary" onClick={onClose}>
-              OK
-            </Button>
-          )}
+          <Button color="primary" onClick={onClose}>
+            OK
+          </Button>
         </DialogActions>
       </Dialog>
     </>

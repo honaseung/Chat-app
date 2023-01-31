@@ -1,8 +1,9 @@
+//@ts-nocheck
 /**
- *
  * @param target 복사할 대상
  * @returns 복사된 대상
  * @description 객체를 deepCopy 하는 재귀호출 함수입니다.
+ * @deprecated
  */
 export function deepCopy(target: object) {
   const clone: object = {};
@@ -22,7 +23,10 @@ export function deepCopy(target: object) {
  * @returns 특수문자가 변경된 대상
  * @description 특수문자 전부를 변경 합니다.
  */
-export function replaceAllSpecialChar(original: string, replace: string = "") {
+export function replaceAllSpecialChar(
+  original: string = "",
+  replace: string = ""
+) {
   return original.replaceAll(
     /[\{\}\[\]\/?.,;:|\)*~`!^_+<>@\#$%&\\\=\(\'\"]/g,
     replace
@@ -38,10 +42,9 @@ export function replaceAllSpecialChar(original: string, replace: string = "") {
 export function createChatRoomCollection(targetIds: string[]) {
   let roomTitle = "";
   targetIds.forEach((id) => (roomTitle += `-${id}`));
-  console.log(replaceAllSpecialChar(roomTitle, "_"));
   return replaceAllSpecialChar(roomTitle, "_");
 }
 
-export function createLocaleDateString(target: string) {
+export function createLocaleDateString(target: number) {
   return new Date(parseInt(target, 10)).toLocaleDateString();
 }

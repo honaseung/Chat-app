@@ -1,24 +1,31 @@
+import { useState, Dispatch, SetStateAction } from "react";
 import { useRouter } from "next/router";
-import { useState } from "react";
 import Link from "../../components/Link";
+import Loading from "../../components/Loading";
 import UserForm from "../../components/UserForm";
-import useCreateRequest from "../../lib/create-request";
+import { registUser } from "../../lib/firebaseApi";
 import {
   validateEmail,
   validatePasswod,
   validatePhoneNumber,
 } from "../../lib/validate";
+import { defaultUser } from "../../type/user";
 
-const Regist = () => {
+const Regist: React.FunctionComponent = () => {
   const [registId, setRegistId] = useState("");
   const [registName, setRegistName] = useState("");
   const [registPassword, setRegistPassword] = useState("");
   const [registPhoneNumber, setRegistPhoneNumber] = useState("");
   const [registPasswordConfirm, setRegistPasswordConfirm] = useState("");
 
+  const [loading, setLoading] = useState(false);
+
   const router = useRouter();
 
-  const handleValue = (e, setErr) => {
+  const handleValue = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setErr: Dispatch<SetStateAction<boolean>>
+  ) => {
     const { name, value } = e.target;
     switch (name) {
       case "input-id":
@@ -67,23 +74,28 @@ const Regist = () => {
     }
   };
 
-  const [registRequest, registSucCallback] = useCreateRequest(
-    "U",
-    "set",
-    "",
-    {
-      email: registId,
-      displayName: registName ? registName : registId,
-      phoneNumber: "+82" + registPhoneNumber.slice(1),
-      password: registPassword,
-    },
-    [],
-    (response) => {
-      console.log(response);
-      router.push("login");
-    },
-    null
-  );
+  const regist = (failCallback: Function) => {
+    setLoading(true);
+    registUser(
+      {
+        userParam: {
+          ...defaultUser,
+          email: registId,
+          displayName: registName ? registName : registId.split("@")[0],
+          phoneNumber: `+82${registPhoneNumber.slice(1)}`,
+          password: registPassword,
+        },
+      },
+      () => {
+        setLoading(false);
+        router.push("login", undefined, { shallow: true });
+      },
+      (error: object) => {
+        setLoading(false);
+        failCallback(error);
+      }
+    );
+  };
 
   return (
     <>
@@ -95,11 +107,9 @@ const Regist = () => {
         name={registName}
         handleValue={handleValue}
         isRegist
-        request={registRequest}
-        sucCallback={registSucCallback}
+        request={regist}
       />
-      <Link href="/user/login">GO TO LOGIN</Link>
-      <Link href="/home">HOME</Link>
+      {loading && <Loading />}
     </>
   );
 };

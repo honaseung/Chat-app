@@ -1,3 +1,4 @@
+import { Iroom } from "./room";
 import { Iuser } from "./user";
 
 /**
@@ -5,7 +6,9 @@ import { Iuser } from "./user";
  */
 export interface Irequest {
   collectionType?: string;
-  inputParams?: Iuser;
+  userParam?: Iuser;
+  roomParam?: Iroom;
+  inputParams?: object;
   condition?: string[];
 }
 

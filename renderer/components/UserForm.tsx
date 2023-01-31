@@ -1,17 +1,31 @@
 import {
+  Button,
   Container,
+  Fab,
   FilledInput,
   FormControl,
   FormHelperText,
   InputLabel,
 } from "@mui/material";
-import { useEffect, useState } from "react";
-import useCreateRequest from "../lib/create-request";
+import { useState } from "react";
 import getErrMsg from "../lib/errMsg";
-import FirebaseButton from "./FirebaseButton";
 import Modal from "./Modal";
+import Link from "./Link";
+import { useRouter } from "next/router";
 
-const UserForm = ({
+type UserForm = {
+  id: string;
+  name?: string;
+  password: string;
+  passwordConfirm?: string;
+  number?: string;
+  isRegist?: boolean;
+  handleValue(e: React.ChangeEvent<HTMLInputElement>, s?: Function): void;
+  request(f: Function): void;
+  children?: React.ReactNode;
+};
+
+const UserForm: React.FunctionComponent<UserForm> = ({
   id,
   name = "",
   password,
@@ -20,59 +34,20 @@ const UserForm = ({
   isRegist = false,
   handleValue,
   request,
-  sucCallback,
 }) => {
+  const router = useRouter();
+
   const [modalOpen, setModalOpen] = useState(false);
   const [modalOption, setModalOption] = useState({
     title: "",
     content: "",
   });
   const [idErr, setIdErr] = useState(true);
-  // const [idCkeckErr, setIdCkeckErr] = useState(true);
   const [numberErr, setNumberErr] = useState(true);
   const [passwordErr, setPasswordErr] = useState(true);
   const [confirmPasswordErr, setConfirmPasswordErr] = useState(true);
 
-  // useEffect(() => {
-  //   setIdCkeckErr(true);
-  // }, [id]);
-
-  // const [checkIdRequest, checkIdSucCallback, checkIdFailCallback] =
-  //   useCreateRequest(
-  //     "C",
-  //     "get",
-  //     "users",
-  //     {
-  //       id,
-  //       name,
-  //       password,
-  //     },
-  //     ["id", "==", id],
-  //     (response) => {
-  //       if (response.docs.length > 0) {
-  //         const [title, content] = getErrMsg("auth/email-already-in-use");
-  //         setModalOption({
-  //           title,
-  //           content,
-  //         });
-  //         setIdCkeckErr(true);
-  //         setModalOpen(true);
-  //       } else {
-  //         setIdCkeckErr(false);
-  //       }
-  //     },
-  //     (error) => {
-  //       const [title, content] = getErrMsg(error.code);
-  //       setModalOption({
-  //         title,
-  //         content,
-  //       });
-  //       setIdCkeckErr(true);
-  //       setModalOpen(true);
-  //     }
-  //   );
-
-  const openErrModal = (error) => {
+  const openErrModal = (error: any) => {
     const [title, content] = getErrMsg(error.code);
     setModalOption({
       title,
@@ -83,13 +58,20 @@ const UserForm = ({
 
   return (
     <>
-      <Container maxWidth="xs">
+      <Container maxWidth="xs" className="user-form-container">
+        <img src="/images/login.png" height="280" width="280" />
+        <div className="user-form-title">
+          {isRegist ? "회원가입" : "로그인"}을 해주세요.
+        </div>
         {/* <InputBase type="file" /> */}
-        <FormControl>
+        <FormControl fullWidth>
           <InputLabel htmlFor="input-id">ID</InputLabel>
           <FilledInput
+            className="user-form-input"
             value={id}
-            onChange={(e) => handleValue(e, setIdErr)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              handleValue(e, setIdErr)
+            }
             name="input-id"
             id="input-id"
             aria-describedby="ID"
@@ -99,23 +81,16 @@ const UserForm = ({
           <FormHelperText id="ID">
             {idErr ? "email 을 적어주세요." : "올바르게 입력하셨습니다."}
           </FormHelperText>
-          {/* {isRegist && (
-            <FirebaseButton
-              request={checkIdRequest}
-              sucCallback={checkIdSucCallback}
-              failCallback={checkIdFailCallback}
-              disabled={idErr || !idCkeckErr}
-            >
-              {idCkeckErr ? "👉 CHECK ID" : "📌 CHECKED"}
-            </FirebaseButton>
-          )} */}
         </FormControl>
         {isRegist && (
-          <FormControl>
+          <FormControl fullWidth>
             <InputLabel htmlFor="input-name">NAME</InputLabel>
             <FilledInput
+              className="user-form-input"
               value={name}
-              onChange={(e) => handleValue(e)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                handleValue(e)
+              }
               name="input-name"
               id="input-name"
               aria-describedby="NAME"
@@ -126,11 +101,14 @@ const UserForm = ({
           </FormControl>
         )}
         {isRegist && (
-          <FormControl>
+          <FormControl fullWidth>
             <InputLabel htmlFor="input-number">NUMBER</InputLabel>
             <FilledInput
+              className="user-form-input"
               value={number}
-              onChange={(e) => handleValue(e, setNumberErr)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                handleValue(e, setNumberErr)
+              }
               name="input-number"
               id="input-number"
               aria-describedby="NUMBER"
@@ -143,11 +121,14 @@ const UserForm = ({
             </FormHelperText>
           </FormControl>
         )}
-        <FormControl>
+        <FormControl fullWidth>
           <InputLabel htmlFor="input-password">PASSWORD</InputLabel>
           <FilledInput
+            className="user-form-input"
             value={password}
-            onChange={(e) => handleValue(e, setPasswordErr)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              handleValue(e, setPasswordErr)
+            }
             name="input-password"
             id="input-password"
             aria-describedby="PASSWORD"
@@ -161,13 +142,16 @@ const UserForm = ({
           </FormHelperText>
         </FormControl>
         {isRegist && (
-          <FormControl>
+          <FormControl fullWidth>
             <InputLabel htmlFor="input-password-confirm">
               PASSWORD CONFIRM
             </InputLabel>
             <FilledInput
+              className="user-form-input"
               value={passwordConfirm}
-              onChange={(e) => handleValue(e, setConfirmPasswordErr)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                handleValue(e, setConfirmPasswordErr)
+              }
               name="input-password-confirm"
               id="input-password-confirm"
               aria-describedby="PASSWORD-CONFIRM"
@@ -182,19 +166,37 @@ const UserForm = ({
             </FormHelperText>
           </FormControl>
         )}
+        <div className="user-form-button-container">
+          <Fab
+            color="secondary"
+            className="user-form-button"
+            onClick={() => request(openErrModal)}
+            disabled={
+              idErr ||
+              passwordErr ||
+              (isRegist && (confirmPasswordErr || numberErr))
+            }
+          >
+            {isRegist ? "REGIST" : "LOGIN"}
+          </Fab>
+          <Fab
+            color="info"
+            className="user-form-button"
+            onClick={() => router.push("/home")}
+          >
+            HOME
+          </Fab>
+          <Fab
+            color="secondary"
+            onClick={() =>
+              router.push(isRegist ? "/user/login" : "/user/regist")
+            }
+            className="user-form-link"
+          >
+            {isRegist ? "LOGIN" : "REGIST"}
+          </Fab>
+        </div>
       </Container>
-      <FirebaseButton
-        request={request}
-        sucCallback={sucCallback}
-        failCallback={openErrModal}
-        disabled={
-          idErr ||
-          passwordErr ||
-          (isRegist && (confirmPasswordErr || numberErr))
-        }
-      >
-        {isRegist ? "REGIST" : "LOGIN"}
-      </FirebaseButton>
       <Modal
         title={modalOption.title}
         content={modalOption.content}
