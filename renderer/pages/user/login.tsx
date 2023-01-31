@@ -53,7 +53,11 @@ const Login: React.FunctionComponent = () => {
       },
       (response: string) => {
         setLoading(false);
-        router.push("users", { query: { tokenExpireTime: response } });
+        router.push(
+          "users",
+          { query: { tokenExpireTime: response } },
+          { shallow: true }
+        );
       },
       (error: any) => {
         setLoading(false);

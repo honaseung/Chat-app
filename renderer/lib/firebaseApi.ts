@@ -15,6 +15,7 @@ import {
   query,
   onChildAdded,
   onChildRemoved,
+  onChildChanged,
   off,
   DataSnapshot,
 } from "firebase/database";
@@ -29,6 +30,7 @@ import {
   browserSessionPersistence,
   IdTokenResult,
   onIdTokenChanged,
+  Persistence,
 } from "firebase/auth";
 import admin, {
   auth,
@@ -43,6 +45,7 @@ import { replaceAllSpecialChar } from "./utils";
 import { Irequest } from "../type/firebaseApi";
 import { Iuser, defaultUser } from "../type/user";
 import { User } from "firebase/auth";
+import { Iroom } from "../type/room";
 
 /**
  * @param request 인풋값을 담은 객체
@@ -69,7 +72,6 @@ export async function listUsers(
   await auth
     .listUsers()
     .then((response) => {
-      console.log(response.users);
       if (sucCallback) sucCallback(response);
     })
     .catch((error) => {
@@ -78,11 +80,10 @@ export async function listUsers(
 }
 
 export async function getOnlineUsers(
-  uid: string,
   sucCallback?: Function,
   failCallback?: Function
 ) {
-  await get(ref(realtimeDatabase, `onlineUser/${uid}`))
+  await get(ref(realtimeDatabase, `onlineUser`))
     .then((response) => {
       if (sucCallback) sucCallback(response);
     })
@@ -153,6 +154,9 @@ export async function loginUser(
           });
       }
     })
+    .then(() => {
+      cmmAuth.setPersistence(browserSessionPersistence);
+    })
     .catch((error) => {
       if (failCallback) failCallback(error);
     });
@@ -190,9 +194,7 @@ async function onlineUser(
   sucCallback?: Function,
   failCallback?: Function
 ) {
-  await set(ref(realtimeDatabase, "onlineUser"), {
-    [uid]: true,
-  })
+  await set(ref(realtimeDatabase, `onlineUser/${uid}`), true)
     .then(() => {
       if (sucCallback) sucCallback();
     })
@@ -208,9 +210,10 @@ async function onlineUser(
  * @description 사용자 로그 아웃 함수
  */
 export async function logoutUser(
-  sucCallback: Function,
-  failCallback: Function
+  sucCallback?: Function,
+  failCallback?: Function
 ) {
+  realtimeInviteListenOff();
   await offlineUser(cmmAuth.currentUser.uid, null, failCallback);
   signOut(cmmAuth)
     .then((response) => {
@@ -234,7 +237,7 @@ async function offlineUser(
   sucCallback?: Function,
   failCallback?: Function
 ) {
-  await set(ref(realtimeDatabase, "onlineUser"), { [uid]: false })
+  await set(ref(realtimeDatabase, `onlineUser/${uid}`), false)
     .then(() => {
       if (sucCallback) sucCallback();
     })
@@ -257,6 +260,32 @@ export async function realtimeInviteRoom(
 ) {
   const { collectionType, roomParam } = request;
   await set(ref(realtimeDatabase, collectionType), roomParam)
+    .then((response) => {
+      if (sucCallback) sucCallback(response);
+    })
+    .catch((error) => {
+      if (failCallback) failCallback(error);
+    });
+  await realtimeNoticeInvite(roomParam, sucCallback);
+}
+
+/**
+ * @param request 인풋값을 담은 객체
+ * @param sucCallback 성공콜백함수
+ * @param failCallback 실패콜백함수
+ * @description realtime Database 저장 함수
+ */
+export async function realtimeNoticeInvite(
+  roomParam: Iroom,
+  sucCallback?: Function,
+  failCallback?: Function
+) {
+  const memberIds = roomParam.members.map((member) => member.userId).join();
+  await set(ref(realtimeDatabase, `notice/chat/${roomParam.created}`), {
+    roomKey: roomParam.created,
+    title: roomParam.title,
+    memberIds,
+  })
     .then((response) => {
       if (sucCallback) sucCallback(response);
     })
@@ -369,10 +398,10 @@ export async function realtimeExitRoomDocs(
  * @param failCallback 실패콜백함수
  * @description realtime Database 읽기 함수
  */
-export async function realtimeRoomListenOn(
+export function realtimeInviteListenOn(
   sucCallback: (snapshot: DataSnapshot, previousChildName?: string) => unknown
 ) {
-  onChildAdded(child(ref(realtimeDatabase), "chat"), sucCallback);
+  onChildAdded(child(ref(realtimeDatabase), `notice/chat`), sucCallback);
   // onChildRemoved(child(ref(realtimeDatabase), "chat"), (snapshot: DataSnapshot) => console.log('snapshot', snapshot));
 }
 
@@ -382,8 +411,8 @@ export async function realtimeRoomListenOn(
  * @param failCallback 실패콜백함수
  * @description realtime Database 읽기 함수
  */
-export async function realtimeRoomListenOff() {
-  await off(child(ref(realtimeDatabase), "chat"), "child_added");
+export function realtimeInviteListenOff() {
+  off(child(ref(realtimeDatabase), `notice/chat`), "child_added");
 }
 
 /**
@@ -392,7 +421,30 @@ export async function realtimeRoomListenOff() {
  * @param failCallback 실패콜백함수
  * @description realtime Database 읽기 함수
  */
-export async function realtimeChatListenOn(
+export function realtimeRoomListenOn(
+  sucCallback: (snapshot: DataSnapshot, previousChildName?: string) => unknown
+) {
+  onChildAdded(child(ref(realtimeDatabase), `chat/`), sucCallback);
+  // onChildRemoved(child(ref(realtimeDatabase), "chat"), (snapshot: DataSnapshot) => console.log('snapshot', snapshot));
+}
+
+/**
+ * @param request 인풋값을 담은 객체
+ * @param sucCallback 성공콜백함수
+ * @param failCallback 실패콜백함수
+ * @description realtime Database 읽기 함수
+ */
+export function realtimeRoomListenOff() {
+  off(child(ref(realtimeDatabase), "chat/"), "child_added");
+}
+
+/**
+ * @param request 인풋값을 담은 객체
+ * @param sucCallback 성공콜백함수
+ * @param failCallback 실패콜백함수
+ * @description realtime Database 읽기 함수
+ */
+export function realtimeChatListenOn(
   request: Irequest,
   sucCallback: () => void
 ) {
@@ -407,9 +459,9 @@ export async function realtimeChatListenOn(
  * @param failCallback 실패콜백함수
  * @description realtime Database 읽기 함수
  */
-export async function realtimeChatListenOff(request: Irequest) {
+export function realtimeChatListenOff(request: Irequest) {
   const { collectionType = "" } = request;
-  await off(child(ref(realtimeDatabase), collectionType), "child_added");
+  off(child(ref(realtimeDatabase), collectionType), "child_added");
 }
 
 /**
@@ -418,9 +470,9 @@ export async function realtimeChatListenOff(request: Irequest) {
  * @param failCallback 실패콜백함수
  * @description realtime Database 읽기 함수
  */
-export async function realtimeOnlineUserListenOn(sucCallback: () => void) {
+export function realtimeOnlineUserListenOn(sucCallback: () => void) {
   onChildAdded(child(ref(realtimeDatabase), "onlineUser"), sucCallback);
-  // onChildRemoved(child(ref(realtimeDatabase), "chat"), (snapshot: DataSnapshot) => console.log('snapshot', snapshot));
+  onChildRemoved(child(ref(realtimeDatabase), "onlineUser"), sucCallback);
 }
 
 /**
@@ -429,6 +481,7 @@ export async function realtimeOnlineUserListenOn(sucCallback: () => void) {
  * @param failCallback 실패콜백함수
  * @description realtime Database 읽기 함수
  */
-export async function realtimeOnlineUserListenOff(request: Irequest) {
-  await off(child(ref(realtimeDatabase), "onlineUser"), "child_added");
+export function realtimeOnlineUserListenOff() {
+  off(child(ref(realtimeDatabase), "onlineUser"), "child_changed");
+  off(child(ref(realtimeDatabase), "onlineUser"), "child_removed");
 }

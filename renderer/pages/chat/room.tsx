@@ -7,6 +7,7 @@ import {
   realtimeChatListenOff,
   realtimeChatListenOn,
   realtimeSendMessage,
+  realtimeInviteListenOff,
 } from "../../lib/firebaseApi";
 import { replaceAllSpecialChar } from "../../lib/utils";
 import Message from "../../components/Message";
@@ -16,10 +17,9 @@ import Loading from "../../components/Loading";
 import { Iroom } from "../../type/room";
 import { Iuser } from "../../type/user";
 import { Imessage } from "../../type/message";
-import { User } from "firebase/auth";
 
 const Room: React.FunctionComponent = () => {
-  const userInfo = getUser();
+  const userInfo: Iuser = getUser();
   const router = useRouter();
   const roomKey = router.query.roomKey;
   const collectionType = "chat/" + roomKey;
@@ -50,7 +50,7 @@ const Room: React.FunctionComponent = () => {
             userId: userInfo.email,
             userName: userInfo.displayName,
             prevDate: messages[messages.length - 1].date,
-            date: new Date().getTime(),
+            date: Date.now(),
             text,
           },
         ],
@@ -72,13 +72,13 @@ const Room: React.FunctionComponent = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-
     realtimeChatListenOn(
       { collectionType: collectionType + "/messages" },
       () => {
         getRoomInfo();
       }
     );
+    realtimeInviteListenOff();
   }, []);
 
   const goToRooms = () => {
@@ -101,7 +101,7 @@ const Room: React.FunctionComponent = () => {
               userId: userInfo.email,
               userName: userInfo.displayName,
               prevDate: messages[messages.length - 1].date,
-              date: new Date().getTime(),
+              date: Date.now(),
               text: `${userInfo?.email || ""} 님이 나가셨습니다.`,
             },
           ],
@@ -115,7 +115,7 @@ const Room: React.FunctionComponent = () => {
         console.log(error);
       }
     );
-    router.push("rooms");
+    router.push("rooms", undefined, { shallow: true });
   };
 
   return (

@@ -1,5 +1,4 @@
 import {
-  Button,
   Fab,
   Table,
   TableBody,
@@ -10,22 +9,28 @@ import {
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import {
+  getOnlineUsers,
   getUser,
   listUsers,
   logoutUser,
+  realtimeInviteListenOn,
   realtimeInviteRoom,
+  realtimeOnlineUserListenOff,
+  realtimeOnlineUserListenOn,
 } from "../../lib/firebaseApi";
 import User from "../../components/User";
 import InviteModal from "../../components/InviteModal";
 import Loading from "../../components/Loading";
-import Link from "../../components/Link";
 import { ListUsersResult } from "firebase-admin/lib/auth/base-auth";
 import { UserRecord } from "firebase-admin/lib/auth/user-record";
 import { SetStateAction } from "react";
 import { Iuser, defaultUser } from "../../type/user";
+import Modal from "../../components/Modal";
+import InviteSnackbar from "../../components/IniviteSnackbar";
 
 const Users: React.FunctionComponent = () => {
-  const user: Iuser = getUser();
+  const userInfo: Iuser = getUser();
+  const router = useRouter();
 
   useEffect(() => {
     setLoading(true);
@@ -43,31 +48,53 @@ const Users: React.FunctionComponent = () => {
         console.log(error);
       }
     );
+    const tokenExpireTime = router.query.tokenExpireTime;
+    if (tokenExpireTime) {
+      setModalOption({
+        title: "로그인 성공",
+        content: `토큰 만료시간은 ${tokenExpireTime} 입니다.`,
+      });
+      setModalOpen(true);
+    }
+
+    realtimeOnlineUserListenOn(() => {
+      getOnlineUsers((response) => {
+        setOnlineUsers(response.val());
+      });
+    });
   }, []);
 
   const [users, setUsers] = useState<Iuser[]>([]);
-  const [targetUsers, setTargetUsers] = useState<Iuser[]>([{
-    ...defaultUser,
-    phoneNumber: user?.phoneNumber,
-    userId: user?.email,
-    userName: user?.displayName,
-  }]);
+  const [onlineUsers, setOnlineUsers] = useState<object>({});
+  const [targetUsers, setTargetUsers] = useState<Iuser[]>([
+    {
+      ...defaultUser,
+      phoneNumber: userInfo?.phoneNumber,
+      userId: userInfo?.email,
+      userName: userInfo?.displayName,
+    },
+  ]);
 
   const [roomTitle, setRoomTitle] = useState<string>("");
   const [modalOption, setModalOption] = useState({
     title: "",
     content: "",
   });
+  const [inviteModalOption, setInviteModalOption] = useState({
+    title: "",
+    content: "",
+  });
+
   const [modalOpen, setModalOpen] = useState(false);
+  const [inviteModalOpen, setInviteModalOpen] = useState(false);
 
   const [loading, setLoading] = useState(false);
-
-  const router = useRouter();
 
   const logout = () => {
     setLoading(true);
     logoutUser(
       () => {
+        realtimeOnlineUserListenOff();
         router.push("/home", undefined, { shallow: true });
         setLoading(false);
       },
@@ -94,40 +121,40 @@ const Users: React.FunctionComponent = () => {
   };
 
   const invite = () => {
-    setModalOption({
+    setInviteModalOption({
       title: "초대",
       content: `${targetUsers
         .map((user) => user.userName)
         .join(" 와\n ")} 를 초대합니다.`,
     });
-    setModalOpen(true);
+    setInviteModalOpen(true);
   };
 
   const confirmInvite = () => {
     setLoading(true);
-    const createdTime = new Date().getTime();
+    const createdTime = Date.now();
     realtimeInviteRoom(
       {
         collectionType: "chat/" + createdTime,
         roomParam: {
           title: roomTitle,
-          messages: [{
-            userId: user.email,
-            userName: user.displayName,
-            prevDate: 0,
-            date: createdTime,
-            text:
-              user.displayName +
-              "(" +
-              user.email +
-              ")" +
-              " (이)가 " +
-              targetUsers
-                .map((user) => user.userName)
-                .join(" 와\n ") +
-              " (을)를 " +
-              "초대하였습니다.",
-          }],
+          messages: [
+            {
+              userId: userInfo.email,
+              userName: userInfo.displayName,
+              prevDate: 0,
+              date: createdTime,
+              text:
+                userInfo.displayName +
+                "(" +
+                userInfo.email +
+                ")" +
+                " (이)가 " +
+                targetUsers.map((user) => user.userName).join(" 와\n ") +
+                " (을)를 " +
+                "초대하였습니다.",
+            },
+          ],
           // length: 1,
           members: targetUsers,
           created: createdTime,
@@ -135,7 +162,8 @@ const Users: React.FunctionComponent = () => {
       },
       () => {
         setLoading(false);
-        router.push("../chat/rooms");
+        realtimeOnlineUserListenOff();
+        router.push("../chat/rooms", undefined, { shallow: true });
       },
       (error: any) => {
         setLoading(false);
@@ -151,21 +179,19 @@ const Users: React.FunctionComponent = () => {
       ) : (
         <>
           <div className="header">
-            <Fab color="primary" aria-label="add" onClick={logout}>
-              {/* <AddIcon /> */}
+            <Fab color="error" onClick={logout}>
               LOGOUT
             </Fab>
-            <Button
+            <Fab
+              color="warning"
               className="btn"
-              disabled={targetUsers.length === 0}
+              disabled={targetUsers.length === 1}
               onClick={invite}
             >
               INVITE
-            </Button>
-            <Fab color="primary" aria-label="edit">
-              <Link className="btn" href={"../chat/rooms"}>
-                GO TO ROOMS
-              </Link>
+            </Fab>
+            <Fab color="success" onClick={() => router.push("../chat/rooms")}>
+              ROOMS
             </Fab>
           </div>
           <Table>
@@ -181,11 +207,11 @@ const Users: React.FunctionComponent = () => {
                 <TableCell align="center">LAST LOGIN</TableCell>
                 <TableCell align="center">NUMBER</TableCell>
                 <TableCell align="center">INVITE</TableCell>
-                {/* <TableCell align="center">ONLINE</TableCell> */}
+                <TableCell align="center">ONLINE</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {users.map((u: any) => (
+              {users.map((u: Iuser) => (
                 <User
                   key={u.uid}
                   userName={u.displayName}
@@ -197,20 +223,27 @@ const Users: React.FunctionComponent = () => {
                   }
                   phoneNumber={u.phoneNumber}
                   handleChat={handleChat}
-                  mine={u.email === user?.email}
+                  mine={u.email === userInfo?.email}
+                  online={onlineUsers[u.uid]}
                 />
               ))}
             </TableBody>
           </Table>
-          <InviteModal
+          <Modal
+            title={modalOption.title}
             content={modalOption.content}
             open={modalOpen}
             setOpen={setModalOpen}
+          />
+          <InviteModal
+            content={inviteModalOption.content}
+            open={inviteModalOpen}
+            setOpen={setInviteModalOpen}
             onConfirm={confirmInvite}
             roomTitle={roomTitle}
             setRoomTitle={setRoomTitle}
-            onClose={() => { }}
           />
+          <InviteSnackbar />
         </>
       )}
     </>
