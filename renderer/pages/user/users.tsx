@@ -210,7 +210,7 @@ const Users: React.FunctionComponent = () => {
             <Fab
               color="warning"
               className="btn"
-              disabled={targetUsers.length === 1}
+              disabled={targetUsers.length === 1 || inviteOne}
               onClick={invite}
             >
               INVITE
