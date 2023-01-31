@@ -27,7 +27,7 @@ const Room: React.FunctionComponent<Room> = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const enterRoom = (roomKey: number) => {
+  const enterRoom = (roomKey: number | string) => {
     realtimeRoomListenOff();
     setLoading(true);
     router.push(
@@ -45,7 +45,13 @@ const Room: React.FunctionComponent<Room> = ({
       {loading ? (
         <Loading />
       ) : (
-        <Card sx={{ minWidth: 275, mt: 1, backgroundColor: "#d8ede7" }}>
+        <Card
+          sx={{
+            minWidth: 275,
+            mt: 1,
+            backgroundColor: created ? "#d8ede7" : "#d8eda1",
+          }}
+        >
           <CardContent>
             <Typography
               sx={{ fontSize: 14 }}
@@ -71,7 +77,11 @@ const Room: React.FunctionComponent<Room> = ({
             {lastMessage}
           </CardContent>
           <CardActions>
-            <Button onClick={() => enterRoom(created)}>들어가기</Button>
+            <Button
+              onClick={() => enterRoom(created ? created : "0_GLOBAL_ROOM")}
+            >
+              들어가기
+            </Button>
           </CardActions>
         </Card>
       )}

@@ -9,7 +9,6 @@ import {
   realtimeSendMessage,
   realtimeInviteListenOff,
 } from "../../lib/firebaseApi";
-import { replaceAllSpecialChar } from "../../lib/utils";
 import Message from "../../components/Message";
 import { validateSameDay } from "../../lib/validate";
 import { useRouter } from "next/router";
@@ -160,8 +159,9 @@ const Room: React.FunctionComponent = () => {
           />
           <Button onClick={() => sendMessage()}>보내기</Button>
           <Button onClick={goToRooms}>목록으로 돌아가기</Button>
-          <Button onClick={exitRoom}>방에서 나가기</Button>
-          {/* <Button onClick={TEST}>TEST</Button> */}
+          {typeof roomKey !== "string" && (
+            <Button onClick={exitRoom}>방에서 나가기</Button>
+          )}
         </>
       )}
     </>
