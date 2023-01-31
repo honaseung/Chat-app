@@ -4,6 +4,9 @@ import { getUser, realtimeInviteListenOn } from "../lib/firebaseApi";
 import { useRouter } from "next/router";
 import { Iuser } from "../type/user";
 
+/**
+ * @description 방에 초대 되었을때 사용자에게 알려주는 컴포넌트입니다.
+ */
 const InviteSnackbar: React.FunctionComponent = () => {
   const now = Date.now();
   const router = useRouter();
