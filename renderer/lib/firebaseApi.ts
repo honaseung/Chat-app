@@ -1,4 +1,5 @@
 //@ts-check
+import { ref as strRef, uploadBytesResumable } from "firebase/storage";
 import {
   ref,
   child,
@@ -8,6 +9,7 @@ import {
   onChildRemoved,
   off,
   DataSnapshot,
+  onChildChanged,
 } from "firebase/database";
 import {
   signInWithEmailAndPassword,
@@ -15,11 +17,36 @@ import {
   browserSessionPersistence,
   IdTokenResult,
 } from "firebase/auth";
-import { auth, realtimeDatabase, cmmAuth } from "../../firebase-config";
+import {
+  auth,
+  realtimeDatabase,
+  cmmAuth,
+  storage,
+} from "../../firebase-config";
 
 import { Irequest } from "../type/firebaseApi";
 import { Iroom } from "../type/room";
 import { defaultUser } from "../type/user";
+
+export async function uploadImg(img: File) {
+  let target = null;
+  const ref = strRef(storage, "images/");
+  await img
+    .arrayBuffer()
+    .then((value) => {
+      target = value;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  await uploadBytesResumable(ref, target)
+    .then((response) => {
+      console.log(response);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
 
 /**
  * @param failCallback 실패콜백함수
@@ -123,7 +150,6 @@ export async function loginUser(
   )
     .then(async (response) => {
       if (sucCallback) {
-        await onlineUser(response.user.uid, null, failCallback);
         await response.user
           .getIdTokenResult()
           .then((token: IdTokenResult) => {
@@ -194,6 +220,7 @@ export async function logoutUser(
   sucCallback?: Function,
   failCallback?: Function
 ) {
+  realtimeRoomListenOff();
   realtimeInviteListenOff();
   await offlineUser(cmmAuth.currentUser.uid, null, failCallback);
   signOut(cmmAuth)
@@ -382,6 +409,7 @@ export function realtimeRoomListenOn(
   sucCallback: (snapshot: DataSnapshot, previousChildName?: string) => unknown
 ) {
   onChildAdded(child(ref(realtimeDatabase), `chat/`), sucCallback);
+  onChildChanged(child(ref(realtimeDatabase), `chat/`), sucCallback);
   // onChildRemoved(child(ref(realtimeDatabase), "chat"), (snapshot: DataSnapshot) => console.log('snapshot', snapshot));
 }
 

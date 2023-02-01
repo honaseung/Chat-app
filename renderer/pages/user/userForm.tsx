@@ -10,17 +10,16 @@ import {
 } from "@mui/material";
 import { Dispatch, SetStateAction, useState } from "react";
 import getErrMsg from "../../lib/errMsg";
-import Modal from "../../components/Modal";
-import Link from "../../components/Link";
+import Modal from "../../components/common/Modal";
 import { useRouter } from "next/router";
 import {
   validateEmail,
   validatePasswod,
   validatePhoneNumber,
 } from "../../lib/validate";
-import { loginUser, registUser } from "../../lib/firebaseApi";
+import { loginUser, registUser, uploadImg } from "../../lib/firebaseApi";
 import { defaultUser } from "../../type/user";
-import Loading from "../../components/Loading";
+import Loading from "../../components/common/Loading";
 
 type UserForm = {};
 
@@ -157,7 +156,7 @@ const UserForm: React.FunctionComponent<UserForm> = ({}) => {
       (response: string) => {
         setLoading(false);
         router.push(
-          "users",
+          "/chat/main",
           { query: { tokenExpireTime: response } },
           { shallow: true }
         );
@@ -169,6 +168,14 @@ const UserForm: React.FunctionComponent<UserForm> = ({}) => {
     );
   };
 
+  const onChangeFile = (e) => {
+    const img = e.target.files[0];
+    // console.log(e);
+    // if (img && img.type.includes("png")) {
+    uploadImg(img);
+    // }
+  };
+
   return (
     <>
       {loading && <Loading />}
@@ -177,7 +184,12 @@ const UserForm: React.FunctionComponent<UserForm> = ({}) => {
         <div className="user-form-title">
           {isRegist ? "회원가입" : "로그인"}을 해주세요.
         </div>
-        {/* <InputBase type="file" /> */}
+        {/* {isRegist && (
+          <Button variant="contained" component="label">
+            UPLOAD YOUR PHOTO
+            <input type="file" hidden accept=".png" onChange={onChangeFile} />
+          </Button>
+        )} */}
         <FormControl fullWidth>
           <InputLabel htmlFor="input-id">ID</InputLabel>
           <FilledInput

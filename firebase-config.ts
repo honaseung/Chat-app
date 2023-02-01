@@ -11,6 +11,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "@firebase/auth";
 import { getFirestore } from "@firebase/firestore";
 import { getDatabase } from "firebase/database";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBv9Ob9k25_mF9G44HWcTLRxlAEtHLr-k8",
@@ -28,6 +29,7 @@ initializeApp(firebaseConfig);
 export const firestore = getFirestore();
 export const realtimeDatabase = getDatabase();
 export const cmmAuth = getAuth();
+export const storage = getStorage();
 
 export default admin;
 export const auth = admin.auth();

@@ -1,9 +1,8 @@
-import { Button, ButtonGroup, Fab } from "@mui/material";
+import { Button, ButtonGroup } from "@mui/material";
 import { useRouter } from "next/router";
 
-import { Iuser, defaultUser } from "../type/user";
-import { getUser, logoutUser } from "../lib/firebaseApi";
-import { useState } from "react";
+import { Iuser, defaultUser } from "../../type/user";
+import { logoutUser } from "../../lib/firebaseApi";
 
 type UserGridButton = {
   targetUsers: Iuser[];
@@ -12,6 +11,7 @@ type UserGridButton = {
   invite(): void;
   inviteOne: boolean;
   setInviteOne(b: boolean);
+  userInfo: Iuser;
 };
 
 const UserGridButton: React.FunctionComponent<UserGridButton> = ({
@@ -21,15 +21,14 @@ const UserGridButton: React.FunctionComponent<UserGridButton> = ({
   invite,
   inviteOne,
   setInviteOne,
+  userInfo,
 }) => {
   const router = useRouter();
-  const userInfo: Iuser = getUser();
 
   const logout = () => {
     setLoading(true);
     logoutUser(
       () => {
-        // realtimeOnlineUserListenOff();
         router.push("/home", undefined, { shallow: true });
         setLoading(false);
       },
@@ -59,18 +58,17 @@ const UserGridButton: React.FunctionComponent<UserGridButton> = ({
             setInviteOne(!inviteOne);
           }}
         >
-          {inviteOne ? "1:1 CHAT" : "GROUP CHAT"}
+          {inviteOne ? "1:1 CHAT" : "GROUP"}
         </Button>
         <Button
           color="warning"
           className="btn"
-          disabled={targetUsers.length === 1 || inviteOne}
+          disabled={
+            targetUsers.length === 1 || targetUsers.length === 2 || inviteOne
+          }
           onClick={invite}
         >
           INVITE
-        </Button>
-        <Button color="success" onClick={() => router.push("../chat/rooms")}>
-          ROOMS
         </Button>
       </ButtonGroup>
     </>

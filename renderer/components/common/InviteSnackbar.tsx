@@ -1,16 +1,21 @@
 import { Snackbar } from "@mui/material";
 import { useState, useEffect } from "react";
-import { getUser, realtimeInviteListenOn } from "../lib/firebaseApi";
-import { useRouter } from "next/router";
-import { Iuser } from "../type/user";
+import { realtimeInviteListenOn } from "../../lib/firebaseApi";
+import { Iuser } from "../../type/user";
+
+type InviteSnackbar = {
+  setRoodId(sn: string | number): void;
+  userInfo: Iuser;
+};
 
 /**
  * @description 방에 초대 되었을때 사용자에게 알려주는 컴포넌트입니다.
  */
-const InviteSnackbar: React.FunctionComponent = () => {
+const InviteSnackbar: React.FunctionComponent<InviteSnackbar> = ({
+  setRoodId,
+  userInfo,
+}) => {
   const now = Date.now();
-  const router = useRouter();
-  const userInfo: Iuser = getUser();
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarOption, setSnackbarOption] = useState({
@@ -20,6 +25,7 @@ const InviteSnackbar: React.FunctionComponent = () => {
 
   useEffect(() => {
     realtimeInviteListenOn((snapshot) => {
+      console.log("realtimeInviteListenOn");
       const snap = snapshot.val();
       if (snap.roomKey > now && snap.memberIds.includes(userInfo.email)) {
         setSnackbarOption({
@@ -36,16 +42,10 @@ const InviteSnackbar: React.FunctionComponent = () => {
         open={snackbarOpen}
         autoHideDuration={5000}
         onClick={() => {
-          router.push(
-            {
-              pathname: "/chat/room",
-              query: { roomKey: snackbarOption.roomKey },
-            },
-            undefined,
-            { shallow: true }
-          );
+          setRoodId(snackbarOption.roomKey);
         }}
-        message={`"${snackbarOption.roomTitle}" 방에 초대 되셨습니다. 클릭 시 이동합니다.`}
+        message={`"${snackbarOption.roomTitle}" 방에 참여자가 되셨습니다. 클릭 시 이동합니다.`}
+        onClose={() => setSnackbarOpen(false)}
       />
     </>
   );

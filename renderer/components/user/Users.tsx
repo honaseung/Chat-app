@@ -1,30 +1,24 @@
-import { Fab, Table, TableBody, TableHead } from "@mui/material";
+import { Box, List } from "@mui/material";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
-import {
-  getUser,
-  listUsers,
-  logoutUser,
-  realtimeInviteRoom,
-  realtimeOnlineUserListenOff,
-} from "../../lib/firebaseApi";
+import { listUsers, realtimeInviteRoom } from "../../lib/firebaseApi";
 
-import InviteModal from "../../components/InviteModal";
-import Loading from "../../components/Loading";
+import InviteModal from "../common/InviteModal";
 import { ListUsersResult } from "firebase-admin/lib/auth/base-auth";
 import { UserRecord } from "firebase-admin/lib/auth/user-record";
 import { SetStateAction } from "react";
 import { Iuser, defaultUser } from "../../type/user";
 
-import InviteSnackbar from "../../components/InviteSnackbar";
-import UserGridHeader from "../../components/UserGridHeader";
-import UserGridRow from "../../components/UserGridRow";
-import UserGridButton from "../../components/UserGridButton";
+import UserGridRow from "./UserGridRow";
+import UserGridButton from "./UserGridButton";
+import Loading from "../common/Loading";
 
-const Users: React.FunctionComponent = () => {
-  const router = useRouter();
-  const userInfo: Iuser = getUser();
+type Users = {
+  userInfo: Iuser;
+};
+
+const Users: React.FunctionComponent<Users> = ({ userInfo }) => {
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -42,25 +36,9 @@ const Users: React.FunctionComponent = () => {
         console.log(error);
       }
     );
-
-    // const tokenExpireTime = router.query.tokenExpireTime;
-    // if (tokenExpireTime) {
-    //   setModalOption({
-    //     title: "로그인 성공",
-    //     content: `토큰 만료시간은 ${tokenExpireTime} 입니다.`,
-    //   });
-    //   setModalOpen(true);
-    // }
-
-    // realtimeOnlineUserListenOn(() => {
-    //   getOnlineUsers((response) => {
-    //     setOnlineUsers(response.val());
-    //   });
-    // });
   }, []);
 
   const [users, setUsers] = useState<Iuser[]>([]);
-  // const [onlineUsers, setOnlineUsers] = useState<object>({});
   const [targetUsers, setTargetUsers] = useState<Iuser[]>([
     {
       ...defaultUser,
@@ -73,18 +51,12 @@ const Users: React.FunctionComponent = () => {
   const [inviteOne, setInviteOne] = useState(false);
 
   const [roomTitle, setRoomTitle] = useState<string>("");
-  // const [modalOption, setModalOption] = useState({
-  //   title: "",
-  //   content: "",
-  // });
   const [inviteModalOption, setInviteModalOption] = useState({
     title: "",
     content: "",
   });
 
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
-
-  const [loading, setLoading] = useState(false);
 
   const handleTargetUser = (
     e: React.MouseEvent<HTMLButtonElement>,
@@ -157,11 +129,13 @@ const Users: React.FunctionComponent = () => {
       },
       () => {
         setLoading(false);
-        realtimeOnlineUserListenOff();
-        router.push("../chat/rooms", undefined, { shallow: true });
+        setRoomTitle("");
+        setInviteModalOpen(false);
       },
       (error: any) => {
         setLoading(false);
+        setRoomTitle("");
+        setInviteModalOpen(false);
         console.log(error);
       }
     );
@@ -169,62 +143,63 @@ const Users: React.FunctionComponent = () => {
 
   return (
     <>
-      {loading ? (
-        <Loading />
-      ) : (
-        <>
-          <div className="header">
-            <UserGridButton
-              targetUsers={targetUsers}
-              setTargetUsers={setTargetUsers}
-              setLoading={setLoading}
-              invite={invite}
-              inviteOne={inviteOne}
-              setInviteOne={setInviteOne}
-            />
-          </div>
-          <Table>
-            <TableHead>
-              <UserGridHeader />
-            </TableHead>
-            <TableBody>
-              {users.map((u: Iuser, idx: number) => (
-                <UserGridRow
-                  key={u.uid}
-                  userName={u.displayName}
-                  userId={u.email}
-                  lastSignInTime={
-                    u.metadata.lastSignInTime
-                      ? new Date(u.metadata.lastSignInTime).toLocaleDateString()
-                      : "Never"
-                  }
-                  phoneNumber={u.phoneNumber}
-                  mine={u.email === userInfo?.email}
-                  inviteOne={inviteOne}
-                  handleTargetUser={handleTargetUser}
-                  handleTargetUsers={handleTargetUsers}
-                  even={!!(idx % 2)}
-                />
-              ))}
-            </TableBody>
-          </Table>
-          {/* <Modal
-            title={modalOption.title}
-            content={modalOption.content}
-            open={modalOpen}
-            setOpen={setModalOpen}
-          /> */}
-          <InviteModal
-            content={inviteModalOption.content}
-            open={inviteModalOpen}
-            setOpen={setInviteModalOpen}
-            onConfirm={confirmInvite}
-            roomTitle={roomTitle}
-            setRoomTitle={setRoomTitle}
+      {loading && <Loading />}
+      <List
+        sx={{
+          maxHeight: "100vh",
+          width: "45vh",
+          overflow: "scroll",
+          overflowX: "hidden",
+        }}
+      >
+        <Box
+          sx={{
+            textAlign: "center",
+            fontSize: 25,
+            backgroundColor: "#66bb6a",
+            color: "white",
+            fontWeight: 1000,
+          }}
+        >
+          유저 목록
+        </Box>
+        <UserGridButton
+          targetUsers={targetUsers}
+          setTargetUsers={setTargetUsers}
+          setLoading={setLoading}
+          invite={invite}
+          inviteOne={inviteOne}
+          setInviteOne={setInviteOne}
+          userInfo={userInfo}
+        />
+        {users.map((u: Iuser, idx: number) => (
+          <UserGridRow
+            key={u.uid}
+            userName={u.displayName}
+            userId={u.email}
+            lastSignInTime={
+              u.metadata.lastSignInTime
+                ? new Date(u.metadata.lastSignInTime).toLocaleDateString()
+                : "Never"
+            }
+            phoneNumber={u.phoneNumber}
+            mine={u.email === userInfo?.email}
+            inviteOne={inviteOne}
+            handleTargetUser={handleTargetUser}
+            handleTargetUsers={handleTargetUsers}
+            even={!!(idx % 2)}
           />
-          <InviteSnackbar />
-        </>
-      )}
+        ))}
+      </List>
+      <InviteModal
+        content={inviteModalOption.content}
+        open={inviteModalOpen}
+        setOpen={setInviteModalOpen}
+        onConfirm={confirmInvite}
+        roomTitle={roomTitle}
+        setRoomTitle={setRoomTitle}
+        handleClose={setRoomTitle}
+      />
     </>
   );
 };
