@@ -1,5 +1,6 @@
 import {
   Button,
+  ButtonGroup,
   Container,
   Fab,
   FilledInput,
@@ -167,34 +168,42 @@ const UserForm: React.FunctionComponent<UserForm> = ({
           </FormControl>
         )}
         <div className="user-form-button-container">
-          <Fab
-            color="secondary"
-            className="user-form-button"
-            onClick={() => request(openErrModal)}
-            disabled={
-              idErr ||
-              passwordErr ||
-              (isRegist && (confirmPasswordErr || numberErr))
-            }
+          <ButtonGroup
+            color="primary"
+            fullWidth
+            size="small"
+            variant="contained"
+            sx={{ alignContent: "center " }}
           >
-            {isRegist ? "REGIST" : "LOGIN"}
-          </Fab>
-          <Fab
-            color="info"
-            className="user-form-button"
-            onClick={() => router.push("/home")}
-          >
-            HOME
-          </Fab>
-          <Fab
-            color="secondary"
-            onClick={() =>
-              router.push(isRegist ? "/user/login" : "/user/regist")
-            }
-            className="user-form-link"
-          >
-            {isRegist ? "LOGIN" : "REGIST"}
-          </Fab>
+            <Button
+              color="primary"
+              className="user-form-button"
+              onClick={() => request(openErrModal)}
+              disabled={
+                idErr ||
+                passwordErr ||
+                (isRegist && (confirmPasswordErr || numberErr))
+              }
+            >
+              {isRegist ? "REGIST" : "LOGIN"}
+            </Button>
+            <Button
+              color="info"
+              className="user-form-button"
+              onClick={() => router.push("/home")}
+            >
+              HOME
+            </Button>
+            <Button
+              color="secondary"
+              onClick={() =>
+                router.push(isRegist ? "/user/login" : "/user/regist")
+              }
+              className="user-form-link"
+            >
+              {isRegist ? "LOGIN" : "REGIST"}
+            </Button>
+          </ButtonGroup>
         </div>
       </Container>
       <Modal

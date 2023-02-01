@@ -10,7 +10,6 @@ import {
   realtimeOnlineUserListenOff,
 } from "../../lib/firebaseApi";
 
-import User from "../../components/User";
 import InviteModal from "../../components/InviteModal";
 import Loading from "../../components/Loading";
 import { ListUsersResult } from "firebase-admin/lib/auth/base-auth";
@@ -19,7 +18,9 @@ import { SetStateAction } from "react";
 import { Iuser, defaultUser } from "../../type/user";
 
 import InviteSnackbar from "../../components/InviteSnackbar";
-import UserData from "../../components/UserData";
+import UserGridHeader from "../../components/UserGridHeader";
+import UserGridRow from "../../components/UserGridRow";
+import UserGridButton from "../../components/UserGridButton";
 
 const Users: React.FunctionComponent = () => {
   const router = useRouter();
@@ -85,21 +86,6 @@ const Users: React.FunctionComponent = () => {
 
   const [loading, setLoading] = useState(false);
 
-  const logout = () => {
-    setLoading(true);
-    logoutUser(
-      () => {
-        realtimeOnlineUserListenOff();
-        router.push("/home", undefined, { shallow: true });
-        setLoading(false);
-      },
-      (error: any) => {
-        console.log(error);
-        setLoading(false);
-      }
-    );
-  };
-
   const handleTargetUser = (
     e: React.MouseEvent<HTMLButtonElement>,
     info: Iuser
@@ -110,7 +96,7 @@ const Users: React.FunctionComponent = () => {
     );
     setInviteModalOption({
       title: "초대",
-      content: `${userInfo.displayName} 와 ${userName} 를 초대합니다.`,
+      content: `${userInfo.displayName} 와 ${userName} 의 방을 만듭니다.`,
     });
     setInviteModalOpen(true);
   };
@@ -188,44 +174,22 @@ const Users: React.FunctionComponent = () => {
       ) : (
         <>
           <div className="header">
-            <Fab color="error" onClick={logout}>
-              LOGOUT
-            </Fab>
-            <Fab
-              color="info"
-              onClick={() => {
-                setTargetUsers([
-                  {
-                    ...defaultUser,
-                    phoneNumber: userInfo?.phoneNumber,
-                    userId: userInfo?.email,
-                    userName: userInfo?.displayName,
-                  },
-                ]);
-                setInviteOne(!inviteOne);
-              }}
-            >
-              {inviteOne ? "1:1 CHAT" : "GROUP CHAT"}
-            </Fab>
-            <Fab
-              color="warning"
-              className="btn"
-              disabled={targetUsers.length === 1 || inviteOne}
-              onClick={invite}
-            >
-              INVITE
-            </Fab>
-            <Fab color="success" onClick={() => router.push("../chat/rooms")}>
-              ROOMS
-            </Fab>
+            <UserGridButton
+              targetUsers={targetUsers}
+              setTargetUsers={setTargetUsers}
+              setLoading={setLoading}
+              invite={invite}
+              inviteOne={inviteOne}
+              setInviteOne={setInviteOne}
+            />
           </div>
           <Table>
             <TableHead>
-              <UserData />
+              <UserGridHeader />
             </TableHead>
             <TableBody>
-              {users.map((u: Iuser) => (
-                <User
+              {users.map((u: Iuser, idx: number) => (
+                <UserGridRow
                   key={u.uid}
                   userName={u.displayName}
                   userId={u.email}
@@ -239,6 +203,7 @@ const Users: React.FunctionComponent = () => {
                   inviteOne={inviteOne}
                   handleTargetUser={handleTargetUser}
                   handleTargetUsers={handleTargetUsers}
+                  even={!!(idx % 2)}
                 />
               ))}
             </TableBody>
