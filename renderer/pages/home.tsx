@@ -26,11 +26,9 @@ function Home() {
         </Typography>
         <img src="/images/chat-logo.png" />
         <Typography gutterBottom>
-          <Link href="/user/login">Login</Link>
+          <Link href="/user/userForm">Login/Regist</Link>
         </Typography>
-        <Typography gutterBottom>
-          <Link href="/user/regist">Regist</Link>
-        </Typography>
+        <Typography gutterBottom></Typography>
       </Root>
     </Fragment>
   );
