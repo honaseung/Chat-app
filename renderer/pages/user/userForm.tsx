@@ -8,34 +8,23 @@ import {
   FormHelperText,
   InputLabel,
 } from "@mui/material";
-import { useState } from "react";
-import getErrMsg from "../lib/errMsg";
-import Modal from "./Modal";
-import Link from "./Link";
+import { Dispatch, SetStateAction, useState } from "react";
+import getErrMsg from "../../lib/errMsg";
+import Modal from "../../components/Modal";
+import Link from "../../components/Link";
 import { useRouter } from "next/router";
+import {
+  validateEmail,
+  validatePasswod,
+  validatePhoneNumber,
+} from "../../lib/validate";
+import { loginUser, registUser } from "../../lib/firebaseApi";
+import { defaultUser } from "../../type/user";
+import Loading from "../../components/Loading";
 
-type UserForm = {
-  id: string;
-  name?: string;
-  password: string;
-  passwordConfirm?: string;
-  number?: string;
-  isRegist?: boolean;
-  handleValue(e: React.ChangeEvent<HTMLInputElement>, s?: Function): void;
-  request(f: Function): void;
-  children?: React.ReactNode;
-};
+type UserForm = {};
 
-const UserForm: React.FunctionComponent<UserForm> = ({
-  id,
-  name = "",
-  password,
-  passwordConfirm = "",
-  number = "",
-  isRegist = false,
-  handleValue,
-  request,
-}) => {
+const UserForm: React.FunctionComponent<UserForm> = ({}) => {
   const router = useRouter();
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -43,8 +32,18 @@ const UserForm: React.FunctionComponent<UserForm> = ({
     title: "",
     content: "",
   });
+
+  const [loading, setLoading] = useState(false);
+  const [isRegist, setIsRegist] = useState(false);
+
+  const [id, setId] = useState("");
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+
   const [idErr, setIdErr] = useState(true);
-  const [numberErr, setNumberErr] = useState(true);
+  const [phoneNumberErr, setPhoneNumberErr] = useState(true);
   const [passwordErr, setPasswordErr] = useState(true);
   const [confirmPasswordErr, setConfirmPasswordErr] = useState(true);
 
@@ -57,8 +56,122 @@ const UserForm: React.FunctionComponent<UserForm> = ({
     setModalOpen(true);
   };
 
+  const handleValue = (
+    name: string,
+    value?: string,
+    setErr?: Dispatch<SetStateAction<boolean>>
+  ) => {
+    switch (name) {
+      case "input-id":
+        if (!validateEmail(value)) {
+          setErr(true);
+        } else {
+          setErr(false);
+        }
+        setId(value);
+        break;
+
+      case "input-name":
+        setName(value);
+        break;
+
+      case "input-number":
+        if (!validatePhoneNumber(value)) {
+          setErr(true);
+        } else {
+          setErr(false);
+        }
+        setPhoneNumber(value);
+        break;
+
+      case "input-password":
+        if (!validatePasswod(value)) {
+          setErr(true);
+        } else {
+          setErr(false);
+        }
+        setPassword(value);
+        setPasswordConfirm("");
+        break;
+
+      case "input-password-confirm":
+        if (value !== password) {
+          setErr(true);
+        } else {
+          setErr(false);
+        }
+        setPasswordConfirm(value);
+        break;
+
+      case "reset":
+        setId("");
+        setName("");
+        setPhoneNumber("");
+        setPassword("");
+        setPasswordConfirm("");
+
+      default:
+        break;
+    }
+  };
+
+  const request = () => {
+    if (isRegist) regist();
+    else login();
+  };
+
+  const regist = () => {
+    setLoading(true);
+    registUser(
+      {
+        userParam: {
+          ...defaultUser,
+          email: id,
+          displayName: name ? name : id.split("@")[0],
+          phoneNumber: `+82${phoneNumber.slice(1)}`,
+          password: password,
+        },
+      },
+      () => {
+        setLoading(false);
+        setIsRegist(false);
+        setModalOption({
+          title: "회원 가입 성공",
+          content: "회원가입에 성공 하셨습니다.",
+        });
+        setModalOpen(true);
+      },
+      (error: any) => {
+        setLoading(false);
+        openErrModal(error);
+      }
+    );
+  };
+
+  const login = () => {
+    setLoading(true);
+    loginUser(
+      {
+        userParam: { ...defaultUser, email: id, password: password },
+      },
+      (response: string) => {
+        setLoading(false);
+        router.push(
+          "users",
+          { query: { tokenExpireTime: response } },
+          { shallow: true }
+        );
+      },
+      (error: any) => {
+        setLoading(false);
+        openErrModal(error);
+      }
+    );
+  };
+
   return (
     <>
+      {loading && <Loading />}
       <Container maxWidth="xs" className="user-form-container">
         <img src="/images/login.png" height="280" width="280" />
         <div className="user-form-title">
@@ -71,7 +184,7 @@ const UserForm: React.FunctionComponent<UserForm> = ({
             className="user-form-input"
             value={id}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              handleValue(e, setIdErr)
+              handleValue(e.target.name, e.target.value, setIdErr)
             }
             name="input-id"
             id="input-id"
@@ -90,7 +203,7 @@ const UserForm: React.FunctionComponent<UserForm> = ({
               className="user-form-input"
               value={name}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                handleValue(e)
+                handleValue(e.target.name, e.target.value)
               }
               name="input-name"
               id="input-name"
@@ -106,17 +219,17 @@ const UserForm: React.FunctionComponent<UserForm> = ({
             <InputLabel htmlFor="input-number">NUMBER</InputLabel>
             <FilledInput
               className="user-form-input"
-              value={number}
+              value={phoneNumber}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                handleValue(e, setNumberErr)
+                handleValue(e.target.name, e.target.value, setPhoneNumberErr)
               }
               name="input-number"
               id="input-number"
               aria-describedby="NUMBER"
-              error={numberErr}
+              error={phoneNumberErr}
             />
             <FormHelperText id="NUMBER">
-              {numberErr
+              {phoneNumberErr
                 ? "핸드폰 번호를 입력해주세요."
                 : "올바르게 입력하셨습니다."}
             </FormHelperText>
@@ -128,7 +241,7 @@ const UserForm: React.FunctionComponent<UserForm> = ({
             className="user-form-input"
             value={password}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              handleValue(e, setPasswordErr)
+              handleValue(e.target.name, e.target.value, setPasswordErr)
             }
             name="input-password"
             id="input-password"
@@ -151,7 +264,11 @@ const UserForm: React.FunctionComponent<UserForm> = ({
               className="user-form-input"
               value={passwordConfirm}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                handleValue(e, setConfirmPasswordErr)
+                handleValue(
+                  e.target.name,
+                  e.target.value,
+                  setConfirmPasswordErr
+                )
               }
               name="input-password-confirm"
               id="input-password-confirm"
@@ -178,11 +295,11 @@ const UserForm: React.FunctionComponent<UserForm> = ({
             <Button
               color="primary"
               className="user-form-button"
-              onClick={() => request(openErrModal)}
+              onClick={() => request()}
               disabled={
                 idErr ||
                 passwordErr ||
-                (isRegist && (confirmPasswordErr || numberErr))
+                (isRegist && (confirmPasswordErr || phoneNumberErr))
               }
             >
               {isRegist ? "REGIST" : "LOGIN"}
@@ -196,9 +313,11 @@ const UserForm: React.FunctionComponent<UserForm> = ({
             </Button>
             <Button
               color="secondary"
-              onClick={() =>
-                router.push(isRegist ? "/user/login" : "/user/regist")
-              }
+              onClick={(e) => {
+                setIsRegist(!isRegist);
+                handleValue("reset");
+              }}
+              name="reset"
               className="user-form-link"
             >
               {isRegist ? "LOGIN" : "REGIST"}
