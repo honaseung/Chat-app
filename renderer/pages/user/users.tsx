@@ -135,7 +135,7 @@ const Users: React.FunctionComponent = () => {
       title: "초대",
       content: `${targetUsers
         .map((user) => user.userName)
-        .join(" 와\n ")} 를 초대합니다.`,
+        .join(" 와\n ")} 의 방을 만듭니다.`,
     });
     setInviteModalOpen(true);
   };
@@ -161,8 +161,8 @@ const Users: React.FunctionComponent = () => {
                 ")" +
                 " (이)가 " +
                 targetUsers.map((user) => user.userName).join(" 와\n ") +
-                " (을)를 " +
-                "초대하였습니다.",
+                " 의 방을 " +
+                "만들었습니다.",
             },
           ],
           members: targetUsers,
@@ -210,7 +210,7 @@ const Users: React.FunctionComponent = () => {
             <Fab
               color="warning"
               className="btn"
-              disabled={targetUsers.length === 1}
+              disabled={targetUsers.length === 1 || inviteOne}
               onClick={invite}
             >
               INVITE
