@@ -1,9 +1,10 @@
 firebase 와 nextron 을 이용한 채팅 앱입니다.
 
-레파지토리를 클론받으셨다면 최초 한번 CLI 에 아래 코드를 입력하여 서버가 실행 될 수 있도록 설치해주세요.
+# 레파지토리를 클론받으셨다면 반드시 최초 한번 CLI 에 아래 코드를 입력하여 서버가 실행 될 수 있도록 설치해주세요.
 
 ```
 # using yarn or npm
+yarn 을 입력하시거나 npm install 을 입력해주시면 됩니다.
 $ yarn (or `npm install`)
 ```
 
