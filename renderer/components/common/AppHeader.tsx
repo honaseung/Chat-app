@@ -19,9 +19,12 @@ import {
   ChatBubble,
   Home,
   LogoutSharp,
-  MenuBookSharp,
+  Menu,
 } from "@mui/icons-material";
 
+/**
+ * @description 헤더 컴포넌트입니다. 메뉴, 뒤로가기, 로그아웃 버튼과 앱 이름, 유저 정보를 담고 있습니다.
+ */
 const AppHeader: React.FunctionComponent = () => {
   const userInfo = getUser();
   const router = useRouter();
@@ -49,27 +52,28 @@ const AppHeader: React.FunctionComponent = () => {
               display: "flex",
               justifyContent: "space-between",
               backgroundColor: "#3f50b5",
-              height: 100,
+              height: "9vh",
             }}
           >
             <ButtonGroup>
               <Button
                 onClick={() => setDrawer(true)}
-                startIcon={<MenuBookSharp />}
+                startIcon={<Menu />}
                 variant="text"
-                sx={{ color: "black" }}
+                sx={{ color: "#9fa8da" }}
               >
                 메뉴
               </Button>
             </ButtonGroup>
             <Typography
-              component="div"
+              component="p"
               sx={{
                 fontSize: "36px",
                 color: "darkgray",
                 fontStyle: "italic",
                 fontWeight: 1000,
                 verticalAlign: "middle",
+                lineHeight: 2.5,
               }}
             >
               📌 LET's CHAT
@@ -78,7 +82,8 @@ const AppHeader: React.FunctionComponent = () => {
               component="div"
               sx={{
                 color: "whitesmoke",
-                right: 0,
+                top: "0.5vh",
+                right: "1.5vw",
                 position: "absolute",
               }}
             >{`${userInfo.displayName}(${userInfo.email})`}</Typography>
@@ -87,7 +92,7 @@ const AppHeader: React.FunctionComponent = () => {
                 startIcon={<ArrowBackIosNewSharp />}
                 onClick={() => router.back()}
                 variant="text"
-                sx={{ color: "black" }}
+                sx={{ color: "#9fa8da" }}
               >
                 뒤로가기
               </Button>
@@ -95,7 +100,7 @@ const AppHeader: React.FunctionComponent = () => {
                 startIcon={<LogoutSharp />}
                 onClick={logout}
                 variant="text"
-                sx={{ color: "black" }}
+                sx={{ color: "#9fa8da" }}
               >
                 로그아웃
               </Button>

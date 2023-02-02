@@ -15,7 +15,6 @@ import {
   signInWithEmailAndPassword,
   signOut,
   browserSessionPersistence,
-  IdTokenResult,
 } from "firebase/auth";
 import {
   auth,

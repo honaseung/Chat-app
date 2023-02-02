@@ -19,6 +19,7 @@ import {
 import { Imessage } from "../../type/message";
 import { useRouter } from "next/router";
 import { QuestionAnswer } from "@mui/icons-material";
+import { toEllipsis } from "../../lib/utils";
 
 type Room = {
   title: string;
@@ -45,14 +46,20 @@ const OpenRoom: React.FunctionComponent<Room> = ({
   return (
     <>
       {loading && <Loading />}
-      <Box sx={{ textAlign: "center" }}>
+      <Box
+        sx={{
+          textAlign: "center",
+          display: "inline-flex",
+          justifyContent: "space-between",
+        }}
+      >
         <Card
-          sx={{ display: "flex", mt: 1, width: 600 }}
+          sx={{ display: "flex", mt: 1, ml: 2.5, mr: 2.5, maxWidth: 600 }}
           variant="elevation"
           elevation={24}
         >
-          <Box sx={{ display: "flex", flexDirection: "column" }}>
-            <CardContent sx={{ flex: "1 0 auto" }}>
+          <Box>
+            <CardContent sx={{ width: 400 }}>
               <Typography
                 component="div"
                 variant="h5"
@@ -81,7 +88,7 @@ const OpenRoom: React.FunctionComponent<Room> = ({
                   textAlign: "start",
                 }}
               >
-                {lastMessage}
+                {toEllipsis(lastMessage, 50)}
               </Typography>
             </CardContent>
             <Box
@@ -101,18 +108,20 @@ const OpenRoom: React.FunctionComponent<Room> = ({
               </CardActions>
             </Box>
           </Box>
-          <CardMedia
-            component="img"
-            sx={{
-              width: 200,
-              height: 200,
-              opacity: "0.7",
-              pt: 1,
-              pb: 1,
-            }}
-            image={`/globalRoom/${img}`}
-            alt="/globalRoom/noImage.png"
-          />
+          <Box>
+            <CardMedia
+              component="img"
+              sx={{
+                width: 200,
+                height: 200,
+                opacity: "0.7",
+                pt: 1,
+                pb: 1,
+              }}
+              image={`/globalRoom/${img}`}
+              alt="/common/noImage.png"
+            />
+          </Box>
         </Card>
       </Box>
     </>

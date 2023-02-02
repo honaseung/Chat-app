@@ -1,13 +1,8 @@
 import admin from "firebase-admin";
+import { getApps as adminGetApps } from "firebase-admin/app";
 var serviceAccount = require("/Chat-app/chatting-app-5948-firebase-adminsdk-aepta-ceb308a6f7.json");
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL:
-    "https://chatting-app-5948-default-rtdb.asia-southeast1.firebasedatabase.app",
-});
-
-import { initializeApp, getApp, getApps, deleteApp } from "firebase/app";
+import { initializeApp, getApps } from "firebase/app";
 import { getAuth } from "@firebase/auth";
 import { getFirestore } from "@firebase/firestore";
 import { getDatabase } from "firebase/database";
@@ -25,14 +20,17 @@ const firebaseConfig = {
     "https://chatting-app-5948-default-rtdb.asia-southeast1.firebasedatabase.app/",
 };
 
-// deleteApp(getApp("[DEFAULT]"));
-// if (!getApps().length) {
-//   initializeApp(firebaseConfig);
-// } else {
-//   getApp("[DEFAULT]");
-// }
+if (!(getApps().length > 0)) {
+  initializeApp(firebaseConfig);
+}
 
-initializeApp(firebaseConfig);
+if (!(adminGetApps().length > 0)) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL:
+      "https://chatting-app-5948-default-rtdb.asia-southeast1.firebasedatabase.app",
+  });
+}
 
 export const firestore = getFirestore();
 export const realtimeDatabase = getDatabase();
@@ -42,4 +40,3 @@ export const storage = getStorage();
 export default admin;
 export const auth = admin.auth();
 export const database = admin.database();
-// export const storage = admin.storage();

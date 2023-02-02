@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import React from "react";
 import { Iuser, defaultUser } from "../../type/user";
+import { EmojiPeopleRounded } from "@mui/icons-material";
 
 type UserGridRow = {
   userName: string;
@@ -42,14 +43,10 @@ const UserGridRow: React.FunctionComponent<UserGridRow> = ({
         {mine ? (
           <Typography
             sx={{
-              textAlign: "right",
-              fontSize: "16px",
-              color: "green",
-              fontWeight: 1000,
               pr: 1.5,
             }}
           >
-            "ME"
+            <EmojiPeopleRounded />
           </Typography>
         ) : inviteOne ? (
           <Button

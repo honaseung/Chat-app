@@ -5,7 +5,14 @@ import {
   realtimeRoomListenOff,
   realtimeRoomListenOn,
 } from "../../lib/firebaseApi";
-import { Card, CardContent, List, Paper } from "@mui/material";
+import {
+  Card,
+  CardContent,
+  CardMedia,
+  List,
+  Paper,
+  Typography,
+} from "@mui/material";
 import Loading from "../common/Loading";
 import MyRoom from "./MyRoom";
 import { Iroom } from "../../type/room";
@@ -122,9 +129,32 @@ const MyRooms: React.FunctionComponent = () => {
           </List>
         </>
       ) : (
-        <Card>
-          <CardContent>
-            <div>참여중인 방이 없습니다.</div>
+        <Card sx={{ textAlign: "center" }}>
+          <CardContent sx={{ left: 50 }}>
+            <Typography
+              component="p"
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "40%",
+                fontSize: 36,
+                fontStyle: "italic",
+              }}
+            >
+              참여중인 방이 없습니다.
+            </Typography>
+            <CardMedia
+              component="img"
+              sx={{
+                width: "191vh",
+                height: "85vh",
+                opacity: "0.2",
+                pt: 1,
+                pb: 1,
+              }}
+              image="/myRoom/empty.png"
+              alt="/common/noImage.png"
+            />
           </CardContent>
         </Card>
       )}

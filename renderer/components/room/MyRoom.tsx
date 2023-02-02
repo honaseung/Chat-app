@@ -11,7 +11,7 @@ import {
   IconButton,
   Typography,
 } from "@mui/material";
-import { createLocaleDateString } from "../../lib/utils";
+import { createLocaleDateString, toEllipsis } from "../../lib/utils";
 import Loading from "../common/Loading";
 import { useState } from "react";
 import { Iuser } from "../../type/user";
@@ -26,6 +26,7 @@ import {
   ExitToApp,
   ExpandCircleDown,
   ExpandMore,
+  FiberNewRounded,
   Info,
   Login,
   MeetingRoom,
@@ -55,6 +56,7 @@ const MyRoom: React.FunctionComponent<MyRoom> = ({
   const router = useRouter();
   const roomCollectionType = "chat/" + roomId;
   const chatCollectionType = roomCollectionType + "/messages";
+  const isNew = Date.now() - created < 300000;
 
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -102,27 +104,31 @@ const MyRoom: React.FunctionComponent<MyRoom> = ({
   return (
     <>
       {loading && <Loading />}
-      <Box sx={{ textAlign: "center" }}>
+      <Box
+        sx={{
+          textAlign: "center",
+          display: "inline-flex",
+          justifyContent: "space-between",
+        }}
+      >
         <Card
           sx={{
-            backgroundColor: "#9fa8da",
+            backgroundColor: isNew ? "#80cbc4" : "#9fa8da",
             mt: 1,
-            width: 500,
+            ml: 2,
+            mr: 2,
+            width: 600,
             display: "inline-block",
           }}
           variant="outlined"
         >
           <CardHeader
-            avatar={<Info />}
-            title={title}
+            avatar={isNew ? <FiberNewRounded /> : <Info />}
+            title={toEllipsis(title, 20)}
             subheader={createLocaleDateString(created)}
             sx={{ textAlign: "right" }}
           />
-          <CardContent
-            sx={{
-              textOverflow: "ellipsis",
-            }}
-          >
+          <CardContent>
             <Typography
               component="p"
               sx={{
@@ -135,11 +141,10 @@ const MyRoom: React.FunctionComponent<MyRoom> = ({
             <Typography
               component="p"
               sx={{
-                textOverflow: "ellipsis",
                 textAlign: "start",
               }}
             >
-              {lastMessage}
+              {toEllipsis(lastMessage, 45)}
             </Typography>
           </CardContent>
           <CardActions
@@ -178,14 +183,18 @@ const MyRoom: React.FunctionComponent<MyRoom> = ({
           >
             <CardContent>
               <Typography paragraph sx={{ textAlign: "left" }}>
-                참여자:{" "}
+                참여자:
               </Typography>
               {members &&
-                members.map((member, idx) => (
-                  <Typography key={idx} sx={{ textAlign: "right" }}>
-                    {`${member.userName}(${member.userId})`}
-                  </Typography>
-                ))}
+                members.map((member, idx) =>
+                  idx < 3 ? (
+                    <Typography key={idx} sx={{ textAlign: "right" }}>
+                      {`${member.userName}(${member.userId})`}
+                    </Typography>
+                  ) : (
+                    idx === 3 && "... 이외 더 많은 멤버들이 참여중입니다. ..."
+                  )
+                )}
             </CardContent>
           </Collapse>
         </Card>

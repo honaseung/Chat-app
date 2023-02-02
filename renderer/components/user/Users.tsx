@@ -168,7 +168,7 @@ const Users: React.FunctionComponent = () => {
         <TableBody>
           {users.map((u: Iuser, idx: number) => (
             <TableRow
-              sx={{ backgroundColor: idx % 2 ? "darkgray" : "whitesmoke" }}
+              sx={{ backgroundColor: idx % 2 ? "#78909c" : "#cfd8dc" }}
               key={idx}
             >
               <UserGridRow

@@ -33,6 +33,8 @@ const Message: React.FunctionComponent<Message> = ({
                 textAlign: "center",
                 backgroundColor: "#009688",
                 color: "white",
+                fontSize: 24,
+                fontStyle: "italic",
               }}
             >
               {date.toLocaleDateString()}
@@ -41,6 +43,7 @@ const Message: React.FunctionComponent<Message> = ({
         </Box>
         <Chip
           sx={{
+            mt: 1,
             ml: 1,
             mr: 1,
             float: mine ? "right" : "left",

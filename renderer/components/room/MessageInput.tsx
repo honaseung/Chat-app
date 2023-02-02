@@ -78,6 +78,9 @@ const MessageInput: React.FunctionComponent<MessageInput> = ({
         variant="filled"
         value={text}
         onChange={(e) => setText(e.target.value)}
+        onKeyUp={(e) => {
+          if (e.key === "Enter") sendMessage();
+        }}
       />
       <ButtonGroup fullWidth variant="text" sx={{}}>
         <Button onClick={() => sendMessage()}>보내기</Button>

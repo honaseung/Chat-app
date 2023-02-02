@@ -17,35 +17,16 @@ type UserGridButton = {
 const UserGridButton: React.FunctionComponent<UserGridButton> = ({
   targetUsers,
   setTargetUsers,
-  setLoading,
   invite,
   inviteOne,
   setInviteOne,
   userInfo,
 }) => {
-  const router = useRouter();
-
-  const logout = () => {
-    setLoading(true);
-    logoutUser(
-      () => {
-        router.push("/home", undefined, { shallow: true });
-        setLoading(false);
-      },
-      (error: any) => {
-        console.log(error);
-        setLoading(false);
-      }
-    );
-  };
   return (
     <>
       <ButtonGroup size="large" variant="contained" fullWidth>
-        {/* <Button color="error" onClick={logout}>
-          LOGOUT
-        </Button> */}
         <Button
-          color="info"
+          sx={{ backgroundColor: "#01579b" }}
           onClick={() => {
             setTargetUsers([
               {
@@ -67,6 +48,7 @@ const UserGridButton: React.FunctionComponent<UserGridButton> = ({
             targetUsers.length === 1 || targetUsers.length === 2 || inviteOne
           }
           onClick={invite}
+          sx={{ backgroundColor: "#311b92" }}
         >
           INVITE
         </Button>

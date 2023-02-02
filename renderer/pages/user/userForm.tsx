@@ -166,7 +166,7 @@ const UserForm: React.FunctionComponent = () => {
     <>
       {loading && <Loading />}
       <Container maxWidth="xs" className="user-form-container">
-        <img src="/images/login.png" height="280" width="280" />
+        <img src="/common/chat-logo.png" height="280" width="280" />
         <div className="user-form-title">
           {isRegist ? "회원가입" : "로그인"}을 해주세요.
         </div>
@@ -295,13 +295,6 @@ const UserForm: React.FunctionComponent = () => {
               }
             >
               {isRegist ? "REGIST" : "LOGIN"}
-            </Button>
-            <Button
-              color="info"
-              className="user-form-button"
-              onClick={() => router.push("/home")}
-            >
-              HOME
             </Button>
             <Button
               color="secondary"

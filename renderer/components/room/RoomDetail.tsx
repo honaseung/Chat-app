@@ -107,12 +107,13 @@ const RoomDetail: React.FunctionComponent = () => {
         <Box>
           <Card
             sx={{
-              height: "78.5vh",
+              height: "74.5vh",
               overflow: "scroll",
               overflowX: "hidden",
             }}
           >
             <RoomInfo members={members} roomInfo={roomInfo} />
+            <Divider />
             {messages && (
               <Box>
                 {messages.map((message: Imessage, idx) => {
@@ -137,7 +138,7 @@ const RoomDetail: React.FunctionComponent = () => {
           </Card>
           <Box
             sx={{
-              bottom: "1vh",
+              bottom: "0.1vh",
               position: "absolute",
               width: "100%",
             }}
