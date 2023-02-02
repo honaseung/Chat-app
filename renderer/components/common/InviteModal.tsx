@@ -23,6 +23,10 @@ type InviteModal = {
   handleClose?(s: string): void;
 };
 
+/**
+ *
+ * @description 사용자를 채팅방에 초대하기 위한 컴포넌트 입니다.
+ */
 const InviteModal: React.FunctionComponent<InviteModal> = ({
   open,
   setOpen,

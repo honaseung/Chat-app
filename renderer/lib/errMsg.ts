@@ -1,4 +1,11 @@
-export default function getErrMsg(code: string) {
+/**
+ *
+ * @param code 에러코드입니다.
+ * @returns 에러메세지입니다.
+ * @description 에러코드를 이용하여 에러메세지를 리턴해줍니다.
+ * 등록되지 않은 에러코드는 콘솔에 보여주며 '관리자에게 문의하세요.' 라는 문구로 리턴됩니다.
+ */
+export default function getErrMsg(code: string): string[] {
   switch (code) {
     case "auth/user-not-found":
       return ["미가입 사용자", "가입하지 않은 사용자입니다."];

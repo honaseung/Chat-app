@@ -14,6 +14,10 @@ type RoomInfo = {
   roomInfo: Iroom;
 };
 
+/**
+ *
+ * @description 방 내부에서 방의 제목과 참여자 정보를 담고있는 컴포넌트입니다.
+ */
 const RoomInfo: React.FunctionComponent<RoomInfo> = ({ members, roomInfo }) => {
   return (
     <>

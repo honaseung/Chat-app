@@ -1,4 +1,3 @@
-//@ts-check
 import { ref as strRef, uploadBytesResumable } from "firebase/storage";
 import {
   ref,
@@ -27,6 +26,11 @@ import { Irequest } from "../type/firebaseApi";
 import { Iroom } from "../type/room";
 import { defaultUser } from "../type/user";
 
+/**
+ *
+ * @param img 이미지 파일 객체입니다.
+ * @deprecated 정상작동하지 않습니다.
+ */
 export async function uploadImg(img: File) {
   let target = null;
   const ref = strRef(storage, "images/");

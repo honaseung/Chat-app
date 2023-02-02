@@ -1,10 +1,10 @@
-import Rooms from "../../components/room/MyRooms";
-import { useState } from "react";
-import { getUser } from "../../lib/firebaseApi";
-import { Iuser } from "../../type/user";
 import OpenRooms from "../../components/room/OpenRooms";
 import InviteSnackbar from "../../components/common/InviteSnackbar";
 
+/**
+ *
+ * @description 오픈 채팅방의 컨테이너 컴포넌트입니다.
+ */
 const openRoomsConatiner: React.FunctionComponent = () => {
   return (
     <>

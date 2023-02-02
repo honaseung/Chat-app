@@ -21,7 +21,7 @@ import Box from "@mui/material/Box";
 import OpenRoom from "./OpenRoom";
 
 /**
- * @description 방 컴포넌트를 보여주는 페이지 컴포넌트입니다.
+ * @description 방 컴포넌트들을 보여주는 페이지 컴포넌트입니다.
  */
 const MyRooms: React.FunctionComponent = () => {
   const userInfo = getUser();

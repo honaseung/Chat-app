@@ -1,10 +1,10 @@
-import Rooms from "../../components/room/MyRooms";
-import { useState } from "react";
-import { getUser } from "../../lib/firebaseApi";
-import { Iuser } from "../../type/user";
 import MyRooms from "../../components/room/MyRooms";
 import InviteSnackbar from "../../components/common/InviteSnackbar";
 
+/**
+ *
+ * @description 내가 참여중인 방의 컨테이너 컴포넌트입니다.
+ */
 const myRoomsConatiner: React.FunctionComponent = () => {
   return (
     <>

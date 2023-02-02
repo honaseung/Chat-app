@@ -44,6 +44,10 @@ type MyRoom = {
   roomId: string | number;
 };
 
+/**
+ *
+ * @description 참여중인 방들의 외부 컴포넌트입니다.
+ */
 const MyRoom: React.FunctionComponent<MyRoom> = ({
   title,
   created,
@@ -61,6 +65,10 @@ const MyRoom: React.FunctionComponent<MyRoom> = ({
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
+  /**
+   *
+   * @description 방 입장 함수
+   */
   const enterRoom = async (roomKey: number | string) => {
     setLoading(true);
     await realtimeChatListenOff({
@@ -72,6 +80,9 @@ const MyRoom: React.FunctionComponent<MyRoom> = ({
     });
   };
 
+  /**
+   * @description 방 나가기 함수
+   */
   const exitRoom = async () => {
     setLoading(true);
     await realtimeExitRoom(

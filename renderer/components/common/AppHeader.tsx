@@ -31,6 +31,9 @@ const AppHeader: React.FunctionComponent = () => {
 
   const [drawer, setDrawer] = useState(false);
 
+  /**
+   * @description 로그아웃 함수입니다.
+   */
   const logout = () => {
     logoutUser(
       () => {

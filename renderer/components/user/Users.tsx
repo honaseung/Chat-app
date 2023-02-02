@@ -20,6 +20,10 @@ import UserGridButton from "./UserGridButton";
 import Loading from "../common/Loading";
 import UserGridHeader from "./UserGridHeader";
 
+/**
+ *
+ * @description 사용자들의 정보를 보여주는 컴포넌트입니다.
+ */
 const Users: React.FunctionComponent = () => {
   const userInfo: Iuser = getUser();
   const [loading, setLoading] = useState(false);
@@ -52,16 +56,26 @@ const Users: React.FunctionComponent = () => {
     },
   ]);
 
-  const [inviteOne, setInviteOne] = useState(false);
+  const [inviteOne, setInviteOne] = useState<boolean>(false);
 
   const [roomTitle, setRoomTitle] = useState<string>("");
-  const [inviteModalOption, setInviteModalOption] = useState({
+  const [inviteModalOption, setInviteModalOption] = useState<{
+    title: string;
+    content: string;
+  }>({
     title: "",
     content: "",
   });
 
-  const [inviteModalOpen, setInviteModalOpen] = useState(false);
+  const [inviteModalOpen, setInviteModalOpen] = useState<boolean>(false);
 
+  /**
+   *
+   * @param e 이벤트 객체입니다.
+   * @param info 사용자의 정보입니다.
+   * @description 1:1 채팅방에 초대하기위한 사용자 세팅 함수입니다.
+   * 세팅후 바로 초대 모달을 띄웁니다.
+   */
   const handleTargetUser = (
     e: React.MouseEvent<HTMLButtonElement>,
     info: Iuser
@@ -77,6 +91,12 @@ const Users: React.FunctionComponent = () => {
     setInviteModalOpen(true);
   };
 
+  /**
+   *
+   * @param e 이벤트 객체입니다.
+   * @param info 사용자의 정보입니다.
+   * @description 그룹 채팅방에 초대하기위한 사용자들 세팅 함수입니다.
+   */
   const handleTargetUsers = (
     e: React.ChangeEvent<HTMLInputElement>,
     info: Iuser
@@ -92,6 +112,10 @@ const Users: React.FunctionComponent = () => {
     }
   };
 
+  /**
+   * @description 그룹 채팅방 초대 함수입니다.
+   * 초대 모달창을 띄웁니다.
+   */
   const invite = () => {
     setInviteModalOption({
       title: "초대",
@@ -102,6 +126,9 @@ const Users: React.FunctionComponent = () => {
     setInviteModalOpen(true);
   };
 
+  /**
+   * @description 초대를 위한 api 를 호출하는 함수입니다.
+   */
   const confirmInvite = () => {
     setLoading(true);
     const createdTime = Date.now();

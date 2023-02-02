@@ -27,7 +27,7 @@ import Loading from "../common/Loading";
 import RoomInfo from "./RoomInfo";
 
 /**
- * @description 메세지 컴포넌트와 메세지 인풋 컴포넌트를 보여주는 페이지 컴포넌트 입니다.
+ * @description 메세지 컴포넌트와 메세지 인풋 컴포넌트 그리고 방 정보 컴포넌트를 보여주는 실제 방 내부 컴포넌트 입니다.
  */
 const RoomDetail: React.FunctionComponent = () => {
   const userInfo = getUser();

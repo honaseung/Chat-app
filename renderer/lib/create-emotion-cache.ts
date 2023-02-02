@@ -1,4 +1,3 @@
-//@ts-nocheck
 import createCache from "@emotion/cache";
 
 const isBrowser = typeof window !== "undefined";

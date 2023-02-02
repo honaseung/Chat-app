@@ -15,6 +15,10 @@ type Modal = {
   handleClose?: void;
 };
 
+/**
+ *
+ * @description 화면에 정보를 띄워 알려주는 컴포넌트입니다.
+ */
 const Modal: React.FunctionComponent<Modal> = ({
   title,
   content,

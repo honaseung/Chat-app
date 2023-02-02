@@ -1,5 +1,9 @@
 import { TableCell, TableRow } from "@mui/material";
 
+/**
+ *
+ * @description 사용자를 보여주기 위한 테이블의 헤더 컴포넌트입니다.
+ */
 const UserGridHeader: React.FunctionComponent = () => {
   return (
     <>
