@@ -1,5 +1,8 @@
 import { IdTokenResult, User } from "firebase/auth";
 
+/**
+ * 사용자 타입
+ */
 export interface Iuser extends User {
   email: string;
   phoneNumber: string;
@@ -9,6 +12,9 @@ export interface Iuser extends User {
   online?: boolean;
 }
 
+/**
+ * 사용자 기본값
+ */
 export const defaultUser: Iuser = {
   email: "",
   phoneNumber: "",
