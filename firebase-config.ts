@@ -7,7 +7,7 @@ admin.initializeApp({
     "https://chatting-app-5948-default-rtdb.asia-southeast1.firebasedatabase.app",
 });
 
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApp, getApps, deleteApp } from "firebase/app";
 import { getAuth } from "@firebase/auth";
 import { getFirestore } from "@firebase/firestore";
 import { getDatabase } from "firebase/database";
@@ -25,7 +25,15 @@ const firebaseConfig = {
     "https://chatting-app-5948-default-rtdb.asia-southeast1.firebasedatabase.app/",
 };
 
+// deleteApp(getApp("[DEFAULT]"));
+// if (!getApps().length) {
+//   initializeApp(firebaseConfig);
+// } else {
+//   getApp("[DEFAULT]");
+// }
+
 initializeApp(firebaseConfig);
+
 export const firestore = getFirestore();
 export const realtimeDatabase = getDatabase();
 export const cmmAuth = getAuth();

@@ -8,27 +8,24 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
-  Menu,
   Typography,
 } from "@mui/material";
 import { getUser, logoutUser } from "../../lib/firebaseApi";
 import { useRouter } from "next/router";
-import Link from "../Link";
 import {
   AccountCircle,
+  ArrowBackIosNewSharp,
   Chat,
   ChatBubble,
   Home,
-  VerticalAlignCenter,
+  LogoutSharp,
+  MenuBookSharp,
 } from "@mui/icons-material";
 
 const AppHeader: React.FunctionComponent = () => {
   const userInfo = getUser();
   const router = useRouter();
-  const path = router.pathname;
-  const query = router.query;
 
-  const [roomId, setRoomId] = useState<string | number>(0);
   const [drawer, setDrawer] = useState(false);
 
   const logout = () => {
@@ -56,7 +53,14 @@ const AppHeader: React.FunctionComponent = () => {
             }}
           >
             <ButtonGroup>
-              <Button onClick={() => setDrawer(true)}>메뉴</Button>
+              <Button
+                onClick={() => setDrawer(true)}
+                startIcon={<MenuBookSharp />}
+                variant="text"
+                sx={{ color: "black" }}
+              >
+                메뉴
+              </Button>
             </ButtonGroup>
             <Typography
               component="div"
@@ -73,14 +77,28 @@ const AppHeader: React.FunctionComponent = () => {
             <Typography
               component="div"
               sx={{
-                fontSize: "36px",
                 color: "whitesmoke",
-                verticalAlign: "middle",
+                right: 0,
+                position: "absolute",
               }}
             >{`${userInfo.displayName}(${userInfo.email})`}</Typography>
             <ButtonGroup>
-              <Button onClick={() => router.back()}>뒤로가기</Button>
-              <Button onClick={logout}>로그아웃</Button>
+              <Button
+                startIcon={<ArrowBackIosNewSharp />}
+                onClick={() => router.back()}
+                variant="text"
+                sx={{ color: "black" }}
+              >
+                뒤로가기
+              </Button>
+              <Button
+                startIcon={<LogoutSharp />}
+                onClick={logout}
+                variant="text"
+                sx={{ color: "black" }}
+              >
+                로그아웃
+              </Button>
             </ButtonGroup>
           </Box>
           <Drawer

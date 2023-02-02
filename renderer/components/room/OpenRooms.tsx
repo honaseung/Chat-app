@@ -115,6 +115,7 @@ const OpenRooms: React.FunctionComponent = () => {
                   lastMessage={room.messages[room.messages.length - 1].text}
                   key={i}
                   roomId={roomIds[i]}
+                  img={room.img}
                 />
               );
             })}

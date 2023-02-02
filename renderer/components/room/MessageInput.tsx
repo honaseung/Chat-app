@@ -33,7 +33,11 @@ const MessageInput: React.FunctionComponent<MessageInput> = ({
 
   const goToRooms = () => {
     realtimeChatListenOff({ collectionType });
-    router.push("/chat/myRooms", undefined, { shallow: true });
+    if (roomInfo.created) {
+      router.push("/chat/myRooms", undefined, { shallow: true });
+    } else {
+      router.push("/chat/openRooms", undefined, { shallow: true });
+    }
   };
   const exitRoom = async () => {
     await realtimeChatListenOff({ collectionType });

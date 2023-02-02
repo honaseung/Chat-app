@@ -1,9 +1,14 @@
 import {
+  Box,
   Button,
   ButtonGroup,
   Card,
   CardActions,
   CardContent,
+  CardHeader,
+  CardMedia,
+  Collapse,
+  IconButton,
   Typography,
 } from "@mui/material";
 import { createLocaleDateString } from "../../lib/utils";
@@ -17,6 +22,17 @@ import {
 } from "../../lib/firebaseApi";
 import { Imessage } from "../../type/message";
 import { useRouter } from "next/router";
+import {
+  ExitToApp,
+  ExpandCircleDown,
+  ExpandMore,
+  Info,
+  Login,
+  MeetingRoom,
+  NoMeetingRoom,
+  UnfoldLess,
+  UnfoldMore,
+} from "@mui/icons-material";
 
 type MyRoom = {
   title: string;
@@ -41,6 +57,7 @@ const MyRoom: React.FunctionComponent<MyRoom> = ({
   const chatCollectionType = roomCollectionType + "/messages";
 
   const [loading, setLoading] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   const enterRoom = async (roomKey: number | string) => {
     setLoading(true);
@@ -85,38 +102,94 @@ const MyRoom: React.FunctionComponent<MyRoom> = ({
   return (
     <>
       {loading && <Loading />}
-      <Card
-        sx={{
-          minWidth: 275,
-          mb: 0.3,
-          backgroundColor: "#d8ede7",
-        }}
-      >
-        <CardContent>
-          <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-            생성 날짜: {createLocaleDateString(created)}
-          </Typography>
-          {title}
-          <Typography variant="h5" component="div">
-            참여자:
-          </Typography>
-          {members &&
-            members.map((member, idx) => (
-              <Typography
-                sx={{ textAlign: "right" }}
-                color="text.secondary"
-                key={idx}
+      <Box sx={{ textAlign: "center" }}>
+        <Card
+          sx={{
+            backgroundColor: "#9fa8da",
+            mt: 1,
+            width: 500,
+            display: "inline-block",
+          }}
+          variant="outlined"
+        >
+          <CardHeader
+            avatar={<Info />}
+            title={title}
+            subheader={createLocaleDateString(created)}
+            sx={{ textAlign: "right" }}
+          />
+          <CardContent
+            sx={{
+              textOverflow: "ellipsis",
+            }}
+          >
+            <Typography
+              component="p"
+              sx={{
+                textAlign: "left",
+                fontSize: 24,
+              }}
+            >
+              최근 메세지:
+            </Typography>
+            <Typography
+              component="p"
+              sx={{
+                textOverflow: "ellipsis",
+                textAlign: "start",
+              }}
+            >
+              {lastMessage}
+            </Typography>
+          </CardContent>
+          <CardActions
+            disableSpacing
+            sx={{ display: "flex", justifyContent: "space-between" }}
+          >
+            {expanded ? (
+              <UnfoldLess onClick={() => setExpanded(!expanded)} />
+            ) : (
+              <UnfoldMore onClick={() => setExpanded(!expanded)} />
+            )}
+            <ButtonGroup>
+              <Button
+                startIcon={<MeetingRoom />}
+                onClick={() => enterRoom(created)}
+                sx={{ color: "whitesmoke" }}
+                color="info"
               >
-                {`${member.userName}(${member.userId})`}
+                들어가기
+              </Button>
+              <Button
+                startIcon={<NoMeetingRoom />}
+                onClick={exitRoom}
+                sx={{ color: "whitesmoke" }}
+                color="info"
+              >
+                방에서 나가기
+              </Button>
+            </ButtonGroup>
+          </CardActions>
+          <Collapse
+            in={expanded}
+            timeout="auto"
+            unmountOnExit
+            orientation="vertical"
+          >
+            <CardContent>
+              <Typography paragraph sx={{ textAlign: "left" }}>
+                참여자:{" "}
               </Typography>
-            ))}
-          {lastMessage}
-        </CardContent>
-        <ButtonGroup fullWidth variant="text" color="inherit">
-          <Button onClick={() => enterRoom(created)}>들어가기</Button>
-          <Button onClick={exitRoom}>방에서 나가기</Button>
-        </ButtonGroup>
-      </Card>
+              {members &&
+                members.map((member, idx) => (
+                  <Typography key={idx} sx={{ textAlign: "right" }}>
+                    {`${member.userName}(${member.userId})`}
+                  </Typography>
+                ))}
+            </CardContent>
+          </Collapse>
+        </Card>
+      </Box>
     </>
   );
 };

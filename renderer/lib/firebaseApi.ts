@@ -223,7 +223,6 @@ export async function logoutUser(
 ) {
   realtimeRoomListenOff();
   realtimeInviteListenOff();
-  await offlineUser(cmmAuth.currentUser.uid, null, failCallback);
   signOut(cmmAuth)
     .then((response) => {
       if (sucCallback) {
