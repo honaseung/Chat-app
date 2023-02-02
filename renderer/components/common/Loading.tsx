@@ -2,7 +2,7 @@ const Loading: React.FunctionComponent = () => {
   return (
     <>
       <div className="loading-background">
-        <img src="/images/loading.gif" />
+        <img src="/common/loading.gif" />
       </div>
     </>
   );

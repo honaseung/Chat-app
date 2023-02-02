@@ -7,4 +7,5 @@ export interface Iroom {
   members?: Iuser[];
   created?: number;
   length?: number;
+  img?: string;
 }

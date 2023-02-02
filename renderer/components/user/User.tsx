@@ -1,6 +1,6 @@
 import { Button, Switch, TableCell, TableRow } from "@mui/material";
 import React from "react";
-import { Iuser, defaultUser } from "../type/user";
+import { Iuser, defaultUser } from "../../type/user";
 
 type User = {
   userName: string;

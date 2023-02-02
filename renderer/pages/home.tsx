@@ -1,8 +1,7 @@
 import { Fragment } from "react";
 import Head from "next/head";
-import Typography from "@mui/material/Typography";
-import Link from "../components/Link";
 import { styled } from "@mui/material";
+import UserForm from "./user/userForm";
 
 const Root = styled("div")(({ theme }) => {
   return {
@@ -18,19 +17,7 @@ function Home() {
         <title>Chat App - Nextron and firebase</title>
       </Head>
       <Root>
-        <Typography variant="h4" gutterBottom>
-          Let's CHAT
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          (made by nextron and firebase)
-        </Typography>
-        <img src="/images/chat-logo.png" />
-        <Typography gutterBottom>
-          <Link href="/user/login">Login</Link>
-        </Typography>
-        <Typography gutterBottom>
-          <Link href="/user/regist">Regist</Link>
-        </Typography>
+        <UserForm />
       </Root>
     </Fragment>
   );

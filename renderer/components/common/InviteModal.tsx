@@ -20,7 +20,7 @@ type InviteModal = {
   setRoomTitle(s: string): void;
   setOpen(b: boolean): void;
   onConfirm?(): void;
-  handleClose?(): void;
+  handleClose?(s: string): void;
 };
 
 const InviteModal: React.FunctionComponent<InviteModal> = ({
@@ -34,7 +34,7 @@ const InviteModal: React.FunctionComponent<InviteModal> = ({
 }) => {
   const onClose = () => {
     if (handleClose) {
-      handleClose();
+      handleClose("");
     }
     setOpen(false);
   };
@@ -69,7 +69,6 @@ const InviteModal: React.FunctionComponent<InviteModal> = ({
               color="primary"
               onClick={() => {
                 onConfirm();
-                setRoomTitle("");
               }}
               disabled={!roomTitle}
             >

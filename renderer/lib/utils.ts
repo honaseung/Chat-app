@@ -48,3 +48,9 @@ export function createChatRoomCollection(targetIds: string[]) {
 export function createLocaleDateString(target: number) {
   return new Date(parseInt(target, 10)).toLocaleDateString();
 }
+
+export function toEllipsis(target: string, cutLength: number) {
+  return target.length > cutLength
+    ? target.slice(0, cutLength) + "..."
+    : target;
+}
