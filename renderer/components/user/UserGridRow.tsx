@@ -17,12 +17,14 @@ type UserGridRow = {
   lastSignInTime: string;
   phoneNumber: string;
   mine: boolean;
-  // online: boolean;
   inviteOne: boolean;
   handleTargetUser(e: React.MouseEvent<HTMLButtonElement>, info: Iuser): void;
   handleTargetUsers(e: React.ChangeEvent<HTMLInputElement>, info: Iuser): void;
 };
 
+/**
+ * @description 사용자 정보와 초대를 위한 컴포넌트입니다.
+ */
 const UserGridRow: React.FunctionComponent<UserGridRow> = ({
   userName,
   userId,
@@ -74,7 +76,6 @@ const UserGridRow: React.FunctionComponent<UserGridRow> = ({
           />
         )}
       </TableCell>
-      {/* <TableCell align="center">{online ? "ONLINE" : ""}</TableCell> */}
     </>
   );
 };

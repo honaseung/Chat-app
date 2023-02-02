@@ -1,4 +1,4 @@
-import { Avatar, Box, Chip, Paper } from "@mui/material";
+import { Box, Chip } from "@mui/material";
 import Divider from "@mui/material/Divider";
 import { validateSameDay } from "../../lib/validate";
 
@@ -13,9 +13,11 @@ type Message = {
   prevDate: Date;
 };
 
+/**
+ * @description 채팅방 내부에서 화면에 보여지는 메세지 컴포넌트입니다.
+ */
 const Message: React.FunctionComponent<Message> = ({
   messageKey,
-  userId,
   userName,
   time,
   text,

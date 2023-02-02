@@ -1,19 +1,10 @@
-//@ts-nocheck
 import { Button } from "@mui/material";
 import { useState } from "react";
-import {
-  commonAddDoc,
-  commonGetDocs,
-  realtimeAddDoc,
-  realtimeGetDocs,
-  registUser,
-  loginUser,
-  logoutUser,
-} from "../lib/firebaseApi";
-import Loading from "./Loading";
+import { registUser, loginUser, logoutUser } from "../lib/firebaseApi";
 
 /**
- * @deprecated
+ * @description api 전용 요청 버튼 입니다.
+ * @deprecated 더이상 사용하지 않습니다.
  */
 const FirebaseButton = ({
   request,
@@ -29,19 +20,19 @@ const FirebaseButton = ({
     switch (databaseType) {
       case "C":
         if (actionType === "set") {
-          commonAddDoc(request, sucCallback, failCallback);
+          // commonAddDoc(request, sucCallback, failCallback);
         }
         if (actionType === "get") {
-          commonGetDocs(request, sucCallback, failCallback);
+          // commonGetDocs(request, sucCallback, failCallback);
         }
         break;
 
       case "R":
         if (actionType === "set") {
-          realtimeAddDoc(request, sucCallback, failCallback);
+          // realtimeAddDoc(request, sucCallback, failCallback);
         }
         if (actionType === "get") {
-          realtimeGetDocs(request, sucCallback, failCallback);
+          // realtimeGetDocs(request, sucCallback, failCallback);
         }
         break;
 
@@ -70,7 +61,7 @@ const FirebaseButton = ({
       >
         {children}
       </Button>
-      {loading && <Loading />}
+      {/* {loading && <Loading />} */}
     </>
   );
 };

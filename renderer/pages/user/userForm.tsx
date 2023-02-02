@@ -2,7 +2,6 @@ import {
   Button,
   ButtonGroup,
   Container,
-  Fab,
   FilledInput,
   FormControl,
   FormHelperText,
@@ -17,10 +16,14 @@ import {
   validatePasswod,
   validatePhoneNumber,
 } from "../../lib/validate";
-import { loginUser, registUser, uploadImg } from "../../lib/firebaseApi";
+import { loginUser, registUser } from "../../lib/firebaseApi";
 import { defaultUser } from "../../type/user";
 import Loading from "../../components/common/Loading";
 
+/**
+ *
+ * @description 로그인 / 회원가입을 위한 컴포넌트입니다.
+ */
 const UserForm: React.FunctionComponent = () => {
   const router = useRouter();
 
@@ -44,6 +47,10 @@ const UserForm: React.FunctionComponent = () => {
   const [passwordErr, setPasswordErr] = useState(true);
   const [confirmPasswordErr, setConfirmPasswordErr] = useState(true);
 
+  /**
+   *
+   * @description 로그인 / 회원가입 에러 발생시 화면에 모달 창을 띄워줍니다. 에러메세지는 util 의 getErrMsg 에서 가져옵니다.
+   */
   const openErrModal = (error: any) => {
     const [title, content] = getErrMsg(error.code);
     setModalOption({
@@ -53,6 +60,13 @@ const UserForm: React.FunctionComponent = () => {
     setModalOpen(true);
   };
 
+  /**
+   *
+   * @param name 컴포넌트의 이름 프로퍼티입니다.
+   * @param value 컴포넌트가 갖고 있는 값입니다.
+   * @param setErr 유효성 검사를 통해 잘못된 값이 입력되면 에러를 세팅해줍니다.
+   * @description 사용자의 정보를 컴포넌트에서 받아와 세팅해주는 함수 입니다.
+   */
   const handleValue = (
     name: string,
     value?: string,
@@ -112,11 +126,20 @@ const UserForm: React.FunctionComponent = () => {
     }
   };
 
+  /**
+   * @description 사용자 요청입니다. state 값에 따라서 로그인 / 회원가입으로 나뉩니다.
+   */
   const request = () => {
     if (isRegist) regist();
     else login();
   };
 
+  /**
+   * @description 회원가입 요청입니다.
+   * email 이 ID 가 되며 이름은 생략시에 email 에서 '@' 앞까지가 이름이 됩니다.
+   * 가입시에 email 과 핸드폰번호는 중복되어서는 안됩니다.
+   * 핸드폰번호는 +8210~ 으로 저장됩니다.
+   */
   const regist = () => {
     setLoading(true);
     registUser(
@@ -145,6 +168,10 @@ const UserForm: React.FunctionComponent = () => {
     );
   };
 
+  /**
+   * @description 로그인 요청입니다. 성공시에는 main 페이지로 이동합니다.
+   * 실패시에는 모달창과 함께 실패 이유가 나옵니다.
+   */
   const login = () => {
     setLoading(true);
     loginUser(

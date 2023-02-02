@@ -29,6 +29,10 @@ type Room = {
   img: string;
 };
 
+/**
+ *
+ * @description 오픈 채팅방 외부 컴포넌트입니다.
+ */
 const OpenRoom: React.FunctionComponent<Room> = ({
   title,
   lastMessage,
@@ -38,6 +42,10 @@ const OpenRoom: React.FunctionComponent<Room> = ({
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
+
+  /**
+   * @description 방 내부로 입장하는 함수입니다.
+   */
   const enterRoom = () => {
     setLoading(true);
     router.push({ pathname: "/chat/roomDetail", query: { roomId } });

@@ -14,6 +14,11 @@ type UserGridButton = {
   userInfo: Iuser;
 };
 
+/**
+ *
+ *
+ * @description 채팅방의 종류를 선택하고 초대하기 위한 버튼 컴포넌트입니다.
+ */
 const UserGridButton: React.FunctionComponent<UserGridButton> = ({
   targetUsers,
   setTargetUsers,

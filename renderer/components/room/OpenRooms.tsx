@@ -4,17 +4,14 @@ import {
   realtimeRoomListenOff,
   realtimeRoomListenOn,
 } from "../../lib/firebaseApi";
-import { Card, CardContent, List, Paper } from "@mui/material";
+import { Card, CardContent, List } from "@mui/material";
 import Loading from "../common/Loading";
-import Room from "./MyRoom";
 import { Iroom } from "../../type/room";
-import { Iuser } from "../../type/user";
-import RoomDetail from "./RoomDetail";
 import Box from "@mui/material/Box";
 import OpenRoom from "./OpenRoom";
 
 /**
- * @description 방 컴포넌트를 보여주는 페이지 컴포넌트입니다.
+ * @description 방 컴포넌트들을 보여주는 페이지 컴포넌트입니다.
  */
 const OpenRooms: React.FunctionComponent = () => {
   const [rooms, setRooms] = useState<Iroom[]>([]);

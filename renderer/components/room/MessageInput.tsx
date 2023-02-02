@@ -19,6 +19,10 @@ type MessageInput = {
   collectionType: string;
 };
 
+/**
+ *
+ * @description 방 내부에서 메세지를 입력하거나 방 외부로 이동하도록 하는 컴포넌트입니다.
+ */
 const MessageInput: React.FunctionComponent<MessageInput> = ({
   text,
   setText,
@@ -31,6 +35,9 @@ const MessageInput: React.FunctionComponent<MessageInput> = ({
   const userInfo = getUser();
   const router = useRouter();
 
+  /**
+   * @description 방 목록들로 돌아갑니다.
+   */
   const goToRooms = () => {
     realtimeChatListenOff({ collectionType });
     if (roomInfo.created) {
@@ -39,6 +46,10 @@ const MessageInput: React.FunctionComponent<MessageInput> = ({
       router.push("/chat/openRooms", undefined, { shallow: true });
     }
   };
+
+  /**
+   * @description 방에서 나가기 함수 입니다.
+   */
   const exitRoom = async () => {
     await realtimeChatListenOff({ collectionType });
     await realtimeExitRoom(
