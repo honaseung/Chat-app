@@ -21,9 +21,7 @@ import { loginUser, registUser, uploadImg } from "../../lib/firebaseApi";
 import { defaultUser } from "../../type/user";
 import Loading from "../../components/common/Loading";
 
-type UserForm = {};
-
-const UserForm: React.FunctionComponent<UserForm> = ({}) => {
+const UserForm: React.FunctionComponent = () => {
   const router = useRouter();
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -155,25 +153,13 @@ const UserForm: React.FunctionComponent<UserForm> = ({}) => {
       },
       (response: string) => {
         setLoading(false);
-        router.push(
-          "/chat/main",
-          { query: { tokenExpireTime: response } },
-          { shallow: true }
-        );
+        router.replace("/main", undefined, { shallow: true });
       },
       (error: any) => {
         setLoading(false);
         openErrModal(error);
       }
     );
-  };
-
-  const onChangeFile = (e) => {
-    const img = e.target.files[0];
-    // console.log(e);
-    // if (img && img.type.includes("png")) {
-    uploadImg(img);
-    // }
   };
 
   return (
@@ -184,12 +170,6 @@ const UserForm: React.FunctionComponent<UserForm> = ({}) => {
         <div className="user-form-title">
           {isRegist ? "회원가입" : "로그인"}을 해주세요.
         </div>
-        {/* {isRegist && (
-          <Button variant="contained" component="label">
-            UPLOAD YOUR PHOTO
-            <input type="file" hidden accept=".png" onChange={onChangeFile} />
-          </Button>
-        )} */}
         <FormControl fullWidth>
           <InputLabel htmlFor="input-id">ID</InputLabel>
           <FilledInput

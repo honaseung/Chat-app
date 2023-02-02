@@ -1,4 +1,12 @@
-import { Button, Card, CardContent, Switch, Typography } from "@mui/material";
+import {
+  Button,
+  Card,
+  CardContent,
+  Switch,
+  TableCell,
+  TableRow,
+  Typography,
+} from "@mui/material";
 import React from "react";
 import { Iuser, defaultUser } from "../../type/user";
 
@@ -12,7 +20,6 @@ type UserGridRow = {
   inviteOne: boolean;
   handleTargetUser(e: React.MouseEvent<HTMLButtonElement>, info: Iuser): void;
   handleTargetUsers(e: React.ChangeEvent<HTMLInputElement>, info: Iuser): void;
-  even: boolean;
 };
 
 const UserGridRow: React.FunctionComponent<UserGridRow> = ({
@@ -21,58 +28,56 @@ const UserGridRow: React.FunctionComponent<UserGridRow> = ({
   lastSignInTime,
   phoneNumber,
   mine,
-  // online,
   inviteOne,
   handleTargetUser,
   handleTargetUsers,
-  even,
 }) => {
   return (
     <>
-      <Card
-        component="li"
-        sx={{ backgroundColor: even ? "darkgray" : "whitesmoke" }}
-      >
-        <CardContent>
+      <TableCell sx={{ textAlign: "center" }}>{userName}</TableCell>
+      <TableCell sx={{ textAlign: "center" }}>{userId}</TableCell>
+      <TableCell sx={{ textAlign: "center" }}>{lastSignInTime}</TableCell>
+      <TableCell sx={{ textAlign: "center" }}>{phoneNumber}</TableCell>
+      <TableCell sx={{ textAlign: "right" }}>
+        {mine ? (
           <Typography
-            sx={{ textAlign: "right" }}
-          >{`${userName}(${userId})`}</Typography>
-          <Typography sx={{ textAlign: "right" }}>{phoneNumber}</Typography>
-          <Typography sx={{ textAlign: "left" }}>
-            {`LAST LOGIN: ${lastSignInTime}`}
-            <Typography sx={{ textAlign: "right" }}>
-              {mine ? (
-                "ME"
-              ) : inviteOne ? (
-                <Button
-                  onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
-                    handleTargetUser(e, {
-                      ...defaultUser,
-                      userName,
-                      userId,
-                      phoneNumber,
-                    })
-                  }
-                >
-                  INVITE
-                </Button>
-              ) : (
-                <Switch
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    handleTargetUsers(e, {
-                      ...defaultUser,
-                      userName,
-                      userId,
-                      phoneNumber,
-                    })
-                  }
-                />
-              )}
-            </Typography>
+            sx={{
+              textAlign: "right",
+              fontSize: "16px",
+              color: "green",
+              fontWeight: 1000,
+              pr: 1.5,
+            }}
+          >
+            "ME"
           </Typography>
-          {/* <TableCell align="center">{online ? "ONLINE" : ""}</TableCell> */}
-        </CardContent>
-      </Card>
+        ) : inviteOne ? (
+          <Button
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
+              handleTargetUser(e, {
+                ...defaultUser,
+                userName,
+                userId,
+                phoneNumber,
+              })
+            }
+          >
+            INVITE
+          </Button>
+        ) : (
+          <Switch
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              handleTargetUsers(e, {
+                ...defaultUser,
+                userName,
+                userId,
+                phoneNumber,
+              })
+            }
+          />
+        )}
+      </TableCell>
+      {/* <TableCell align="center">{online ? "ONLINE" : ""}</TableCell> */}
     </>
   );
 };

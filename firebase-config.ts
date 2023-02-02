@@ -34,3 +34,4 @@ export const storage = getStorage();
 export default admin;
 export const auth = admin.auth();
 export const database = admin.database();
+// export const storage = admin.storage();

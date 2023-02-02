@@ -1,35 +1,34 @@
 import { useState, useEffect } from "react";
-import { realtimeGetRooms, realtimeRoomListenOn } from "../../lib/firebaseApi";
+import {
+  getUser,
+  realtimeGetRooms,
+  realtimeRoomListenOff,
+  realtimeRoomListenOn,
+} from "../../lib/firebaseApi";
 import { Card, CardContent, List, Paper } from "@mui/material";
 import Loading from "../common/Loading";
-import Room from "./Room";
+import MyRoom from "./MyRoom";
 import { Iroom } from "../../type/room";
 import { Iuser } from "../../type/user";
-import RoomDetail from "./RoomDetail";
 import Box from "@mui/material/Box";
+import OpenRoom from "./OpenRoom";
 
-type Rooms = {
-  roomId: string | number;
-  setRoomId(sn: string | number): void;
-  userInfo: Iuser;
-};
 /**
  * @description 방 컴포넌트를 보여주는 페이지 컴포넌트입니다.
  */
-const Rooms: React.FunctionComponent<Rooms> = ({
-  roomId,
-  setRoomId,
-  userInfo,
-}) => {
+const MyRooms: React.FunctionComponent = () => {
+  const userInfo = getUser();
   const [rooms, setRooms] = useState<Iroom[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setLoading(true);
     realtimeRoomListenOn(() => {
-      console.log("realtimeRoomListenOn");
       getRooms();
     });
+    return () => {
+      realtimeRoomListenOff();
+    };
   }, []);
 
   /**
@@ -73,13 +72,12 @@ const Rooms: React.FunctionComponent<Rooms> = ({
   /**
    *
    * @param allRooms 모든 방 목록의 키 값
-   * @returns 내가 속한 방 목록과 오픈 그룹방 정보
+   * @returns 내가 속한 방 목록
    */
   const getMyRooms = (allRooms: any): Iroom[] => {
     const myRooms: Iroom[] = [];
     Object.keys(allRooms).map((room: string) => {
       if (
-        room.includes("GLOBAL") ||
         allRooms[room].members?.some((member: Iuser) => {
           return member.userId === userInfo?.email;
         })
@@ -96,14 +94,7 @@ const Rooms: React.FunctionComponent<Rooms> = ({
         <Loading />
       ) : rooms.length > 0 ? (
         <>
-          <List
-            sx={{
-              maxHeight: "100vh",
-              width: "65vh",
-              overflow: "scroll",
-              overflowX: "hidden",
-            }}
-          >
+          <List>
             <Box
               sx={{
                 textAlign: "center",
@@ -116,34 +107,19 @@ const Rooms: React.FunctionComponent<Rooms> = ({
               참여 중인 방 목록
             </Box>
             {rooms.map((room, i) => {
-              return room.created === 0 ? (
-                <Room
+              return (
+                <MyRoom
                   title={room.title}
                   created={room.created}
                   members={room.members}
                   lastMessage={room.messages[room.messages.length - 1].text}
                   messages={room.messages}
                   key={i}
-                  roomId={roomId}
-                  setRoomId={setRoomId}
-                  userInfo={userInfo}
-                />
-              ) : (
-                <Room
-                  title={room.title}
-                  created={room.created}
-                  members={room.members}
-                  lastMessage={room.messages[room.messages.length - 1].text}
-                  messages={room.messages}
-                  key={i}
-                  roomId={roomId}
-                  setRoomId={setRoomId}
-                  userInfo={userInfo}
+                  roomId={room.created}
                 />
               );
             })}
           </List>
-          <RoomDetail roomId={roomId} userInfo={userInfo} />
         </>
       ) : (
         <Card>
@@ -156,4 +132,4 @@ const Rooms: React.FunctionComponent<Rooms> = ({
   );
 };
 
-export default Rooms;
+export default MyRooms;

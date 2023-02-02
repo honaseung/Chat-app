@@ -1,5 +1,6 @@
 import { Avatar, Box, Chip, Paper } from "@mui/material";
 import Divider from "@mui/material/Divider";
+import { validateSameDay } from "../../lib/validate";
 
 type Message = {
   messageKey: number;
@@ -19,19 +20,32 @@ const Message: React.FunctionComponent<Message> = ({
   time,
   text,
   mine,
+  date,
+  prevDate,
 }) => {
   return (
     <>
       <Box key={messageKey}>
+        <Box sx={{ backgroundColor: "#e0f2f1" }}>
+          {!validateSameDay(date, prevDate) && (
+            <Box
+              sx={{
+                textAlign: "center",
+                backgroundColor: "#009688",
+                color: "white",
+              }}
+            >
+              {date.toLocaleDateString()}
+            </Box>
+          )}
+        </Box>
         <Chip
           sx={{
             ml: 1,
             mr: 1,
             float: mine ? "right" : "left",
             backgroundColor: "#b2dfdb",
-            height: 1,
           }}
-          avatar={<Avatar>{userId}</Avatar>}
           label={userName}
         />
         <Box

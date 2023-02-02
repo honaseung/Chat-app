@@ -1,4 +1,4 @@
-import { Button, ButtonGroup } from "@mui/material";
+import { Button, ButtonGroup, TableCell, TableRow } from "@mui/material";
 import { useRouter } from "next/router";
 
 import { Iuser, defaultUser } from "../../type/user";
@@ -41,9 +41,9 @@ const UserGridButton: React.FunctionComponent<UserGridButton> = ({
   return (
     <>
       <ButtonGroup size="large" variant="contained" fullWidth>
-        <Button color="error" onClick={logout}>
+        {/* <Button color="error" onClick={logout}>
           LOGOUT
-        </Button>
+        </Button> */}
         <Button
           color="info"
           onClick={() => {

@@ -150,14 +150,15 @@ export async function loginUser(
   )
     .then(async (response) => {
       if (sucCallback) {
-        await response.user
-          .getIdTokenResult()
-          .then((token: IdTokenResult) => {
-            sucCallback(new Date(token.expirationTime).toLocaleTimeString());
-          })
-          .catch((error) => {
-            if (failCallback) failCallback(error);
-          });
+        sucCallback(response);
+        // await response.user
+        //   .getIdTokenResult()
+        //   .then((token: IdTokenResult) => {
+        //     sucCallback(new Date(token.expirationTime).toLocaleTimeString());
+        //   })
+        //   .catch((error) => {
+        //     if (failCallback) failCallback(error);
+        //   });
       }
     })
     .then(() => {

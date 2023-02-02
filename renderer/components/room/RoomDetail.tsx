@@ -14,43 +14,43 @@ import {
   realtimeChatListenOn,
   realtimeSendMessage,
   realtimeGetRoom,
+  getUser,
+  realtimeChatListenOff,
 } from "../../lib/firebaseApi";
 import Message from "./Message";
 import { Iroom } from "../../type/room";
 import { Iuser } from "../../type/user";
 import { Imessage } from "../../type/message";
 import MessageInput from "./MessageInput";
-import { validateSameDay } from "../../lib/validate";
-import { ExpandMore } from "@mui/icons-material";
+import { useRouter } from "next/router";
+import Loading from "../common/Loading";
+import RoomInfo from "./RoomInfo";
 
 /**
  * @description 메세지 컴포넌트와 메세지 인풋 컴포넌트를 보여주는 페이지 컴포넌트 입니다.
  */
-
-type RoomDetail = {
-  roomId: number | string;
-  userInfo: Iuser;
-};
-
-const RoomDetail: React.FunctionComponent<RoomDetail> = ({
-  roomId,
-  userInfo,
-}) => {
-  const collectionType = "chat/" + roomId;
+const RoomDetail: React.FunctionComponent = () => {
+  const userInfo = getUser();
+  const router = useRouter();
+  const roomId = router.query.roomId;
+  const roomCollectionType = "chat/" + roomId;
+  const chatCollectionType = roomCollectionType + "/messages";
 
   /**
    * @description 방 정보 가져오기 함수
    */
   const getRoomInfo = (): void => {
     realtimeGetRoom(
-      { collectionType },
+      { collectionType: roomCollectionType },
       (response: any) => {
+        setLoading(false);
         const roomInfo = response.val();
         setRoomInfo(roomInfo);
         setMessages(roomInfo.messages);
         setMembers(roomInfo.members);
       },
       (error: any) => {
+        setLoading(false);
         console.log(error);
       }
     );
@@ -63,7 +63,7 @@ const RoomDetail: React.FunctionComponent<RoomDetail> = ({
     if (text === "") return;
     realtimeSendMessage(
       {
-        collectionType: collectionType + "/messages",
+        collectionType: chatCollectionType,
         messages: [
           ...messages,
           {
@@ -87,94 +87,49 @@ const RoomDetail: React.FunctionComponent<RoomDetail> = ({
   const [roomInfo, setRoomInfo] = useState<Iroom>({});
   const [messages, setMessages] = useState<Imessage[]>([]);
   const [members, setMembers] = useState<Iuser[]>([]);
-  const [text, setText] = useState("");
+  const [text, setText] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    realtimeChatListenOn(
-      { collectionType: collectionType + "/messages" },
-      () => {
-        console.log("realtimeChatListenOn");
-        getRoomInfo();
-      }
-    );
-  }, [roomId]);
+    setLoading(true);
+    realtimeChatListenOn({ collectionType: chatCollectionType }, () => {
+      getRoomInfo();
+    });
+    return () => {
+      realtimeChatListenOff({ collectionType: chatCollectionType });
+    };
+  }, []);
 
   return (
     <>
+      {loading && <Loading />}
       {roomId ? (
         <Box>
           <Card
             sx={{
-              height: "83.2vh",
-              width: "80vh",
+              height: "78.5vh",
               overflow: "scroll",
               overflowX: "hidden",
             }}
           >
-            <Accordion
-              disabled={!members}
-              sx={{
-                backgroundColor: "#1769aa",
-                ":disabled": { color: "black" },
-              }}
-            >
-              <AccordionSummary expandIcon={<ExpandMore />}>
-                <Typography
-                  sx={{
-                    color: members ? "white" : "black",
-                    fontSize: 25,
-                    textAlign: "center",
-                    fontWeight: 1000,
-                  }}
-                >
-                  {roomInfo.title}
-                </Typography>
-              </AccordionSummary>
-              {members && (
-                <AccordionDetails>
-                  <Box sx={{ color: "white" }}>
-                    참여자
-                    {members.map((member) => {
-                      return (
-                        <Box
-                          sx={{ textAlign: "right" }}
-                        >{`${member.userName}(${member.userId})`}</Box>
-                      );
-                    })}
-                  </Box>
-                </AccordionDetails>
-              )}
-            </Accordion>
+            <RoomInfo members={members} roomInfo={roomInfo} />
             {messages && (
-              <Box sx={{}}>
+              <Box>
                 {messages.map((message: Imessage, idx) => {
                   const date = new Date(message.date);
                   const prevDate = new Date(message.prevDate);
                   return (
-                    <Box key={idx} sx={{ backgroundColor: "#e0f2f1" }}>
-                      {!validateSameDay(date, prevDate) && (
-                        <Box
-                          sx={{
-                            textAlign: "center",
-                            backgroundColor: "#009688",
-                            color: "white",
-                          }}
-                        >
-                          {date.toLocaleDateString()}
-                        </Box>
-                      )}
-                      <Message
-                        messageKey={message.date}
-                        date={date}
-                        prevDate={prevDate}
-                        userId={message.userId}
-                        userName={message.userName}
-                        text={message.text}
-                        mine={userInfo?.email === message.userId}
-                        time={date.toLocaleTimeString()}
-                        key={idx}
-                      />
-                    </Box>
+                    <Message
+                      messageKey={message.date}
+                      date={date}
+                      prevDate={prevDate}
+                      userId={message.userId}
+                      userName={message.userName}
+                      text={message.text}
+                      mine={userInfo?.email === message.userId}
+                      time={date.toLocaleTimeString()}
+                      key={idx}
+                    />
                   );
                 })}
               </Box>
@@ -182,15 +137,19 @@ const RoomDetail: React.FunctionComponent<RoomDetail> = ({
           </Card>
           <Box
             sx={{
-              bottom: "0.1vh",
+              bottom: "1vh",
               position: "absolute",
-              width: "80vh",
+              width: "100%",
             }}
           >
             <MessageInput
               text={text}
               setText={setText}
               sendMessage={sendMessage}
+              members={members}
+              messages={messages}
+              roomInfo={roomInfo}
+              collectionType={roomCollectionType}
             />
           </Box>
         </Box>

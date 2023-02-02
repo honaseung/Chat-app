@@ -1,7 +1,13 @@
-import { Box, List } from "@mui/material";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+} from "@mui/material";
 
 import { useState, useEffect } from "react";
-import { listUsers, realtimeInviteRoom } from "../../lib/firebaseApi";
+import { getUser, listUsers, realtimeInviteRoom } from "../../lib/firebaseApi";
 
 import InviteModal from "../common/InviteModal";
 import { ListUsersResult } from "firebase-admin/lib/auth/base-auth";
@@ -12,12 +18,10 @@ import { Iuser, defaultUser } from "../../type/user";
 import UserGridRow from "./UserGridRow";
 import UserGridButton from "./UserGridButton";
 import Loading from "../common/Loading";
+import UserGridHeader from "./UserGridHeader";
 
-type Users = {
-  userInfo: Iuser;
-};
-
-const Users: React.FunctionComponent<Users> = ({ userInfo }) => {
+const Users: React.FunctionComponent = () => {
+  const userInfo: Iuser = getUser();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -144,53 +148,48 @@ const Users: React.FunctionComponent<Users> = ({ userInfo }) => {
   return (
     <>
       {loading && <Loading />}
-      <List
-        sx={{
-          maxHeight: "100vh",
-          width: "45vh",
-          overflow: "scroll",
-          overflowX: "hidden",
-        }}
-      >
-        <Box
-          sx={{
-            textAlign: "center",
-            fontSize: 25,
-            backgroundColor: "#66bb6a",
-            color: "white",
-            fontWeight: 1000,
-          }}
-        >
-          유저 목록
-        </Box>
-        <UserGridButton
-          targetUsers={targetUsers}
-          setTargetUsers={setTargetUsers}
-          setLoading={setLoading}
-          invite={invite}
-          inviteOne={inviteOne}
-          setInviteOne={setInviteOne}
-          userInfo={userInfo}
-        />
-        {users.map((u: Iuser, idx: number) => (
-          <UserGridRow
-            key={u.uid}
-            userName={u.displayName}
-            userId={u.email}
-            lastSignInTime={
-              u.metadata.lastSignInTime
-                ? new Date(u.metadata.lastSignInTime).toLocaleDateString()
-                : "Never"
-            }
-            phoneNumber={u.phoneNumber}
-            mine={u.email === userInfo?.email}
-            inviteOne={inviteOne}
-            handleTargetUser={handleTargetUser}
-            handleTargetUsers={handleTargetUsers}
-            even={!!(idx % 2)}
-          />
-        ))}
-      </List>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell colSpan={5}>
+              <UserGridButton
+                targetUsers={targetUsers}
+                setTargetUsers={setTargetUsers}
+                setLoading={setLoading}
+                invite={invite}
+                inviteOne={inviteOne}
+                setInviteOne={setInviteOne}
+                userInfo={userInfo}
+              />
+            </TableCell>
+          </TableRow>
+          <UserGridHeader />
+        </TableHead>
+        <TableBody>
+          {users.map((u: Iuser, idx: number) => (
+            <TableRow
+              sx={{ backgroundColor: idx % 2 ? "darkgray" : "whitesmoke" }}
+              key={idx}
+            >
+              <UserGridRow
+                key={u.uid}
+                userName={u.displayName}
+                userId={u.email}
+                lastSignInTime={
+                  u.metadata.lastSignInTime
+                    ? new Date(u.metadata.lastSignInTime).toLocaleDateString()
+                    : "Never"
+                }
+                phoneNumber={u.phoneNumber}
+                mine={u.email === userInfo?.email}
+                inviteOne={inviteOne}
+                handleTargetUser={handleTargetUser}
+                handleTargetUsers={handleTargetUsers}
+              />
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
       <InviteModal
         content={inviteModalOption.content}
         open={inviteModalOpen}
