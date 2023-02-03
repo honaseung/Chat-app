@@ -85,8 +85,8 @@ const AppHeader: React.FunctionComponent = () => {
               component="div"
               sx={{
                 color: "whitesmoke",
-                top: "0.5vh",
-                right: "1.5vw",
+                top: "0.1vh",
+                right: "0.1vw",
                 position: "absolute",
               }}
             >{`${userInfo.displayName}(${userInfo.email})`}</Typography>

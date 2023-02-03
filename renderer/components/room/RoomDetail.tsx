@@ -107,7 +107,7 @@ const RoomDetail: React.FunctionComponent = () => {
         <Box>
           <Card
             sx={{
-              height: "74.5vh",
+              height: "70vh",
               overflow: "scroll",
               overflowX: "hidden",
             }}
@@ -138,7 +138,7 @@ const RoomDetail: React.FunctionComponent = () => {
           </Card>
           <Box
             sx={{
-              bottom: "0.1vh",
+              height: "1.5vh",
               position: "absolute",
               width: "100%",
             }}
