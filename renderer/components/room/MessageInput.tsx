@@ -85,7 +85,7 @@ const MessageInput: React.FunctionComponent<MessageInput> = ({
         sx={{ width: "100%" }}
         label="메세지"
         multiline
-        rows={4}
+        rows={5}
         variant="filled"
         value={text}
         onChange={(e) => setText(e.target.value)}
